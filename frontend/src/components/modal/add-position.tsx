@@ -1,4 +1,5 @@
 import React from 'react';
+import AddButton from '../add-button/add-button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -7,7 +8,12 @@ interface ModalProps {
   onClose: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, title, children, onClose }) => {
+const addPositionModal: React.FC<ModalProps> = ({
+  isOpen,
+  title,
+  children,
+  onClose,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -22,4 +28,4 @@ const Modal: React.FC<ModalProps> = ({ isOpen, title, children, onClose }) => {
   );
 };
 
-export default Modal;
+export default addPositionModal;
