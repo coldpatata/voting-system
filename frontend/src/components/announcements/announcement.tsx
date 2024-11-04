@@ -22,7 +22,9 @@ const Announcement: React.FC<AnnouncementProps> = ({
         </div>
         <div className="p-4">
           <h2 className="text-2xl font-bold mb-4">{title}</h2>
-          <p className="text-gray-700 mb-4">{description}</p>
+          <p className="text-gray-700 mb-4 max-h-24 overflow-hidden overflow-y-auto">
+            {description}
+          </p>
           <div className="flex justify-center mb-4">
             <img
               src={imageUrl}
