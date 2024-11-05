@@ -13,6 +13,9 @@ import DashboardPageStudent from "../modules/student/dashboard/dashboard.page";
 import feedbacks from "../modules/student/feedbacks/feedbacks";
 import AccountPage from "../modules/student/accounts/accounts.page";
 import StudentLayout from "../layout/student.layout";
+import Feedbacks from "../modules/student/feedbacks/feedbacks";
+import DashboardPageStaff from "../modules/staff/dashboard/staff.dashboard";
+import StaffLayout from "../layout/staff.layout";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -64,7 +67,7 @@ export const router = createBrowserRouter([
     
       {
         index: true,
-        Component: AccountPage
+        Component: DashboardPageStudent
 
     },
 
@@ -73,9 +76,35 @@ export const router = createBrowserRouter([
       Component: BallotPage
   },
 
+  {
+    path: 'accounts',
+    Component: AccountPage
+},
+
+
+  {
+    path: 'feedbacks',
+    Component: Feedbacks
+},
+
     ]
     },
-    
+
+    {
+      path: '/staff',
+      Component:StaffLayout,
+      children:[
+
+        {
+          index: true,
+          Component: DashboardPageStaff
+  
+      },
+
+
+      ]
+
+    },
 
     
     {

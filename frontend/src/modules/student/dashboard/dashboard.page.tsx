@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import CustomMonthLayout from '../../../components/calendar';
+import CustomMonthLayout from '../../../components/calendar/calendar';
 
 const DashboardPageStudent: FC = () => {
   return <div>
