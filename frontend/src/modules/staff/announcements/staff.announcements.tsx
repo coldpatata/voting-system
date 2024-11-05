@@ -1,13 +1,12 @@
+import { FC } from 'react';
 import Announcement from '../../../components/announcements/announcement';
 
-function StaffAnouncements() {
+const StaffAnnouncements: FC = () => {
   return (
+    <div>
+      <Announcement title={''} description={''} imageUrl={''} date={''} />
+    </div>
+  );
+};
 
-<div>
-    <Announcement title={''} description={''} imageUrl={''} date={''}/>
-</div>
-    
-  )
-}
-
-export default StaffAnouncements
+export default StaffAnnouncements;
