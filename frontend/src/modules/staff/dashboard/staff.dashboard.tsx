@@ -1,8 +1,7 @@
-import React from 'react'
 
 function DashboardPageStaff () {
   return (
-    <div>staff.dashboard</div>
+    <div>stff.dashboard</div>
   )
 }
 

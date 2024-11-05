@@ -16,6 +16,7 @@ import StudentLayout from "../layout/student.layout";
 import Feedbacks from "../modules/student/feedbacks/feedbacks";
 import DashboardPageStaff from "../modules/staff/dashboard/staff.dashboard";
 import StaffLayout from "../layout/staff.layout";
+import StaffAnouncements from "../modules/staff/announcements/staff.announcements";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
   
       },
 
+      {
+        path: 'announcement',
+        Component: StaffAnouncements
+    },
 
       ]
 
