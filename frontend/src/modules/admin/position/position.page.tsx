@@ -1,6 +1,18 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
+import ArchiveModal from '../../../components/modal/archive';
 
 const PositionPage: FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleConfirmArchive = () => {
+    // Handle the archive confirmation action here
+    alert('Item archived!');
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       {''}
@@ -52,9 +64,17 @@ const PositionPage: FC = () => {
                     <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
                       Edit
                     </button>
-                    <button className="bg-red-600 text-white px-4 py-2 rounded">
+                    <button
+                      className="bg-red-600 text-white px-4 py-2 rounded"
+                      onClick={handleOpenModal}
+                    >
                       Archive
                     </button>
+                    <ArchiveModal
+                      isOpen={isModalOpen}
+                      onClose={handleCloseModal}
+                      onConfirm={handleConfirmArchive}
+                    />
                   </td>
                 </tr>
               ))}
