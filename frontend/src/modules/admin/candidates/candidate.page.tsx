@@ -14,9 +14,6 @@ const CandidatePage: FC = () => {
               Add
             </button>
             <input type="text" className="px-2 py-1 rounded text-black" />
-            <button className="bg-yellow-400 text-black px-4 py-2 rounded">
-              Search
-            </button>
           </div>
         </div>
         <div className="overflow-x-auto">
