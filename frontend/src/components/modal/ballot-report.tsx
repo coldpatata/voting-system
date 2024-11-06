@@ -1,4 +1,3 @@
-// BallotReportModal.tsx
 import React from 'react';
 
 interface BallotReportModalProps {

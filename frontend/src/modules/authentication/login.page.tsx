@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { logo } from '../../assets/image/image';
-import { useNavigate } from 'react-router-dom';
 import { FC } from 'react';
 
 const LoginPage: FC = () => {
