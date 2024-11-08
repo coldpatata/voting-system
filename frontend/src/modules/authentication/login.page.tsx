@@ -46,7 +46,7 @@ const LoginPage: FC = () => {
               </label>
               <div className="flex items-center justify-between shadow  border rounded w-full py-2 px-3 text-gray-700 mb-3 ">
                 <input
-                  className=" appearance-none leading-tight focus:outline-none focus:shadow-outline"
+                  className=" appearance-none leading-tight focus:outline-none focus:shadow-outline w-[calc(100%-11%)]"
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter password"
