@@ -3,7 +3,7 @@ import { logo } from '../../assets/image/image';
 import { FC, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios, { AxiosError } from 'axios';
-import Cookies from 'js-cookie'; // Import js-cookie
+import Cookies from 'js-cookie';
 
 const LoginPage: FC = () => {
   const navigate = useNavigate();
@@ -28,10 +28,10 @@ const LoginPage: FC = () => {
         password,
       });
 
-      // Assuming you receive `accessToken` and `role_id` in the response
+      //kwaon ang accesstoken ug role id na response sa endpoint
       const { accessToken, role_id } = response.data;
 
-      // Save token and userType to cookies
+      // gi save nako sa cookies
       saveToCookies(accessToken, role_id);
 
       // Redirect to dashboard
