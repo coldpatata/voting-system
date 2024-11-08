@@ -10,10 +10,10 @@ const ProfilePage: FC = () => {
         </div>
         <div className="">
           <div className="bg-gray-200 p-4 md:flex lg:flex-row-reverse w-full  gap-9 ">
+            <a href="">Change Password</a>
             <a href="" className="underline">
               User Account
             </a>
-            <a href="">Change Password</a>
           </div>
         </div>
 
