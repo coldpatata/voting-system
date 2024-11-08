@@ -53,7 +53,7 @@ module.exports = {
                 res.json({
                     message: `Logged in! User ID: ${user.user_id} Username: ${user.username} User type: ${user.role_id}`,
                     accessToken: accessToken,
-                    userType: user.user_type
+                    role_id: user.role_id
                 });
             }
 
