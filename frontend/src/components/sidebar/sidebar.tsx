@@ -148,7 +148,7 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
 
           <Link
-            to="/profile"
+            to="profile"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Profile

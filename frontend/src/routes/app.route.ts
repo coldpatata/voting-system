@@ -17,6 +17,7 @@ import Feedbacks from "../modules/student/feedbacks/feedbacks";
 import DashboardPageStaff from "../modules/staff/dashboard/staff.dashboard";
 import StaffLayout from "../layout/staff.layout";
 import StaffAnouncements from "../modules/staff/announcements/staff.announcements";
+import ProfilePage from "../modules/admin/profile/profile";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
         {
             path: 'ballot',
             Component: BallotPage
+        },
+        {
+          path: 'profile',
+          Component: ProfilePage
         }
       ]
     },
