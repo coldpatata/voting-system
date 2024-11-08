@@ -1,10 +1,21 @@
 import { useState } from 'react';
 import { logo } from '../../assets/image/image';
-import { Link, useLocation } from 'react-router-dom'; // Import Link and useLocation
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate(); 
+
+  const handleLogout = () => {
+    // Remove the cookies
+    Cookies.remove('accessToken');
+    Cookies.remove('userType');
+
+    navigate('/login'); 
+  };
+
   return (
     <>
       <button
@@ -52,12 +63,12 @@ const Sidebar = () => {
           </svg>
         </button>
 
-        <div className="flex justify-around items-center mb-5 ">
+        <div className="flex justify-around items-center mb-5">
           <img className="w-[3rem] h-[3rem] rounded-full" src={logo} />
           <p>SSLG Moderator</p>
         </div>
 
-        <nav className=" text-sm">
+        <nav className="text-sm">
           <Link
             to="/dashboard"
             className={`block py-2 px-3 rounded-md ${
@@ -154,14 +165,14 @@ const Sidebar = () => {
             Profile
           </Link>
           <div className="m-7">
-            <Link
-              to="/"
-              className="block py-2 px-3 hover:bg-red-200 rounded-md "
+            <button
+              onClick={handleLogout} // Trigger logout on click
+              className="block py-2 px-3 hover:bg-red-200 rounded-md"
             >
               <p className="text-red-700 font-bold text-xl text-center">
                 Logout
               </p>
-            </Link>
+            </button>
           </div>
         </nav>
       </div>
