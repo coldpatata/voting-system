@@ -8,12 +8,16 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate(); 
 
+
+  const username = Cookies.get('username');
+
   const handleLogout = () => {
     // Remove the cookies
     Cookies.remove('accessToken');
     Cookies.remove('userType');
+    Cookies.remove('username');
 
-    navigate('/login'); 
+    navigate('/');
   };
 
   return (
@@ -65,7 +69,11 @@ const Sidebar = () => {
 
         <div className="flex justify-around items-center mb-5">
           <img className="w-[3rem] h-[3rem] rounded-full" src={logo} />
-          <p>SSLG Moderator</p>
+          <p>
+            {username
+              ? `Hello ${username.charAt(0).toUpperCase() + username.slice(1)}`
+              : 'Hello'}
+          </p>
         </div>
 
         <nav className="text-sm">
