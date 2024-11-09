@@ -32,13 +32,10 @@ const LoginPage: FC = () => {
         }
       );
 
-      // Access token and role_id from the response
       const { accessToken, role_id } = response.data;
 
-      // Save to cookies
       saveToCookies(accessToken, role_id);
 
-      // Redirect to dashboard
       navigate('/dashboard');
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.error) {
@@ -55,7 +52,7 @@ const LoginPage: FC = () => {
     }
   };
 
-  // Clear error message after 2 seconds
+ 
   useEffect(() => {
     if (errorMessage) {
       const timer = setTimeout(() => {
