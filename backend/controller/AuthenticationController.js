@@ -38,8 +38,17 @@ module.exports = {
             const { username, password } = req.body;
             const user = await Users.findOne({ where: {username: username} });
 
+            if(!user && !password){
+                return res.status(400).json({
+                    error:"There is no input"
+                });
+            }
+
             if (!user) {
-                return res.status(400).json({ error: "User doesn't exist" });
+                return res.status(400).json({ error: "Provide user input" });
+            }
+            if (!password) {
+                return res.status(400).json({ error: "Provide password input" });
             }
 
             const dbPassword = user.password;
