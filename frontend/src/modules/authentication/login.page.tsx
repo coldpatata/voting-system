@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { logo } from '../../assets/image/image';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
@@ -19,25 +19,28 @@ const LoginPage: FC = () => {
   const saveToCookies = (accessToken: string, userType: string) => {
     Cookies.set('accessToken', accessToken, { expires: 7, secure: true });
     Cookies.set('userType', userType, { expires: 7, secure: true });
+    Cookies.set('username', username, { expires: 7, secure: true });
   };
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/userAuthentication/Login', {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/userAuthentication/Login',
+        {
+          username,
+          password,
+        }
+      );
 
-      //kwaon ang accesstoken ug role id na response sa endpoint
+      // Access token and role_id from the response
       const { accessToken, role_id } = response.data;
 
-      // gi save nako sa cookies
+      // Save to cookies
       saveToCookies(accessToken, role_id);
 
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (error) {
-      // Check if error is an AxiosError
       if (error instanceof AxiosError && error.response?.data?.error) {
         setErrorMessage(error.response.data.error);
       } else {
@@ -45,6 +48,23 @@ const LoginPage: FC = () => {
       }
     }
   };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
+  // Clear error message after 2 seconds
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -73,6 +93,7 @@ const LoginPage: FC = () => {
                 placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </div>
             <div className="mb-6">
@@ -90,6 +111,7 @@ const LoginPage: FC = () => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
                 />
                 <button
                   type="button"
@@ -109,10 +131,13 @@ const LoginPage: FC = () => {
                   Forgot your password?
                 </Link>
               </p>
+              {errorMessage && (
+                <p className="text-center text-red-500 text-sm mb-4">
+                  {errorMessage}
+                </p>
+              )}
             </div>
-            {errorMessage && (
-              <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
-            )}
+
             <div className="flex items-center justify-center">
               <button
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded focus:outline-none"
