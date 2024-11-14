@@ -23,22 +23,21 @@ const validateToken = (req, res, next) => {
     return res.status(401).json({ error: "User not authenticated" });
 
   try {
-    const token = authorizationHeader.split(' ')[1];  // Extract token from 'Bearer <token>'
-    const validToken = verify(token, SECRET_KEY);  // Verify token with the secret key
+    const token = authorizationHeader.split(' ')[1];  
+    const validToken = verify(token, SECRET_KEY);  
 
     if (validToken) {
       req.authenticated = true;
-      req.id = validToken.id;             // Attach user ID to the request object
-      req.username = validToken.username; // Attach username to the request object (optional)
-      req.user_type = validToken.user_type; // Attach userType (e.g., Member, Trainer) for role checks
-      return next();                      // Proceed to the next middleware or route handler
+      req.id = validToken.id;          
+      req.username = validToken.username;
+      req.user_type = validToken.user_type;
+      return next();                 
     }
 
   } catch (error) {
     console.error("Token verification error:", error);
-    return res.status(403).json({ error: "Invalid or expired token" });  // 403 forbidden for invalid tokens
+    return res.status(403).json({ error: "Invalid or expired token" });  
   }
 };
 
-// Export the createTokens and validateToken functions
 module.exports = { createTokens, validateToken };
