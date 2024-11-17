@@ -39,7 +39,7 @@ export const router = createBrowserRouter([
       ]
     },
     {
-      path: '/dashboard',
+      path: '/admin',
       Component: AdminLayout,
       children: [
         {

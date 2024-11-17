@@ -35,8 +35,20 @@ const LoginPage: FC = () => {
       const { accessToken, role_id } = response.data;
 
       saveToCookies(accessToken, role_id);
-
-      navigate('/dashboard');
+      switch (role_id) {
+        case 1:
+          navigate('/student'); // Navigate to Admin Dashboard
+          break;
+        case 2:
+          navigate('/admin'); // Navigate to Trainer Dashboard
+          break;
+        case 3:
+          navigate('/staff'); // Navigate to Member Dashboard
+          break;
+        default:
+          navigate('/'); // Default case if role_id doesn't match
+          break;
+      }
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.error) {
         setErrorMessage(error.response.data.error);
@@ -52,7 +64,7 @@ const LoginPage: FC = () => {
     }
   };
 
- 
+
   useEffect(() => {
     if (errorMessage) {
       const timer = setTimeout(() => {
