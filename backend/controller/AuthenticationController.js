@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const db = require('../models/main'); // Adjust path as necessary
 const { createTokens, validateToken } = require('../middlewares/jwt')
-const { Users } = db; 
+const { Users } = db;
 
 module.exports = {
     Register: async (req, res) => {
@@ -36,11 +36,11 @@ module.exports = {
     Login: async (req, res) => {
         try {
             const { username, password } = req.body;
-            const user = await Users.findOne({ where: {username: username} });
+            const user = await Users.findOne({ where: { username: username } });
 
-            if(!user && !password){
+            if (!user && !password) {
                 return res.status(400).json({
-                    error:"There is no input"
+                    error: "There is no input"
                 });
             }
 
@@ -56,7 +56,7 @@ module.exports = {
 
             if (!match) {
                 return res.status(400).json({ error: "Wrong username and password combination" });
-            }else{
+            } else {
                 const accessToken = createTokens(user);
                 // Send a success response
                 res.json({
@@ -70,5 +70,41 @@ module.exports = {
             console.error("Error:", error.message);
             res.status(500).send("Internal Server Error", error.message);
         }
+    },
+
+    ResetPassword: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            // Check if both email and password are provided
+            if (!email || !password) {
+                return res.status(400).json({ error: "Email and password are required." });
+            }
+
+            // Find the user by email
+            const user = await Users.findOne({ where: { email } });
+
+            if (!user) {
+                return res.status(404).json({ error: "User not found." });
+            }
+
+            
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+            
+            await user.update({ password: hashedPassword });
+
+            return res.status(200).json({
+                message: "Password updated successfully.",
+                user_id: user.user_id,
+                username: user.username,
+                role_id: user.role_id
+            });
+        } catch (error) {
+            console.error("Error:", error.message);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
     }
+
 };

@@ -1,8 +1,42 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { logo } from '../../assets/image/image';
+import Cookies from 'js-cookie';
 
 const ResetPassword: FC = () => {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const email = Cookies.get('email');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    try {
+      // Send POST request to the ResetPassword endpoint
+      const response = await axios.post('http://localhost:5000/api/userAuthentication/ResetPassword', {
+        email: email,
+        password,
+      });
+
+      if (response.status === 200) {
+        setSuccess(response.data.message);
+        alert("PASSWORD UPDATED")
+        setError('');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'An error occurred. Please try again.');
+      setSuccess('');
+    }
+  };
+
   return (
     <>
       <div className="bg-gray-100 flex items-center justify-center min-h-screen ">
@@ -14,36 +48,31 @@ const ResetPassword: FC = () => {
               src={logo}
             />
           </div>
-          <div className="w-full md:ml-8 mt-6  text-center md:text-left ">
-            <h1 className="text-2xl text-center font-bold mb-8">
-              Reset Password
-            </h1>
+          <div className="w-full md:ml-8 mt-6 text-center md:text-left ">
+            <h1 className="text-2xl text-center font-bold mb-8">Reset Password</h1>
 
-            <form>
+            <form onSubmit={handleSubmit}>
+              {error && <p className="text-red-500 mb-4">{error}</p>}
+              {success && <p className="text-green-500 mb-4">{success}</p>}
               <div className="mb-4">
-                <div className="flex  border border-gray-300 rounded-lg overflow-hidden">
-                  <input
-                    className="w-full py-2 px-3 text-gray-700 focus:outline-none"
-                    placeholder="@Email"
-                    type="email"
-                  />
-                </div>
-              </div>
-              <div className="mb-4">
-                <div className="flex  border border-gray-300 rounded-lg overflow-hidden">
+                <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                   <input
                     className="w-full py-2 px-3 text-gray-700 focus:outline-none"
                     placeholder="Password"
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
               </div>
               <div className="mb-4">
-                <div className="flex  border border-gray-300 rounded-lg overflow-hidden">
+                <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                   <input
                     className="w-full py-2 px-3 text-gray-700 focus:outline-none"
                     placeholder="Confirm Password"
                     type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </div>
               </div>

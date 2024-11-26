@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const userRoutes = require('./routes/userRoutes');
 const userRoleRoutes = require('./routes/userRoleRoutes');
 const userAuthenticationRoutes = require('./routes/authenticationRoute');
-
+const emailRoutes = require('./routes/emailRoute');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/userRoles', userRoleRoutes);
 app.use('/api/userAuthentication', userAuthenticationRoutes);
+app.use('/api/email', emailRoutes);
 
 // Test endpoint
 app.get('/', (req, res) => {
