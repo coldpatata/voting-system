@@ -10,7 +10,7 @@ import BallotPage from "../modules/student/ballots/ballots.page";
 import ForgotPassword from "../modules/authentication/forgot-password.page";
 import ResetPassword from "../modules/authentication/reset-password.page";
 import DashboardPageStudent from "../modules/student/dashboard/dashboard.page";
-import feedbacks from "../modules/student/feedbacks/feedbacks";
+
 import AccountPage from "../modules/student/accounts/accounts.page";
 import StudentLayout from "../layout/student.layout";
 import Feedbacks from "../modules/student/feedbacks/feedbacks";
@@ -18,6 +18,7 @@ import DashboardPageStaff from "../modules/staff/dashboard/staff.dashboard";
 import StaffLayout from "../layout/staff.layout";
 import StaffAnouncements from "../modules/staff/announcements/staff.announcements";
 import ProfilePage from "../modules/admin/profile/profile";
+import AnnouncementPage from "../modules/admin/announcements/announcement";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
         {
             path: 'ballot',
             Component: BallotPage
+        },
+        {
+            path: 'announcement',
+            Component: AnnouncementPage
         },
         {
           path: 'profile',

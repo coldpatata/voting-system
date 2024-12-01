@@ -78,7 +78,7 @@ const Sidebar = () => {
 
         <nav className="text-sm">
           <Link
-            to="/dashboard"
+            to="/admin"
             className={`block py-2 px-3 rounded-md ${
               location.pathname === '/dashboard'
                 ? 'bg-blue-600'
@@ -88,7 +88,7 @@ const Sidebar = () => {
             Dashboard
           </Link>
           <Link
-            to="/dashboard/candidate"
+            to="/admin/candidate"
             className={`block py-2 px-3 rounded-md ${
               location.pathname === '/dashboard/candidate'
                 ? 'bg-blue-600'
@@ -98,7 +98,7 @@ const Sidebar = () => {
             Candidates
           </Link>
           <Link
-            to="/dashboard/position"
+            to="/admin/position"
             className={`block py-2 px-3 rounded-md ${
               location.pathname === '/dashboard/position'
                 ? 'bg-blue-600'
@@ -108,7 +108,7 @@ const Sidebar = () => {
             Position
           </Link>
           <Link
-            to="/dashboard/ballot"
+            to="/admin/ballot"
             className={`block py-2 px-3 rounded-md ${
               location.pathname === '/dashboard/ballot'
                 ? 'bg-blue-600'
@@ -118,9 +118,9 @@ const Sidebar = () => {
             Ballot
           </Link>
           <Link
-            to="dashboard/announcements"
+            to="/admin/announcement"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/announcements'
+              location.pathname === '/announcements'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -146,13 +146,13 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Users</div>
 
           <Link
-            to="dashboard/students"
+            to="students"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Students
           </Link>
           <Link
-            to="dashboard/staff"
+            to="staff"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Staff
