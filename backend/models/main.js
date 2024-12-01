@@ -22,6 +22,7 @@ db.Sequelize = Sequelize;
 // Import models
 db.Users = require('./users')(sequelize, Sequelize);
 db.UserRoles = require('./user_roles')(sequelize, Sequelize);
+db.Announcements = require('./announcement')(sequelize, Sequelize);
 
 // Define associations
 db.Users.belongsTo(db.UserRoles, { foreignKey: 'role_id', as: 'role' });
