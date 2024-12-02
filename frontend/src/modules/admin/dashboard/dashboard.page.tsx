@@ -12,12 +12,6 @@ const DashboardPage: FC = () => {
         <div className="flex justify-between p-2">
           <Announcement
             title="ANNOUNCEMENT TITLE"
-            description="DESCRIPTION"
-            imageUrl={pic}
-            date="02-20-2002"
-          ></Announcement>
-          <Announcement
-            title="ANNOUNCEMENT TITLE"
             description="description here"
             imageUrl={pic}
             date="02-20-2002"

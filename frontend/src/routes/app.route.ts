@@ -19,6 +19,11 @@ import StaffLayout from "../layout/staff.layout";
 import StaffAnouncements from "../modules/staff/announcements/staff.announcements";
 import ProfilePage from "../modules/admin/profile/profile";
 import AnnouncementPage from "../modules/admin/announcements/announcement";
+import BallotReportPage from "../modules/admin/ballot-report/ballot-report.page";
+import FeedbacksPage from "../modules/admin/feedbacks/feedbacks.page";
+import StudentPage from "../modules/admin/students/students.page";
+import StaffPage from "../modules/admin/staff/staff.page";
+import AccountsPage from "../modules/admin/accounts/accounts.page";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -59,6 +64,26 @@ export const router = createBrowserRouter([
         {
             path: 'ballot',
             Component: BallotPage
+        },
+        {
+          path: 'ballot-report',
+          Component: BallotReportPage
+        },
+        {
+          path: 'student-page',
+          Component: StudentPage
+        },
+        {
+          path: 'staff-page',
+          Component: StaffPage
+        },
+        {
+          path: 'accounts-page',
+          Component: AccountsPage
+        },
+        {
+          path:'feedbacks',
+          Component: FeedbacksPage
         },
         {
             path: 'announcement',
