@@ -131,13 +131,13 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Reports</div>
 
           <Link
-            to="dashboard/ballot-report"
+            to="/admin/ballot-report"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Ballot Report
           </Link>
           <Link
-            to="dashboard/feedbacks"
+            to="/admin/feedbacks"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Feedbacks
@@ -146,19 +146,19 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Users</div>
 
           <Link
-            to="students"
+            to="/admin/student-page"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Students
           </Link>
           <Link
-            to="staff"
+            to="/admin/staff-page"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Staff
           </Link>
           <Link
-            to="/accounts"
+            to="/admin/accounts-page"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Accounts
@@ -167,7 +167,7 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
 
           <Link
-            to="profile"
+            to="/admin/profile"
             className="block py-2 px-3 hover:bg-gray-700 rounded-md"
           >
             Profile
