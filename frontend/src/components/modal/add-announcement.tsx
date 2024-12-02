@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 interface AddAnnouncementProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (title: string, body: string, file: File | null) => void;
+  onSubmit: (title: string, body: string, fileUrl: string | null) => void;
 }
 
 const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
@@ -21,9 +22,59 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
     }
   };
 
-  const handleSubmit = () => {
-    onSubmit(title, body, file);
-    onClose();
+  const handleSubmit = async () => {
+    try {
+      let fileUrl = null;
+      let fullUrl = null;
+
+      if (file) {
+        // Prepare FormData to send file via POST request
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Use Axios to upload the file to the backend
+        const response = await axios.post('http://localhost:5000/api/upload/uploadSingle', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        // Handle the response from the server
+        if (response.status === 200) {
+          console.log(response.data);
+          fileUrl = response.data.fileUrl; // Assuming your backend returns the file URL
+          fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`
+          console.log('Image uploaded successfully:', fileUrl);
+        } else {
+          throw new Error('Image upload failed');
+        }
+      }
+
+      const announcementData = {
+        title_header: title,
+        time_date: new Date(), // Get current date
+        image_url: fullUrl, // File URL from the upload response
+        description_text: body,
+      };
+
+      // Send the announcement data to the backend
+      const createResponse = await axios.post('http://localhost:5000/api/announcement/createAnnouncement', announcementData);
+
+      // Handle the response from the server
+      if (createResponse.status === 201) {
+        console.log('Announcement created successfully:', createResponse.data);
+        alert("ANNOUNCEMENT CREATED!!!")
+        // You can call onSubmit if needed or handle the response in other ways
+        onSubmit(title, body, fileUrl);
+        onClose();
+      } else {
+        throw new Error('Failed to create announcement');
+      }
+
+    } catch (error) {
+      console.error('Error submitting announcement:', error);
+      alert('Error submitting announcement. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
@@ -36,10 +87,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
         </div>
         <div className="mt-4">
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="title"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
               Title
             </label>
             <input
@@ -52,10 +100,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
             />
           </div>
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="body"
-            >
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="body">
               Announcement Body
             </label>
             <textarea
@@ -71,9 +116,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
             <p className="text-gray-700">Or add photo as announcement</p>
             <div className="flex items-center justify-center mt-2">
               <i className="fas fa-info-circle text-blue-500 mr-2"></i>
-              <span className="text-blue-500">
-                Accepted formats are png and jpeg.
-              </span>
+              <span className="text-blue-500">Accepted formats are png and jpeg.</span>
             </div>
             <div className="mt-4">
               <label className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-2 px-4 rounded cursor-pointer">
