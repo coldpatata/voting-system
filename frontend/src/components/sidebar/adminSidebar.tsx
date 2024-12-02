@@ -80,7 +80,7 @@ const Sidebar = () => {
           <Link
             to="/admin"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard'
+              location.pathname === '/admin'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -90,7 +90,7 @@ const Sidebar = () => {
           <Link
             to="/admin/candidate"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/candidate'
+              location.pathname === '/admin/candidate'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -100,7 +100,7 @@ const Sidebar = () => {
           <Link
             to="/admin/position"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/position'
+              location.pathname === '/admin/position'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -110,7 +110,7 @@ const Sidebar = () => {
           <Link
             to="/admin/ballot"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/ballot'
+              location.pathname === '/admin/ballot'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -120,7 +120,7 @@ const Sidebar = () => {
           <Link
             to="/admin/announcement"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/announcements'
+              location.pathname === '/admin/announcement'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -132,13 +132,21 @@ const Sidebar = () => {
 
           <Link
             to="/admin/ballot-report"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/ballot-report'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Ballot Report
           </Link>
           <Link
             to="/admin/feedbacks"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/feedbacks'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Feedbacks
           </Link>
@@ -147,19 +155,31 @@ const Sidebar = () => {
 
           <Link
             to="/admin/student-page"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/student-page'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Students
           </Link>
           <Link
             to="/admin/staff-page"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/staff-page'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Staff
           </Link>
           <Link
             to="/admin/accounts-page"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/accounts-page'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Accounts
           </Link>
@@ -168,13 +188,17 @@ const Sidebar = () => {
 
           <Link
             to="/admin/profile"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/admin/profile'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Profile
           </Link>
           <div className="m-7">
             <button
-              onClick={handleLogout} // Trigger logout on click
+              onClick={handleLogout} 
               className="block py-2 px-3 hover:bg-red-200 rounded-md"
             >
               <p className="text-red-700 font-bold text-xl text-center">
