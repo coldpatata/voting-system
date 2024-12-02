@@ -10,6 +10,8 @@ const userRoutes = require('./routes/userRoutes');
 const userRoleRoutes = require('./routes/userRoleRoutes');
 const userAuthenticationRoutes = require('./routes/authenticationRoute');
 const emailRoutes = require('./routes/emailRoute');
+const announcementRoutes = require('./routes/AnnouncementRoute');
+const uploadRoutes = require('./routes/uploadRoutes');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -20,6 +22,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/userRoles', userRoleRoutes);
 app.use('/api/userAuthentication', userAuthenticationRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/announcement', announcementRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Test endpoint
 app.get('/', (req, res) => {

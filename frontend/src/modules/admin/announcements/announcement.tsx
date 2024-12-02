@@ -1,17 +1,34 @@
 import { FC, useState } from 'react';
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
-
 import AddAnnouncement from '../../../components/modal/add-announcement';
 
 const AnnouncementPage: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
+  // Define the onSubmit function that will handle the form data
+  const handleSubmit = (title: string, body: string, fileUrl: string | null) => {
+    // Handle the submitted data here
+    console.log('Submitted Title:', title);
+    console.log('Submitted Body:', body);
+    console.log('Submitted File URL:', fileUrl);
+
+    // Here you can perform your logic, such as sending the data to an API.
+    // Example:
+    // axios.post('/api/announcements', { title, body, fileUrl })
+    //   .then((response) => {
+    //     console.log('Announcement created:', response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error creating announcement:', error);
+    //   });
+  };
+
   const openModal = () => {
     setModalIsOpen(true);
   };
+
   return (
     <>
-      {' '}
       <div className="bg-blue-900 p-4 text-white">
         <h1 className="text-xl">Good Day!</h1>
       </div>
@@ -66,13 +83,7 @@ const AnnouncementPage: FC = () => {
       <AddAnnouncement
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
-        onSubmit={function (
-          title: string,
-          body: string,
-          file: File | null
-        ): void {
-          throw new Error('Function not implemented.');
-        }}
+        onSubmit={handleSubmit}  // Pass the actual handleSubmit function here
       />
     </>
   );
