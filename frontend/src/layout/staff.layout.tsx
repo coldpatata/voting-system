@@ -15,16 +15,16 @@ const StaffLayout: FC = () => {
   const renderSidebar = () => {
     switch (userType) {
       case 1:
-        alert("userType: student")
+        // alert("userType: student")
         return <StudentSidebar />; // Admin sidebar
       case 2:
-        alert("userType: admin")
+        // alert("userType: admin")
         return <AdminSidebar />; // Student sidebar
       case 3:
-        alert("userType: staff")
-        return <StaffSidebar />;   // Staff sidebar
+        // alert("userType: staff")
+        return <StaffSidebar />; // Staff sidebar
       default:
-        return <AdminSidebar />;        // patak,an ra sa nako ang default diri for now
+        return <AdminSidebar />; // patak,an ra sa nako ang default diri for now
     }
   };
   return (

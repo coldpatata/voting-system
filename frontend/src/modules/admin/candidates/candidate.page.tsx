@@ -8,12 +8,18 @@ const CandidatePage: FC = () => {
       </div>
       <div className="min-h-screen bg-gray-200 p-8">
         <div className="bg-blue-900 text-white p-4 flex flex-col md:flex-row justify-between items-center">
-          <h1 className="text-xl font-bold mb-2 md:mb-0">Candidate</h1>
+          <h1 className="text-xl font-bold mb-2 md:mb-0">Candidates</h1>
           <div className="flex items-center space-x-2">
             <button className="bg-yellow-400 text-black px-4 py-2 rounded">
               Add
             </button>
-            <input type="text" className="px-2 py-1 rounded text-black" />
+            <div className="flex">
+              <input
+                type="text"
+                className="px-2 py-1 rounded-tl-lg rounded-bl-lg text-black"
+              />
+              <button className="bg-yellow-400 w-1/4 p-2">Search</button>
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">
