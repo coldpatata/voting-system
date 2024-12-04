@@ -1,5 +1,5 @@
 const db = require('../models/main');
-const { Announcements }= db;
+const { Announcements } = db;
 
 
 const createAnnouncement = async (req, res) => {
@@ -32,11 +32,23 @@ const createAnnouncement = async (req, res) => {
 
 const getAllAnnouncements = async (req, res) => {
     try {
-        const announcements = await Announcements.findAll();
+        const { page = 1, limit = 1 } = req.query; // Default: 1st page, 1 item per page
+        const offset = (page - 1) * limit;
+
+        const { count, rows: announcements } = await Announcements.findAndCountAll({
+            limit: parseInt(limit, 10),
+            offset: parseInt(offset, 10),
+            order: [['time_date', 'DESC']], // Sort by date (newest first)
+        });
 
         return res.status(200).json({
             message: 'Announcements retrieved successfully.',
             data: announcements,
+            pagination: {
+                totalItems: count,
+                totalPages: Math.ceil(count / limit),
+                currentPage: parseInt(page, 10),
+            },
         });
     } catch (error) {
         console.error('Error retrieving announcements:', error);
