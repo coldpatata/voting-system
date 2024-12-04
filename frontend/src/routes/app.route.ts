@@ -24,6 +24,10 @@ import FeedbacksPage from "../modules/admin/feedbacks/feedbacks.page";
 import StudentPage from "../modules/admin/students/students.page";
 import StaffPage from "../modules/admin/staff/staff.page";
 import AccountsPage from "../modules/admin/accounts/accounts.page";
+import StaffCandidatePage from "../modules/staff/candidates/staff.candidates";
+import StaffPositionPage from "../modules/staff/position/staff.position";
+import StaffBallotReportPage from "../modules/staff/ballot-report/staff.ballot-report";
+import StaffBallotPage from "../modules/staff/ballot/staff.ballot";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -136,11 +140,27 @@ export const router = createBrowserRouter([
           Component: DashboardPageStaff
   
       },
+      {
+          path: 'candidates',
+          Component: StaffCandidatePage
+      },
 
       {
-        path: 'announcement',
+        path: 'position',
+        Component: StaffPositionPage
+      },
+      {
+        path: 'ballot',
+        Component: StaffBallotPage
+      },
+      {   
+        path: 'announcements',
         Component: StaffAnouncements
-    },
+      },
+      {
+        path: 'ballot-report',
+        Component: StaffBallotReportPage
+      }
 
       ]
 

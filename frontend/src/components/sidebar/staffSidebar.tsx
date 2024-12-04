@@ -78,9 +78,9 @@ const Sidebar = () => {
 
         <nav className="text-sm">
           <Link
-            to="/dashboard"
+            to="/staff"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard'
+              location.pathname === '/staff'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -88,9 +88,9 @@ const Sidebar = () => {
             Dashboard
           </Link>
           <Link
-            to="/dashboard/candidate"
+            to="/staff/candidates"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/candidate'
+              location.pathname === '/staff/candidates'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -98,9 +98,9 @@ const Sidebar = () => {
             Candidates
           </Link>
           <Link
-            to="/dashboard/position"
+            to="/staff/position"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/position'
+              location.pathname === '/staff/position'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -108,9 +108,9 @@ const Sidebar = () => {
             Position
           </Link>
           <Link
-            to="/dashboard/ballot"
+            to="/staff/ballot"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/ballot'
+              location.pathname === '/staff/ballot'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -118,9 +118,9 @@ const Sidebar = () => {
             Ballot
           </Link>
           <Link
-            to="dashboard/announcements"
+            to="/staff/announcements"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/announcements'
+              location.pathname === '/staff/announcements'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -131,24 +131,36 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Reports</div>
 
           <Link
-            to="dashboard/ballot-report"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            to="/staff/ballot-report"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/staff/ballot-report'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Ballot Report
           </Link>
           <div className="text-gray-400 text-sm mt-6">Manage Users</div>
 
           <Link
-            to="dashboard/students"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            to="/staff/students"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/staff/students'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Students
           </Link>
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
 
           <Link
-            to="profile"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            to="/staff/profile"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/staff/profile'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Profile
           </Link>
