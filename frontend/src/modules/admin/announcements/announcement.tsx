@@ -1,31 +1,93 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import AddAnnouncement from '../../../components/modal/add-announcement';
+import axios from 'axios';
+
+interface Announcement {
+  announcement_id: number;
+  title_header: string;
+  time_date: string;
+  image_url: string;
+  description_text: string;
+  status: string; // "active" or "archived"
+}
 
 const AnnouncementPage: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  // Define the onSubmit function that will handle the form data
-  const handleSubmit = (title: string, body: string, fileUrl: string | null) => {
-    // Handle the submitted data here
-    console.log('Submitted Title:', title);
-    console.log('Submitted Body:', body);
-    console.log('Submitted File URL:', fileUrl);
-
-    // Here you can perform your logic, such as sending the data to an API.
-    // Example:
-    // axios.post('/api/announcements', { title, body, fileUrl })
-    //   .then((response) => {
-    //     console.log('Announcement created:', response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error creating announcement:', error);
-    //   });
+  // Function to fetch announcements from the API
+  const fetchAnnouncements = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/announcement/getAllAnnouncements`,
+        {
+          params: {
+            page,
+            limit: 1, // Adjust the limit if you want more items per page
+          },
+        }
+      );
+      const { data, pagination } = response.data;
+      setAnnouncements(data);
+      setTotalPages(pagination.totalPages);
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const openModal = () => {
-    setModalIsOpen(true);
+  // Function to update the announcement status
+  const updateAnnouncementStatus = async (announcementId: number, newStatus: string) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/api/announcement/updateStatus`,
+        {
+          announcement_id: announcementId,
+          status: newStatus,
+        }
+      );
+      if (response.status === 200) {
+        // Update the status locally after successful API call
+        setAnnouncements((prevAnnouncements) =>
+          prevAnnouncements.map((announcement) =>
+            announcement.announcement_id === announcementId
+              ? { ...announcement, status: newStatus }
+              : announcement
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error updating announcement status:', error);
+    }
   };
+
+  // Handle modal open/close
+  const openModal = () => setModalIsOpen(true);
+  const closeModal = () => setModalIsOpen(false);
+
+  // Handle pagination
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  // Fetch announcements whenever the currentPage changes
+  useEffect(() => {
+    fetchAnnouncements(currentPage);
+  }, [currentPage]);
 
   return (
     <>
@@ -44,36 +106,60 @@ const AnnouncementPage: FC = () => {
             </button>
           </div>
           <div className="bg-gray-100 p-6 mt-4 shadow-lg">
-            <div className="flex justify-between items-center flex-wrap">
-              <h2 className="text-2xl font-bold">Announcement Title</h2>
-              <button className="bg-red-600 text-white px-4 py-2 rounded mt-2 sm:mt-0">
-                Archive
-              </button>
-            </div>
-            <p className="mt-4 text-lg">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </p>
-            <div className="mt-6">
-              <img
-                src="https://placehold.co/800x500"
-                alt="People working on computers in an office setting"
-                className="w-full h-[30rem]"
-              />
-            </div>
-            <p className="mt-4 text-sm text-gray-600">
-              Announcement Created 09-18-2024
-            </p>
+            {loading ? (
+              <p>Loading...</p>
+            ) : announcements.length > 0 ? (
+              announcements.map((announcement) => (
+                <div key={announcement.announcement_id}>
+                  <div className="flex justify-between items-center flex-wrap">
+                    <h2 className="text-2xl font-bold">{announcement.title_header}</h2>
+                    <button
+                      className={`${
+                        announcement.status === 'active' ? 'bg-red-600' : 'bg-green-600'
+                      } text-white px-4 py-2 rounded mt-2 sm:mt-0`}
+                      onClick={() =>
+                        updateAnnouncementStatus(
+                          announcement.announcement_id,
+                          announcement.status === 'active' ? 'archived' : 'active'
+                        )
+                      }
+                    >
+                      {announcement.status === 'active' ? 'Archive' : 'Unarchive'}
+                    </button>
+                  </div>
+                  <p className="mt-4 text-lg">{announcement.description_text}</p>
+                  {announcement.image_url && (
+                    <div className="mt-6">
+                      <img
+                        src={announcement.image_url}
+                        alt={announcement.title_header}
+                        className="w-full h-[30rem]"
+                      />
+                    </div>
+                  )}
+                  <p className="mt-4 text-sm text-gray-600">
+                    Announcement Created {new Date(announcement.time_date).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p>No announcements available.</p>
+            )}
+            {/* Pagination Controls */}
             <div className="flex justify-center mt-4">
-              <button className="bg-gray-400 text-white px-4 py-2 rounded mx-2">
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded mx-2"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+              >
                 <FaChevronLeft />
               </button>
-              <button className="bg-gray-400 text-white px-4 py-2 rounded mx-2">
+              <span className="px-4 py-2">{currentPage}</span>
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded mx-2"
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+              >
                 <FaChevronRight />
               </button>
             </div>
@@ -82,8 +168,11 @@ const AnnouncementPage: FC = () => {
       </div>
       <AddAnnouncement
         isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-        onSubmit={handleSubmit}  // Pass the actual handleSubmit function here
+        onClose={closeModal}
+        onSubmit={(title, body, imageUrl) => {
+          setModalIsOpen(false);
+          // Logic for adding the announcement
+        }}
       />
     </>
   );

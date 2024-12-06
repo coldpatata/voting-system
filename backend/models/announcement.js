@@ -22,6 +22,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.TEXT,
             allowNull: false,
         },
+        status: { // New column
+            type: Sequelize.STRING,
+            allowNull: false,
+            defaultValue: 'active',
+        },
     }, {
         tableName: 'announcements',
         timestamps: false,
