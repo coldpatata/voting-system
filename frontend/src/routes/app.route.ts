@@ -28,6 +28,7 @@ import StaffCandidatePage from "../modules/staff/candidates/staff.candidates";
 import StaffPositionPage from "../modules/staff/position/staff.position";
 import StaffBallotReportPage from "../modules/staff/ballot-report/staff.ballot-report";
 import StaffBallotPage from "../modules/staff/ballot/staff.ballot";
+import BallotPageAdmin from "../modules/admin/ballot/ballot.page";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -67,7 +68,7 @@ export const router = createBrowserRouter([
         },
         {
             path: 'ballot',
-            Component: BallotPage
+            Component: BallotPageAdmin
         },
         {
           path: 'ballot-report',

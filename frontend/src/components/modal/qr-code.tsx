@@ -1,5 +1,6 @@
 // QRCodeModal.tsx
 import React from 'react';
+import qrImage from '../../assets/image/qr-code/qr.png';
 
 interface QRCodeModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({
         <div className="bg-blue-800 text-white text-center py-2">
           <h1 className="text-lg font-bold text-left pl-2">Student QR</h1>
         </div>
-        <img src={qrCodeImage} alt="QR Code" className="w-full h-auto" />
+        <img src={qrImage} alt="QR Code" className="w-full h-auto" />
         <button
           onClick={onClose}
           className="mt-4 w-full bg-yellow-400 text-black rounded hover:bg-yellow-500 py-2 rounded "
