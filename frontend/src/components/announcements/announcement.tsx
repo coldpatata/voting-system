@@ -30,7 +30,7 @@ const Announcement: React.FC = () => {
       } else {
         setError(result.message || 'Failed to fetch announcements');
       }
-    } catch (err) {
+    } catch  {
       setError('Error fetching announcements');
     } finally {
       setLoading(false);

@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import BallotReportModal from '../../../components/modal/ballot-report';
 
-const BallotPage: FC = () => {
+const BallotPageStudent: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const openModal = () => {
@@ -39,7 +39,7 @@ const BallotPage: FC = () => {
             <thead className="bg-blue-900 text-white">
               <tr>
                 <th className="border px-4 py-2">Ballot Name</th>
-                <th className="border px-4 py-2">Opening Date</th>
+                <th className="border px-4 py-2">Date Created</th>
                 <th className="border px-4 py-2">Closing Date</th>
                 <th className="border px-4 py-2">Status</th>
                 <th className="border px-4 py-2">Actions</th>
@@ -94,4 +94,4 @@ const BallotPage: FC = () => {
   );
 };
 
-export default BallotPage;
+export default BallotPageStudent;
