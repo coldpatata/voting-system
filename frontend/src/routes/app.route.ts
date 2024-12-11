@@ -120,13 +120,17 @@ export const router = createBrowserRouter([
   {
     path: 'accounts',
     Component: AccountPage
-},
+  },
 
 
   {
     path: 'feedbacks',
     Component: Feedbacks
-},
+  },
+  {
+    path: 'profile',
+    Component: ProfilePage
+  },
 
     ]
     },

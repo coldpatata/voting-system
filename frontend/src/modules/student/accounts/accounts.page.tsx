@@ -22,8 +22,6 @@ const AccountPage = () => {
 
   return (
     <div className="flex">
-      
-
       {/* Main Content */}
       <div className="flex-1 min-h-screen bg-gray-100">
         {/* Header */}
@@ -37,13 +35,21 @@ const AccountPage = () => {
             <div className="flex justify-between">
               <div>
                 <button
-                  className={`px-4 py-2 ${activeTab === 'userAccount' ? 'bg-blue-900 text-white' : 'bg-gray-300'}`}
+                  className={`px-4 py-2 ${
+                    activeTab === 'userAccount'
+                      ? 'bg-blue-900 text-white'
+                      : 'bg-gray-300'
+                  }`}
                   onClick={() => switchTab('userAccount')}
                 >
-                  User Account
+                  User Accounts
                 </button>
                 <button
-                  className={`px-4 py-2 ml-4 ${activeTab === 'changePassword' ? 'bg-blue-900 text-white' : 'bg-gray-300'}`}
+                  className={`px-4 py-2 ml-4 ${
+                    activeTab === 'changePassword'
+                      ? 'bg-blue-900 text-white'
+                      : 'bg-gray-300'
+                  }`}
                   onClick={() => switchTab('changePassword')}
                 >
                   Change Password
@@ -54,13 +60,17 @@ const AccountPage = () => {
             {/* Tab Content */}
             {activeTab === 'userAccount' && (
               <div className="mt-6">
-                <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">Profile Account</h2>
+                <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
+                  Profile Account
+                </h2>
                 <div className="p-4 bg-gray-100 grid grid-cols-3 gap-8">
                   {/* Profile Form */}
                   <div className="col-span-2">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-bold mb-2">Firstname</label>
+                        <label className="block font-bold mb-2">
+                          Firstname
+                        </label>
                         <input
                           type="text"
                           className="border border-gray-300 p-2 rounded-md w-full"
@@ -76,7 +86,9 @@ const AccountPage = () => {
                         />
                       </div>
                       <div>
-                        <label className="block font-bold mb-2">M. Initial</label>
+                        <label className="block font-bold mb-2">
+                          M. Initial
+                        </label>
                         <input
                           type="text"
                           className="border border-gray-300 p-2 rounded-md w-full"
@@ -92,7 +104,9 @@ const AccountPage = () => {
                         />
                       </div>
                       <div>
-                        <label className="block font-bold mb-2">Year Level</label>
+                        <label className="block font-bold mb-2">
+                          Year Level
+                        </label>
                         <input
                           type="text"
                           className="border border-gray-300 p-2 rounded-md w-full"
@@ -116,7 +130,9 @@ const AccountPage = () => {
                         />
                       </div>
                       <div>
-                        <label className="block font-bold mb-2">Contact Number</label>
+                        <label className="block font-bold mb-2">
+                          Contact Number
+                        </label>
                         <input
                           type="tel"
                           className="border border-gray-300 p-2 rounded-md w-full"
@@ -129,17 +145,31 @@ const AccountPage = () => {
                   {/* Profile Picture Upload */}
                   <div className="flex flex-col items-center justify-center">
                     {preview ? (
-                      <img src={preview} alt="Profile Preview" className="rounded-full w-32 h-32 mb-4" />
+                      <img
+                        src={preview}
+                        alt="Profile Preview"
+                        className="rounded-full w-32 h-32 mb-4"
+                      />
                     ) : (
                       <div className="bg-gray-200 rounded-full w-32 h-32 mb-4 flex items-center justify-center">
                         <span className="text-4xl text-gray-400">👤</span>
                       </div>
                     )}
-                    <input type="file" id="file" className="hidden" onChange={handleFileUpload} />
-                    <label htmlFor="file" className="bg-yellow-400 px-4 py-2 text-black rounded cursor-pointer">
+                    <input
+                      type="file"
+                      id="file"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <label
+                      htmlFor="file"
+                      className="bg-yellow-400 px-4 py-2 text-black rounded cursor-pointer"
+                    >
                       Choose File
                     </label>
-                    <p className="mt-2">{selectedFile ? selectedFile.name : "No File Chosen"}</p>
+                    <p className="mt-2">
+                      {selectedFile ? selectedFile.name : 'No File Chosen'}
+                    </p>
                     <button className="mt-4 bg-yellow-400 px-4 py-2 text-black rounded">
                       View QR
                     </button>
@@ -148,7 +178,9 @@ const AccountPage = () => {
 
                 {/* Save Changes Button */}
                 <div className="mt-6 flex justify-end">
-                  <button className="bg-yellow-400 text-black px-4 py-2 rounded">Save Changes</button>
+                  <button className="bg-yellow-400 text-black px-4 py-2 rounded">
+                    Save Changes
+                  </button>
                 </div>
               </div>
             )}
@@ -156,26 +188,34 @@ const AccountPage = () => {
             {/* Change Password Tab Content */}
             {activeTab === 'changePassword' && (
               <div className="mt-6">
-                <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">Change Password</h2>
+                <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
+                  Change Password
+                </h2>
                 <div className="p-4 bg-gray-100">
                   {/* Change Password Form */}
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block font-bold mb-2">Current Password</label>
+                      <label className="block font-bold mb-2">
+                        Current Password
+                      </label>
                       <input
                         type="password"
                         className="border border-gray-300 p-2 rounded-md w-full"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold mb-2">New Password</label>
+                      <label className="block font-bold mb-2">
+                        New Password
+                      </label>
                       <input
                         type="password"
                         className="border border-gray-300 p-2 rounded-md w-full"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold mb-2">Confirm New Password</label>
+                      <label className="block font-bold mb-2">
+                        Confirm New Password
+                      </label>
                       <input
                         type="password"
                         className="border border-gray-300 p-2 rounded-md w-full"
@@ -185,7 +225,9 @@ const AccountPage = () => {
 
                   {/* Save Changes Button */}
                   <div className="mt-6">
-                    <button className="bg-blue-900 text-white px-4 py-2 rounded">Save Changes</button>
+                    <button className="bg-blue-900 text-white px-4 py-2 rounded">
+                      Save Changes
+                    </button>
                   </div>
                 </div>
               </div>

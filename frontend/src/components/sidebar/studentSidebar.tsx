@@ -78,9 +78,9 @@ const Sidebar = () => {
 
         <nav className="text-sm">
           <Link
-            to="/dashboard"
+            to="/student"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard'
+              location.pathname === '/student'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -88,9 +88,9 @@ const Sidebar = () => {
             Dashboard
           </Link>
           <Link
-            to="/dashboard/candidate"
+            to="/student/ballot"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/candidate'
+              location.pathname === '/student/ballot'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -98,9 +98,9 @@ const Sidebar = () => {
             Ballots
           </Link>
           <Link
-            to="/dashboard/position"
+            to="/student/feedbacks"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/dashboard/position'
+              location.pathname === '/student/feedbacks'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -109,8 +109,12 @@ const Sidebar = () => {
           </Link>
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
           <Link
-            to="profile"
-            className="block py-2 px-3 hover:bg-gray-700 rounded-md"
+            to="/student/profile"
+            className={`block py-2 px-3 rounded-md ${
+              location.pathname === '/student/profile'
+                ? 'bg-blue-600'
+                : 'hover:bg-gray-700'
+            }`}
           >
             Profile
           </Link>

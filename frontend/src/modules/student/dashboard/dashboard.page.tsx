@@ -1,31 +1,20 @@
 import { FC } from 'react';
-import axios from 'axios';
 import CustomMonthLayout from '../../../components/calendar/calendar';
 import Announcement from '../../../components/announcements/announcement';
 const DashboardPageStudent: FC = () => {
-
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Dashboard</h1>
+        <h1 className="text-xl">Good Day!</h1>
       </div>
 
       <div className="flex p-6">
-
         <div className="flex-1 space-y-6">
-
           {/* Announcements Section */}
-          <div className="bg-white shadow-lg rounded-md p-4">
-            <h2 className="bg-blue-900 text-white text-center py-2 rounded-t-md">
-              Announcement
-            </h2>
-            <div className="p-4">
-              <Announcement />
-            </div>
+          <div className="flex-1">
+            <Announcement />
           </div>
-
 
           {/* Vote Tally Section */}
           <div className="bg-white shadow-lg rounded-md p-4">

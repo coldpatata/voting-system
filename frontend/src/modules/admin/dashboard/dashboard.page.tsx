@@ -9,11 +9,14 @@ const DashboardPage: FC = () => {
         <h1 className="text-xl">Good Day!</h1>
       </div>
       <div>
-        <div className="flex justify-between p-2">
-          <div className="flex flex-col space-y-4">
+        <div className="p-4 flex flex-col lg:flex-row gap-4">
+          {/* Announcements Section */}
+          <div className="flex-1">
             <Announcement />
           </div>
-          <div className="ml-auto">
+
+          {/* Calendar Section */}
+          <div className="w-full lg:w-1/3">
             <CustomMonthLayout />
           </div>
         </div>

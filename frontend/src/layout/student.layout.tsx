@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import Sidebar from '../components/sidebar/adminSidebar';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from '../components/sidebar/adminSidebar';
 import StudentSidebar from '../components/sidebar/studentSidebar';
@@ -28,9 +27,7 @@ const StudentLayout: FC = () => {
   };
   return (
     <div className="min-h-screen flex">
-      <div className="w-64 min-h-screen">
-        {renderSidebar()}
-      </div>
+      <div className="w-64 min-h-screen">{renderSidebar()}</div>
 
       <div className="flex-grow">
         <Outlet />
