@@ -28,7 +28,7 @@ const AnnouncementPage: FC = () => {
         {
           params: {
             page,
-            limit: 1, // Adjust the limit if you want more items per page
+            limit: 1,
           },
         }
       );
@@ -43,7 +43,10 @@ const AnnouncementPage: FC = () => {
   };
 
   // Function to update the announcement status
-  const updateAnnouncementStatus = async (announcementId: number, newStatus: string) => {
+  const updateAnnouncementStatus = async (
+    announcementId: number,
+    newStatus: string
+  ) => {
     try {
       const response = await axios.patch(
         `http://localhost:5000/api/announcement/updateStatus`,
@@ -112,22 +115,32 @@ const AnnouncementPage: FC = () => {
               announcements.map((announcement) => (
                 <div key={announcement.announcement_id}>
                   <div className="flex justify-between items-center flex-wrap">
-                    <h2 className="text-2xl font-bold">{announcement.title_header}</h2>
+                    <h2 className="text-2xl font-bold">
+                      {announcement.title_header}
+                    </h2>
                     <button
                       className={`${
-                        announcement.status === 'active' ? 'bg-red-600' : 'bg-green-600'
+                        announcement.status === 'active'
+                          ? 'bg-red-600'
+                          : 'bg-green-600'
                       } text-white px-4 py-2 rounded mt-2 sm:mt-0`}
                       onClick={() =>
                         updateAnnouncementStatus(
                           announcement.announcement_id,
-                          announcement.status === 'active' ? 'archived' : 'active'
+                          announcement.status === 'active'
+                            ? 'archived'
+                            : 'active'
                         )
                       }
                     >
-                      {announcement.status === 'active' ? 'Archive' : 'Unarchive'}
+                      {announcement.status === 'active'
+                        ? 'Archive'
+                        : 'Unarchive'}
                     </button>
                   </div>
-                  <p className="mt-4 text-lg">{announcement.description_text}</p>
+                  <p className="mt-4 text-lg">
+                    {announcement.description_text}
+                  </p>
                   {announcement.image_url && (
                     <div className="mt-6">
                       <img
@@ -138,7 +151,8 @@ const AnnouncementPage: FC = () => {
                     </div>
                   )}
                   <p className="mt-4 text-sm text-gray-600">
-                    Announcement Created {new Date(announcement.time_date).toLocaleDateString()}
+                    Announcement Created{' '}
+                    {new Date(announcement.time_date).toLocaleString()}
                   </p>
                 </div>
               ))

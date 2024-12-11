@@ -59,12 +59,17 @@ const Announcement: React.FC = () => {
   return (
     <div className="flex flex-col items-center p-4">
       {announcements.map((announcement) => (
-        <div key={announcement.announcement_id} className="w-full max-w-3xl bg-white shadow-md rounded-lg p-6">
+        <div
+          key={announcement.announcement_id}
+          className="w-full max-w-3xl bg-white shadow-md rounded-lg p-6"
+        >
           <div className="bg-blue-900 text-white text-center py-2 rounded-t-lg">
             <h1 className="text-lg font-bold text-left ml-4">Announcement</h1>
           </div>
           <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">{announcement.title_header}</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              {announcement.title_header}
+            </h2>
             <p className="text-gray-700 mb-4 max-h-24 overflow-hidden overflow-y-auto">
               {announcement.description_text}
             </p>
@@ -76,7 +81,8 @@ const Announcement: React.FC = () => {
               />
             </div>
             <p className="text-gray-600 text-sm">
-              Announcement Created {new Date(announcement.time_date).toLocaleDateString()}
+              Announcement Created{' '}
+              {new Date(announcement.time_date).toLocaleString()}
             </p>
           </div>
         </div>
