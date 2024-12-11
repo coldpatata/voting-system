@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import QRCodeModal from './qr-code';
+import { profile } from '../../assets/image/image';
 import axios from 'axios';
 
 interface AddBallotModalProps {
@@ -18,6 +19,12 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const [eligibility, setEligibility] = useState('all');
 
   const handleSaveBallot = async () => {
+    if (!ballotName || ballotName.trim() === '') {
+      // Notify the user that the ballot name is required
+      alert('Ballot name is required.');
+      return; // Stop the function if the ballot name is not provided
+    }
+
     const ballotData = {
       name: ballotName,
       openingDate: openingDate,
@@ -26,7 +33,10 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/qr/generate-qr', ballotData);
+      const response = await axios.post(
+        'http://localhost:5000/api/qr/generate-qr',
+        ballotData
+      );
       console.log(response.data);
       setQrCodeUrl(response.data.qrCode);
       setIsModalOpen(true);
@@ -126,7 +136,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               <ul>
                 <li className="flex items-center gap-2 mb-2">
                   <img
-                    src="/path-to-avatar.png"
+                    src={profile}
                     alt="Candidate"
                     className="w-8 h-8 rounded-full"
                   />
@@ -137,9 +147,40 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                   />
                 </li>
                 {/* Add Candidate Button */}
-                <button className="bg-yellow-400 text-white px-4 py-2 rounded-lg">
-                  Add Candidate
-                </button>
+                <div className="space-x-2">
+                  <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
+                    Remove
+                  </button>
+                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded-lg">
+                    Add Candidate
+                  </button>
+                </div>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold"> Vice President</h4>
+              <ul>
+                <li className="flex items-center gap-2 mb-2">
+                  <img
+                    src={profile}
+                    alt="Candidate"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <input
+                    type="text"
+                    defaultValue="Emma Carter"
+                    className="border rounded-lg p-2 w-full"
+                  />
+                </li>
+                {/* Add Candidate Button */}
+                <div className="space-x-2">
+                  <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
+                    Remove
+                  </button>
+                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded-lg">
+                    Add Candidate
+                  </button>
+                </div>
               </ul>
             </div>
           </div>
@@ -148,16 +189,16 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg"
+            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg"
           >
             Cancel
           </button>
           <button
             onClick={handleSaveBallot}
             type="button"
-            className="bg-blue-700 text-white px-4 py-2 rounded-lg"
+            className="bg-[#22C55E] hover:bg-[#1c9665] text-white px-2 py-1 rounded-lg"
           >
-            Save Ballot
+            Create Ballot
           </button>
         </div>
 
@@ -172,7 +213,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             eligibility: eligibility,
           }}
         />
-
       </div>
     </div>
   );
