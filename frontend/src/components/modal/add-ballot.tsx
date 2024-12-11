@@ -165,7 +165,14 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           qrCodeImage={qrCodeUrl || ''}
+          qrData={{
+            name: ballotName,
+            openingDate: openingDate,
+            closingDate: closingDate,
+            eligibility: eligibility,
+          }}
         />
+
       </div>
     </div>
   );
