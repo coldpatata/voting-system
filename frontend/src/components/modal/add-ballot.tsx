@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import QRCodeModal from './qr-code';
+import axios from 'axios';
 
 interface AddBallotModalProps {
   isOpen: boolean;
@@ -8,20 +9,42 @@ interface AddBallotModalProps {
 
 const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
-  const handleSaveBallot = () => {
-    setIsModalOpen(true);
+  // States to handle form data
+  const [ballotName, setBallotName] = useState('');
+  const [openingDate, setOpeningDate] = useState('');
+  const [closingDate, setClosingDate] = useState('');
+  const [eligibility, setEligibility] = useState('all');
+
+  const handleSaveBallot = async () => {
+    const ballotData = {
+      name: ballotName,
+      openingDate: openingDate,
+      closingDate: closingDate,
+      eligibility: eligibility,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/qr/generate-qr', ballotData);
+      console.log(response.data);
+      setQrCodeUrl(response.data.qrCode);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Failed to generate QR code. Please try again.');
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
-        {/* Modal Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-blue-700">Add Ballot</h2>
           <button
@@ -44,6 +67,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               type="text"
               placeholder="Enter ballot name"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
+              value={ballotName}
+              onChange={(e) => setBallotName(e.target.value)}
             />
           </div>
 
@@ -55,6 +80,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             <input
               type="date"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
+              value={openingDate}
+              onChange={(e) => setOpeningDate(e.target.value)}
             />
           </div>
 
@@ -66,6 +93,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             <input
               type="date"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
+              value={closingDate}
+              onChange={(e) => setClosingDate(e.target.value)}
             />
           </div>
 
@@ -74,7 +103,11 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             <label className="text-sm font-medium text-gray-700">
               Year Level Eligibility
             </label>
-            <select className="border rounded-lg p-2 mt-1 focus:outline-blue-700">
+            <select
+              className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
+              value={eligibility}
+              onChange={(e) => setEligibility(e.target.value)}
+            >
               <option value="all">All year level</option>
               <option value="first">First year</option>
               <option value="second">Second year</option>
@@ -112,7 +145,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Modal Footer */}
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
@@ -127,13 +159,13 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           >
             Save Ballot
           </button>
-
-          <QRCodeModal
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            qrCodeImage="path/to/your-qr-code.png"
-          />
         </div>
+
+        <QRCodeModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          qrCodeImage={qrCodeUrl || ''}
+        />
       </div>
     </div>
   );
