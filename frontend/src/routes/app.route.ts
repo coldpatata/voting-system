@@ -29,6 +29,8 @@ import StaffPositionPage from "../modules/staff/position/staff.position";
 import StaffBallotReportPage from "../modules/staff/ballot-report/staff.ballot-report";
 import StaffBallotPage from "../modules/staff/ballot/staff.ballot";
 import BallotPageAdmin from "../modules/admin/ballot/ballot.page";
+import UserLayout from "../layout/Profile Layout/user.layout";
+import PasswordLayout from "../layout/Profile Layout/password.layout";
 export const router = createBrowserRouter([
     {
       path: '',
@@ -95,8 +97,19 @@ export const router = createBrowserRouter([
             Component: AnnouncementPage
         },
         {
-          path: 'profile',
-          Component: ProfilePage
+          path: '/admin/profile',
+          Component: ProfilePage,
+          children:[
+            {
+              index:true,
+              path: 'user',
+              Component: UserLayout
+            },
+            {  path: 'password',
+            Component:  PasswordLayout
+           }
+          
+          ]
         }
       ]
     },
@@ -170,6 +183,8 @@ export const router = createBrowserRouter([
       ]
 
     },
+
+  
 
     
     {

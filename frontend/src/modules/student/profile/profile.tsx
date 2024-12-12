@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import ProfileLayout from '../../../layout/Profile Layout/profile.layout';
+import ProfileLayout from '../../../layout/Profile Layout/profile-header.layout';
 import UserLayout from '../../../layout/Profile Layout/user.layout';
 
 const ProfilePage: FC = () => {
