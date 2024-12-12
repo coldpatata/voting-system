@@ -1,18 +1,38 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/add-ballot';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  const openModal = () => {
-    setModalIsOpen(true);
-  };
-
   const [isModalOpen, setModalOpen] = useState(false);
 
+  interface Ballot {
+    ballot_id: number;
+    ballot_name: string;
+    opening_date: string; // ISO date string from the API
+    closing_date: string; // ISO date string from the API
+  }
+
+  const openModal = () => setModalIsOpen(true);
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
+  const [ballots, setBallots] = useState<Ballot[]>([]);
+
+  // Fetch ballots from API
+  useEffect(() => {
+    const fetchBallots = async () => {
+      try {
+        const response = await axios.get<{ data: Ballot[] }>('http://localhost:5000/api/ballot/getAllBallot');
+        setBallots(response.data.data);
+      } catch (error) {
+        console.error('Error fetching ballots:', error);
+      }
+    };
+  
+    fetchBallots();
+  }, []);
+  
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -24,24 +44,11 @@ const BallotPageAdmin: FC = () => {
       {/* Main Content */}
       <div className="p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
-            Ballots
-          </h2>
+          <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">Ballots</h2>
           <div className="flex">
-            <button
-              onClick={openModall}
-              className="bg-yellow-400 text-black px-4 "
-            >
-              Add
-            </button>
-            <input
-              type="text"
-              placeholder="Search"
-              className="border border-gray-300  px-2 py-1"
-            />
-            <button className="bg-yellow-400 text-black rounded-r-md px-4">
-              Search
-            </button>
+            <button onClick={openModall} className="bg-yellow-400 text-black px-4">Add</button>
+            <input type="text" placeholder="Search" className="border border-gray-300 px-2 py-1" />
+            <button className="bg-yellow-400 text-black rounded-r-md px-4">Search</button>
           </div>
         </div>
 
@@ -58,47 +65,50 @@ const BallotPageAdmin: FC = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="border">
-                <td className="border px-4 py-2">2024 SSLG Election</td>
-                <td className="border px-4 py-2">01/16/2024 - 12:00 AM</td>
-                <td className="border px-4 py-2">01/18/2024 - 06:59 PM</td>
-                <td className="border px-4 py-2">Open</td>
-                <td className="border px-4 py-2 flex justify-center space-x-2">
-                  <button className="bg-yellow-400 px-2 py-1 rounded">
-                    View
-                  </button>
-                  <button className="bg-green-500 px-2 py-1 text-white rounded">
-                    Done
-                  </button>
-                </td>
-              </tr>
+              {ballots.length > 0 ? (
+                ballots.map((ballot) => (
+                  <tr key={ballot.ballot_id} className="border">
+                    <td className="border px-4 py-2">{ballot.ballot_name}</td>
+                    <td className="border px-4 py-2">
+                      {new Date(ballot.opening_date).toLocaleString()}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {new Date(ballot.closing_date).toLocaleString()}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {new Date() < new Date(ballot.closing_date) ? 'Open' : 'Closed'}
+                    </td>
+                    <td className="border px-4 py-2 flex justify-center space-x-2">
+                      <button className="bg-yellow-400 px-2 py-1 rounded">View</button>
+                      <button className="bg-green-500 px-2 py-1 text-white rounded">Done</button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center p-4">
+                    No ballots available.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
         <div className="flex justify-center space-x-2 py-4">
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            &laquo; Previous
-          </button>
+          <button className="px-2 py-1 bg-gray-300 rounded">&laquo; Previous</button>
           <button className="px-2 py-1 bg-gray-300 rounded">1</button>
           <button className="px-2 py-1 bg-gray-300 rounded">2</button>
-          <button className="px-2 py-1 bg-blue-900 text-white rounded">
-            3
-          </button>
+          <button className="px-2 py-1 bg-blue-900 text-white rounded">3</button>
           <button className="px-2 py-1 bg-gray-300 rounded">4</button>
           <button className="px-2 py-1 bg-gray-300 rounded">5</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            Next &raquo;
-          </button>
+          <button className="px-2 py-1 bg-gray-300 rounded">Next &raquo;</button>
         </div>
       </div>
+
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      {/* Ballot Report Modal */}
-      <BallotReportModal
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      />
+      <BallotReportModal isOpen={modalIsOpen} onClose={() => setModalIsOpen(false)} />
     </div>
   );
 };

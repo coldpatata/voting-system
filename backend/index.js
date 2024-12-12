@@ -13,6 +13,8 @@ const emailRoutes = require('./routes/emailRoute');
 const announcementRoutes = require('./routes/AnnouncementRoute');
 const uploadRoutes = require('./routes/uploadRoutes');
 const qrRoute = require('./routes/qrRoute'); 
+const ballotRoute = require('./routes/BallotRoute');
+const candidateRoute = require('./routes/candidateRoute'); 
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -26,6 +28,8 @@ app.use('/api/email', emailRoutes);
 app.use('/api/announcement', announcementRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/qr', qrRoute);
+app.use('/api/ballot', ballotRoute);
+app.use('/api/candidate', candidateRoute);
 // Test endpoint
 app.get('/', (req, res) => {
   res.status(200).send("Hello World");

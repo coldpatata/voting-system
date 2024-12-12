@@ -32,19 +32,68 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
       eligibility: eligibility,
     };
 
+    const ballotDataPayLoad = {
+      ballot_name: ballotName,
+      opening_date: openingDate,
+      closing_date: closingDate,
+      year_level_eligibility: eligibility,
+    };
+
     try {
-      const response = await axios.post(
+      // Call the createBallot endpoint
+      const ballotResponse = await axios.post(
+        'http://localhost:5000/api/ballot/createBallot',
+        ballotDataPayLoad
+      );
+      console.log('Ballot created:', ballotResponse.data);
+
+      // Get the ballot ID from the response
+      const ballotId = ballotResponse.data.ballot_id;
+      console.log(ballotId)
+      console.log(ballotId)
+      // Get candidate names from the input fields
+      const presidentName = (document.getElementById('candidate-1') as HTMLInputElement)?.value;
+      const vicePresidentName = (document.getElementById('candidate-2') as HTMLInputElement)?.value;
+      console.log(presidentName)
+      console.log(vicePresidentName)
+
+      // Example candidate data; adjust as needed
+      const candidates = [
+        {
+          candidate_name: presidentName || 'Default President Name', // Fallback in case the input is empty
+          ballot_id: ballotId, // Associate the candidate with this ballot
+        },
+        {
+          candidate_name: vicePresidentName || 'Default Vice President Name', // Fallback in case the input is empty
+          ballot_id: ballotId, // Associate the candidate with this ballot
+        },
+      ];
+
+      // Loop through each candidate and call the createCandidate endpoint
+      for (const candidate of candidates) {
+        const candidateResponse = await axios.post(
+          'http://localhost:5000/api/candidate/createCandidate',
+          candidate
+        );
+        console.log('Candidate created:', candidateResponse.data);
+      }
+
+      // Generate the QR code
+      const qrResponse = await axios.post(
         'http://localhost:5000/api/qr/generate-qr',
         ballotData
       );
-      console.log(response.data);
-      setQrCodeUrl(response.data.qrCode);
+      console.log('QR code generated:', qrResponse.data);
+
+      setQrCodeUrl(qrResponse.data.qrCode);
       setIsModalOpen(true);
     } catch (error) {
-      console.error('Error generating QR code:', error);
-      alert('Failed to generate QR code. Please try again.');
+      console.error('Error occurred:', error);
+      alert('An error occurred while processing the request. Please try again.');
     }
   };
+
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -131,6 +180,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Positions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* President Section */}
             <div>
               <h4 className="font-semibold">President</h4>
               <ul>
@@ -141,6 +191,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                     className="w-8 h-8 rounded-full"
                   />
                   <input
+                    id="candidate-1" // Generic ID for the first candidate
                     type="text"
                     defaultValue="Emma Carter"
                     className="border rounded-lg p-2 w-full"
@@ -157,8 +208,10 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </ul>
             </div>
+
+            {/* Vice President Section */}
             <div>
-              <h4 className="font-semibold"> Vice President</h4>
+              <h4 className="font-semibold">Vice President</h4>
               <ul>
                 <li className="flex items-center gap-2 mb-2">
                   <img
@@ -167,6 +220,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                     className="w-8 h-8 rounded-full"
                   />
                   <input
+                    id="candidate-2" // Generic ID for the second candidate
                     type="text"
                     defaultValue="Emma Carter"
                     className="border rounded-lg p-2 w-full"
@@ -185,6 +239,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
+
+
 
         <div className="mt-6 flex justify-end gap-2">
           <button
