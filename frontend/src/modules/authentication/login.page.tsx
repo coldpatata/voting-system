@@ -16,10 +16,11 @@ const LoginPage: FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const saveToCookies = (accessToken: string, userType: string) => {
+  const saveToCookies = (accessToken: string, userType: string, uid: string) => {
     Cookies.set('accessToken', accessToken, { expires: 7, secure: true });
     Cookies.set('userType', userType, { expires: 7, secure: true });
     Cookies.set('username', username, { expires: 7, secure: true });
+    Cookies.set('uid', uid, { expires: 7, secure: true });
   };
 
   const handleLogin = async () => {
@@ -32,9 +33,9 @@ const LoginPage: FC = () => {
         }
       );
 
-      const { accessToken, role_id } = response.data;
+      const { accessToken, role_id, uid } = response.data;
 
-      saveToCookies(accessToken, role_id);
+      saveToCookies(accessToken, role_id, uid);
       switch (role_id) {
         case 1:
           navigate('/student'); // Navigate to Admin Dashboard
