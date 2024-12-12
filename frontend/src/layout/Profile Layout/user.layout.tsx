@@ -8,7 +8,6 @@ const UserLayout: FC = () => {
     firstName: '',
     lastName: '',
     middleName: '',
-    suffix: '',
     email: '',
     contactNumber: '',
   });
@@ -17,25 +16,23 @@ const UserLayout: FC = () => {
     setIsEditing(!isEditing);
   };
 
-  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Get the user ID from cookies
         const uid = Cookies.get('uid');
         if (!uid) {
           throw new Error('User ID not found in cookies');
         }
 
-        
-        const response = await axios.get(`http://localhost:5000/api/users/${uid}`);
+        const response = await axios.get(
+          `http://localhost:5000/api/users/${uid}`
+        );
 
         const data = response.data;
         setUserData({
           firstName: data.first_name || '',
           lastName: data.last_name || '',
           middleName: data.middle_initial || '',
-          suffix: '',
           email: data.email || '',
           contactNumber: data.contact_number || '',
         });
@@ -65,8 +62,9 @@ const UserLayout: FC = () => {
             </div>
             <div className="flex items-center mb-4">
               <button
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                  }`}
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
+                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                }`}
                 disabled={!isEditing}
               >
                 Choose File
@@ -100,32 +98,19 @@ const UserLayout: FC = () => {
               }
             />
           </div>
-          <div className="mb-4 flex flex-col lg:flex-row">
-            <div className="w-full lg:w-1/2 lg:mr-2 mb-4 lg:mb-0">
-              <label className="block mb-1">Middle Name</label>
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 rounded"
-                value={userData.middleName}
-                disabled={!isEditing}
-                onChange={(e) =>
-                  setUserData({ ...userData, middleName: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-full lg:w-1/2">
-              <label className="block mb-1">Suffix</label>
-              <input
-                type="text"
-                className="w-full p-2 border border-gray-300 rounded"
-                value={userData.suffix}
-                disabled={!isEditing}
-                onChange={(e) =>
-                  setUserData({ ...userData, suffix: e.target.value })
-                }
-              />
-            </div>
+          <div className="mb-4">
+            <label className="block mb-1">Middle Name</label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={userData.middleName}
+              disabled={!isEditing}
+              onChange={(e) =>
+                setUserData({ ...userData, middleName: e.target.value })
+              }
+            />
           </div>
+
           <div className="mb-4">
             <label className="block mb-1">Email</label>
             <input

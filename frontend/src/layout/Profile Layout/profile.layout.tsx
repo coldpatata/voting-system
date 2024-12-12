@@ -4,8 +4,9 @@ import ProfileHeader from './profile-header.layout';
 const ProfileLayout: React.FC = () => {
   return (
     <>
-      <ProfileHeader />
-      <div className="h-full w-full">
+      <div className="">
+        <ProfileHeader />
+
         <Outlet />
       </div>
     </>

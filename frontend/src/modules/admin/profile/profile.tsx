@@ -6,7 +6,7 @@ const ProfilePage: FC = () => {
   return (
     <>
       {' '}
-      <div className="p-4">
+      <div className="p-4 h-screen">
         <ProfileLayout />
       </div>
     </>
