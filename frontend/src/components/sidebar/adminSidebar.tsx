@@ -187,9 +187,10 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
 
           <Link
-            to="/admin/profile"
+            to="/admin/profile/user"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/admin/profile'
+              location.pathname === '/admin/profile/user' ||
+              location.pathname === '/admin/profile/password'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}
@@ -198,7 +199,7 @@ const Sidebar = () => {
           </Link>
           <div className="m-7">
             <button
-              onClick={handleLogout} 
+              onClick={handleLogout}
               className="block py-2 px-3 hover:bg-red-200 rounded-md"
             >
               <p className="text-red-700 font-bold text-xl text-center">
