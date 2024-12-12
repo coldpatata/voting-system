@@ -1,4 +1,6 @@
 import { FC, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const UserLayout: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -15,16 +17,28 @@ const UserLayout: FC = () => {
     setIsEditing(!isEditing);
   };
 
-  // Fetch user data on component mount
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('/api/user/profile'); // Replace with your API endpoint
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
+        // Get the user ID from cookies
+        const uid = Cookies.get('uid');
+        if (!uid) {
+          throw new Error('User ID not found in cookies');
         }
-        const data = await response.json();
-        setUserData(data);
+
+        
+        const response = await axios.get(`http://localhost:5000/api/users/${uid}`);
+
+        const data = response.data;
+        setUserData({
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
+          middleName: data.middle_initial || '',
+          suffix: '',
+          email: data.email || '',
+          contactNumber: data.contact_number || '',
+        });
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -35,7 +49,7 @@ const UserLayout: FC = () => {
 
   return (
     <div className="p-4">
-      <div className="bg-blue-100 text-blue-700  mb-4 flex items-center">
+      <div className="bg-blue-100 text-blue-700 mb-4 flex items-center">
         <i className="fas fa-info-circle mr-2"></i>
         <span>Update your account's profile information.</span>
       </div>
@@ -51,9 +65,8 @@ const UserLayout: FC = () => {
             </div>
             <div className="flex items-center mb-4">
               <button
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
-                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                }`}
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                  }`}
                 disabled={!isEditing}
               >
                 Choose File
