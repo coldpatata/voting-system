@@ -1,5 +1,8 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
+import { FaSearch } from 'react-icons/fa';
+import DropdownMenu from '../../../components/dropdown/dropdown';
+import { MenuItemProps } from '@headlessui/react';
 
 const AccountsPage: FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -7,7 +10,6 @@ const AccountsPage: FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -17,7 +19,7 @@ const AccountsPage: FC = () => {
         `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
       );
       setUsers(response.data.data);
-      console.log(users)
+      console.log(users);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -39,11 +41,14 @@ const AccountsPage: FC = () => {
       };
 
       // Make the PUT request
-      const response = await axios.put('http://localhost:5000/api/users/updateUserStatus', requestBody);
-      if(response.status == 200){
+      const response = await axios.put(
+        'http://localhost:5000/api/users/updateUserStatus',
+        requestBody
+      );
+      if (response.status == 200) {
         window.location.reload();
-      }else{
-        alert("SERVER ERROR")
+      } else {
+        alert('SERVER ERROR');
       }
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -51,11 +56,10 @@ const AccountsPage: FC = () => {
     }
   };
 
-
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
     try {
-      const limit = 5; 
+      const limit = 5;
       const response = await axios.get(
         `http://localhost:5000/api/users/searchUsers?username=${username}&page=${page}&limit=${limit}`
       );
@@ -71,10 +75,8 @@ const AccountsPage: FC = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-
       fetchUsers(currentPage);
     } else {
-
       fetchFilteredUsers(currentPage, searchQuery);
     }
   }, [currentPage, searchQuery]);
@@ -85,10 +87,13 @@ const AccountsPage: FC = () => {
     }
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-    fetchFilteredUsers(1, searchQuery);
-  };
+  const options: MenuItemProps[][] = [
+    [
+      { label: 'Admin', href: '#' },
+      { label: 'Staff', href: '#' },
+      { label: 'Student', href: '#' },
+    ],
+  ];
 
   return (
     <>
@@ -98,20 +103,17 @@ const AccountsPage: FC = () => {
       <div className="min-h-screen bg-gray-200 p-4">
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Accounts</h1>
-          <div className="flex items-center">
-            <input
-              type="text"
-              className="p-2 text-black"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button
-              onClick={handleSearch}
-              className="bg-yellow-400 text-black p-2"
-            >
-              Search
-            </button>
+          <div className="flex items-center space-x-4">
+            <DropdownMenu options={options} />
+            <div className="flex items-center">
+              <input
+                type="text"
+                className="p-2 text-black"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto mt-4">
@@ -145,10 +147,11 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                        }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${
+                        user.status === 'active'
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }`}
                     >
                       {user.status}
                     </td>
@@ -158,12 +161,14 @@ const AccountsPage: FC = () => {
                       </button>
                       <button
                         onClick={() => handleArchive(user.user_id, user.status)}
-                        className={`px-4 py-1 rounded ${user.status === 'active' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-                          }`}
+                        className={`px-4 py-1 rounded ${
+                          user.status === 'active'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-blue-500 text-white'
+                        }`}
                       >
                         {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
-
                     </td>
                   </tr>
                 ))
@@ -189,10 +194,11 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${currentPage === page
-                ? 'bg-blue-800 text-white'
-                : 'text-gray-600'
-                }`}
+              className={`px-4 py-2 mx-1 ${
+                currentPage === page
+                  ? 'bg-blue-800 text-white'
+                  : 'text-gray-600'
+              }`}
             >
               {page}
             </button>
