@@ -11,6 +11,7 @@ interface QRCodeModalProps {
     closingDate: string;
     eligibility: string;
   }; // This contains the data to generate the QR code on the backend
+  
 }
 
 const QRCodeModal: React.FC<QRCodeModalProps> = ({

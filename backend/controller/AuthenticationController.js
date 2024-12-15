@@ -50,7 +50,10 @@ module.exports = {
             if (!password) {
                 return res.status(400).json({ error: "Provide password input" });
             }
-
+            if (user.status == "inactive") {
+                return res.status(400).json({ error: "Account is inactive please contact your school administrator for further info" });
+            }
+            
             const dbPassword = user.password;
             const match = await bcrypt.compare(password, dbPassword);
 
