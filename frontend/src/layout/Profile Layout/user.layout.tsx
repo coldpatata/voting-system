@@ -5,6 +5,7 @@ import axios from 'axios';
 const UserLayout: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
+    userName: '',
     firstName: '',
     lastName: '',
     middleName: '',
@@ -30,6 +31,7 @@ const UserLayout: FC = () => {
 
         const data = response.data;
         setUserData({
+          userName: data.username || '',
           firstName: data.first_name || '',
           lastName: data.last_name || '',
           middleName: data.middle_initial || '',
@@ -75,29 +77,46 @@ const UserLayout: FC = () => {
         </div>
         <div className="w-full lg:w-1/2 lg:order-1">
           <div className="mb-4">
-            <label className="block mb-1">Firstname</label>
+            <label className="block mb-1">Username</label>
             <input
               type="text"
               className="w-full p-2 border border-gray-300 rounded"
-              value={userData.firstName}
-              disabled={!isEditing}
+              value={userData.userName}
+              disabled={true}
               onChange={(e) =>
                 setUserData({ ...userData, firstName: e.target.value })
               }
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-1">Lastname</label>
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded"
-              value={userData.lastName}
-              disabled={!isEditing}
-              onChange={(e) =>
-                setUserData({ ...userData, lastName: e.target.value })
-              }
-            />
+            <div className="flex gap-5">
+              <div className="w-2/5">
+                <label className="block mb-1">Firstname</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={userData.firstName}
+                  disabled={!isEditing}
+                  onChange={(e) =>
+                    setUserData({ ...userData, firstName: e.target.value })
+                  }
+                />
+              </div>
+              <div className="w-full">
+                <label className="block mb-1">Lastname</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={userData.lastName}
+                  disabled={!isEditing}
+                  onChange={(e) =>
+                    setUserData({ ...userData, lastName: e.target.value })
+                  }
+                />
+              </div>
+            </div>
           </div>
+
           <div className="mb-4">
             <label className="block mb-1">Middle Name</label>
             <input
