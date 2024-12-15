@@ -6,7 +6,7 @@ const AccountsPage: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); 
+  const [searchQuery, setSearchQuery] = useState('');
 
 
   const fetchUsers = async (page: number) => {
@@ -16,7 +16,8 @@ const AccountsPage: FC = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
       );
-      setUsers(response.data.data); 
+      setUsers(response.data.data);
+      console.log(users)
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -26,17 +27,41 @@ const AccountsPage: FC = () => {
     }
   };
 
-  
+  const handleArchive = async (userId: string, currentStatus: string) => {
+    try {
+      // Toggle status based on current status
+      const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+      // Prepare the request body
+      const requestBody = {
+        user_id: userId,
+        status: updatedStatus,
+      };
+
+      // Make the PUT request
+      const response = await axios.put('http://localhost:5000/api/users/updateUserStatus', requestBody);
+      if(response.status == 200){
+        window.location.reload();
+      }else{
+        alert("SERVER ERROR")
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      alert('Failed to update user status. Please try again.');
+    }
+  };
+
+
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
     try {
-      const limit = 5; // Number of items per page
+      const limit = 5; 
       const response = await axios.get(
         `http://localhost:5000/api/users/searchUsers?username=${username}&page=${page}&limit=${limit}`
       );
-      setUsers(response.data.data); 
-      setCurrentPage(response.data.currentPage); 
-      setTotalPages(response.data.totalPages); 
+      setUsers(response.data.data);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error('Error fetching filtered users:', error);
     } finally {
@@ -46,10 +71,10 @@ const AccountsPage: FC = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      
+
       fetchUsers(currentPage);
     } else {
-      
+
       fetchFilteredUsers(currentPage, searchQuery);
     }
   }, [currentPage, searchQuery]);
@@ -120,11 +145,10 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${
-                        user.status === 'active'
-                          ? 'text-green-500'
-                          : 'text-red-500'
-                      }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                        }`}
                     >
                       {user.status}
                     </td>
@@ -132,9 +156,14 @@ const AccountsPage: FC = () => {
                       <button className="bg-green-400 text-black px-4 py-1 rounded">
                         Edit
                       </button>
-                      <button className="bg-red-500 text-white px-4 py-1 rounded">
-                        Archive
+                      <button
+                        onClick={() => handleArchive(user.user_id, user.status)}
+                        className={`px-4 py-1 rounded ${user.status === 'active' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
+                          }`}
+                      >
+                        {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
+
                     </td>
                   </tr>
                 ))
@@ -160,11 +189,10 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${
-                currentPage === page
-                  ? 'bg-blue-800 text-white'
-                  : 'text-gray-600'
-              }`}
+              className={`px-4 py-2 mx-1 ${currentPage === page
+                ? 'bg-blue-800 text-white'
+                : 'text-gray-600'
+                }`}
             >
               {page}
             </button>

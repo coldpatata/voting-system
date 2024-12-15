@@ -73,7 +73,7 @@ exports.getUsersWithRoles = async (req, res) => {
 
     // Fetch paginated data
     const { rows: users, count: totalUsers } = await Users.findAndCountAll({
-      attributes: ['username', 'email', 'status'], // Columns from Users
+      attributes: ['user_id', 'username', 'email', 'status'], // Columns from Users
       include: [
         {
           model: UserRoles,
@@ -138,6 +138,42 @@ exports.searchUsers = async (req, res) => {
   } catch (error) {
     console.error('Error searching users:', error);
     res.status(500).json({ message: 'An error occurred while searching for users.' });
+  }
+};
+
+// Controller function to update user status
+exports.updateUserStatus = async (req, res) => {
+  const { user_id, status } = req.body; 
+
+  try {
+    // Validate the status input
+    if (!['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status. Use 'ACTIVE' or 'INACTIVE'." });
+    }
+
+    // Check if user_id exists
+    if (!user_id) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+
+    // Find the user by user_id
+    const user = await Users.findByPk(user_id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Update the user's status
+    user.status = status;
+    await user.save();
+
+    // Send success response
+    return res.status(200).json({
+      message: `User status updated to ${status}`,
+      user: { user_id: user.user_id, status: user.status },
+    });
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    return res.status(500).json({ message: 'Internal Server Error.' });
   }
 };
 
