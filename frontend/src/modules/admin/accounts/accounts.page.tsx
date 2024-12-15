@@ -79,10 +79,10 @@ const AccountsPage: FC = () => {
               className="p-2 text-black"
               placeholder="Search..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button
-              onClick={handleSearch} // Trigger search
+              onClick={handleSearch}
               className="bg-yellow-400 text-black p-2"
             >
               Search
@@ -110,14 +110,22 @@ const AccountsPage: FC = () => {
               ) : users.length > 0 ? (
                 users.map((user, index) => (
                   <tr key={index}>
-                    <td className="py-2 px-4 border-b">{user.username}</td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {user.username}
+                    </td>
                     <td className="py-2 px-4 border-b text-center">
                       {user.email}
                     </td>
                     <td className="py-2 px-4 border-b text-center">
                       {user.role.role_name}
                     </td>
-                    <td className="py-2 px-4 border-b text-center">
+                    <td
+                      className={`py-2 px-4 border-b text-center uppercase ${
+                        user.status === 'active'
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }`}
+                    >
                       {user.status}
                     </td>
                     <td className="py-2 gap-2 px-4 border-b flex justify-center">
