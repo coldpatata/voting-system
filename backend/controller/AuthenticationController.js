@@ -53,7 +53,7 @@ module.exports = {
             if (user.status == "inactive") {
                 return res.status(400).json({ error: "Account is inactive please contact your school administrator for further info" });
             }
-            
+
             const dbPassword = user.password;
             const match = await bcrypt.compare(password, dbPassword);
 
@@ -92,11 +92,11 @@ module.exports = {
                 return res.status(404).json({ error: "User not found." });
             }
 
-            
+
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-            
+
             await user.update({ password: hashedPassword });
 
             return res.status(200).json({
@@ -108,6 +108,44 @@ module.exports = {
         } catch (error) {
             console.error("Error:", error.message);
             return res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+
+    changePassword: async (req, res) => {
+        try {
+
+            const { user_id, currentPassword, newPassword } = req.body;
+
+
+            if (!user_id || !currentPassword || !newPassword) {
+                return res.status(400).json({ message: 'All fields are required.' });
+            }
+
+
+            const user = await Users.findByPk(user_id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found.' });
+            }
+
+
+            const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: 'Current password is incorrect.' });
+            }
+
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+
+            user.password = hashedPassword;
+            await user.save();
+
+
+            return res.status(200).json({ message: 'Password successfully changed.' });
+
+        } catch (error) {
+            console.error('Error changing password:', error.message);
+            return res.status(500).json({ message: 'An error occurred while changing the password.' });
         }
     }
 
