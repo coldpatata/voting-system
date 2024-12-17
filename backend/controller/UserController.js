@@ -143,7 +143,7 @@ exports.searchUsers = async (req, res) => {
 
 // Controller function to update user status
 exports.updateUserStatus = async (req, res) => {
-  const { user_id, status } = req.body; 
+  const { user_id, status } = req.body;
 
   try {
     // Validate the status input
@@ -176,4 +176,38 @@ exports.updateUserStatus = async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error.' });
   }
 };
+
+exports.getUsersByRoleName = async (req, res) => {
+  const { role_name } = req.query;
+
+  if (!role_name) {
+    return res.status(400).json({ error: 'role_name query parameter is required' });
+  }
+
+  try {
+    // Find users with the given role_name
+    const users = await Users.findAll({
+      include: [
+        {
+          model: UserRoles,
+          as: 'role',
+          attributes: ['role_name'], // Only include the role_name attribute
+          where: { role_name }, // Filter by the role_name
+        },
+      ],
+      attributes: { exclude: ['password'] }, // Exclude sensitive data like password
+    });
+
+    // Check if any users are found
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'No users found with the specified role' });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users by role:', error);
+    res.status(500).json({ error: 'An error occurred while fetching users' });
+  }
+};
+
 

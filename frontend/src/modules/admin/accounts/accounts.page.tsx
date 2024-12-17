@@ -1,8 +1,5 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaSearch } from 'react-icons/fa';
-import DropdownMenu from '../../../components/dropdown/dropdown';
-import { MenuItemProps } from '@headlessui/react';
 
 const AccountsPage: FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -10,6 +7,7 @@ const AccountsPage: FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -18,8 +16,8 @@ const AccountsPage: FC = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
       );
+      console.log(response.data.data)
       setUsers(response.data.data);
-      console.log(users);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -56,6 +54,23 @@ const AccountsPage: FC = () => {
     }
   };
 
+
+  const fetchUsersByRole = async (role = '') => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}`
+      );
+      setUsers(response.data); // Directly set the array of users
+    } catch (error) {
+      console.error('Error fetching users by role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
     try {
@@ -72,14 +87,30 @@ const AccountsPage: FC = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    if (searchQuery.trim() === '') {
-      fetchUsers(currentPage);
-    } else {
-      fetchFilteredUsers(currentPage, searchQuery);
-    }
-  }, [currentPage, searchQuery]);
+    const loadData = async () => {
+      setLoading(true); // Ensure consistent loading state
+      try {
+        if (searchQuery.trim() === '' && selectedRole.trim() === '') {
+          // Fetch all users if no search query or role is selected
+          await fetchUsers(currentPage);
+        } else if (selectedRole.trim() !== '') {
+          // Fetch users by role
+          await fetchUsersByRole(selectedRole);
+        } else {
+          // Fetch users based on search query
+          await fetchFilteredUsers(currentPage, searchQuery);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [currentPage, searchQuery, selectedRole]);
+
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -87,13 +118,10 @@ const AccountsPage: FC = () => {
     }
   };
 
-  const options: MenuItemProps[][] = [
-    [
-      { label: 'Admin', href: '#' },
-      { label: 'Staff', href: '#' },
-      { label: 'Student', href: '#' },
-    ],
-  ];
+  const handleRoleChange = (role: string) => {
+    setSelectedRole(role);
+  };
+
 
   return (
     <>
@@ -104,7 +132,16 @@ const AccountsPage: FC = () => {
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Accounts</h1>
           <div className="flex items-center space-x-4">
-            <DropdownMenu options={options} />
+            <select
+              className="p-2 text-black"
+              value={selectedRole}
+              onChange={(e) => handleRoleChange(e.target.value)}
+            >
+              <option value="">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
+              <option value="user">Student</option>
+            </select>
             <div className="flex items-center">
               <input
                 type="text"
@@ -114,6 +151,7 @@ const AccountsPage: FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+
           </div>
         </div>
         <div className="overflow-x-auto mt-4">
@@ -147,11 +185,10 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${
-                        user.status === 'active'
-                          ? 'text-green-500'
-                          : 'text-red-500'
-                      }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                        }`}
                     >
                       {user.status}
                     </td>
@@ -161,11 +198,10 @@ const AccountsPage: FC = () => {
                       </button>
                       <button
                         onClick={() => handleArchive(user.user_id, user.status)}
-                        className={`px-4 py-1 rounded ${
-                          user.status === 'active'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-blue-500 text-white'
-                        }`}
+                        className={`px-4 py-1 rounded ${user.status === 'active'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-blue-500 text-white'
+                          }`}
                       >
                         {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
@@ -194,11 +230,10 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${
-                currentPage === page
-                  ? 'bg-blue-800 text-white'
-                  : 'text-gray-600'
-              }`}
+              className={`px-4 py-2 mx-1 ${currentPage === page
+                ? 'bg-blue-800 text-white'
+                : 'text-gray-600'
+                }`}
             >
               {page}
             </button>
