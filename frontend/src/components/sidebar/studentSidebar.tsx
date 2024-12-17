@@ -109,9 +109,9 @@ const Sidebar = () => {
           </Link>
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
           <Link
-            to="/student/profile"
+            to="/student/profile/user"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/student/profile'
+              location.pathname === '/student/profile/user'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}

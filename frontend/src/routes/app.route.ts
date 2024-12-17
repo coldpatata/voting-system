@@ -141,9 +141,20 @@ export const router = createBrowserRouter([
     Component: Feedbacks
   },
   {
-    path: 'profile',
-    Component: ProfilePage
-  },
+    path: '/student/profile',
+    Component: ProfilePage,
+    children:[
+      {
+        index:true,
+        path: 'user',
+        Component: UserLayout
+      },
+      {  path: 'password',
+      Component:  PasswordLayout
+     }
+    
+    ]
+  }
 
     ]
     },
