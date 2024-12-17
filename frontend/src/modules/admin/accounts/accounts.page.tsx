@@ -140,7 +140,7 @@ const AccountsPage: FC = () => {
               <option value="">All Roles</option>
               <option value="admin">Admin</option>
               <option value="staff">Staff</option>
-              <option value="user">Student</option>
+              <option value="student">Student</option>
             </select>
             <div className="flex items-center">
               <input
@@ -151,7 +151,6 @@ const AccountsPage: FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-
           </div>
         </div>
         <div className="overflow-x-auto mt-4">
@@ -185,10 +184,11 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                        }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${
+                        user.status === 'active'
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }`}
                     >
                       {user.status}
                     </td>
@@ -198,10 +198,11 @@ const AccountsPage: FC = () => {
                       </button>
                       <button
                         onClick={() => handleArchive(user.user_id, user.status)}
-                        className={`px-4 py-1 rounded ${user.status === 'active'
-                          ? 'bg-red-500 text-white'
-                          : 'bg-blue-500 text-white'
-                          }`}
+                        className={`px-4 py-1 rounded ${
+                          user.status === 'active'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-blue-500 text-white'
+                        }`}
                       >
                         {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
@@ -230,10 +231,11 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${currentPage === page
-                ? 'bg-blue-800 text-white'
-                : 'text-gray-600'
-                }`}
+              className={`px-4 py-2 mx-1 ${
+                currentPage === page
+                  ? 'bg-blue-800 text-white'
+                  : 'text-gray-600'
+              }`}
             >
               {page}
             </button>
