@@ -87,10 +87,22 @@ const BallotPageAdmin: FC = () => {
                   <tr key={ballot.ballot_id} className="border">
                     <td className="border px-4 py-2">{ballot.ballot_name}</td>
                     <td className="border px-4 py-2">
-                      {new Date(ballot.opening_date).toLocaleString()}
+                      {new Intl.DateTimeFormat('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }).format(new Date(ballot.opening_date))}
                     </td>
                     <td className="border px-4 py-2">
-                      {new Date(ballot.closing_date).toLocaleString()}
+                      {new Intl.DateTimeFormat('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }).format(new Date(ballot.closing_date))}
                     </td>
                     <td className="border px-4 py-2">
                       {new Date() < new Date(ballot.closing_date)

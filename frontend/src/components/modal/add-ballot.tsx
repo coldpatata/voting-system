@@ -101,6 +101,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const formattedDateTimeOD = openingDate.slice(0, 16);
+  const formattedDateTimeCD = closingDate.slice(0, 16);
+
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
@@ -137,9 +140,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               Opening Date
             </label>
             <input
-              type="date"
+              type="datetime-local"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
-              value={openingDate}
+              value={formattedDateTimeOD}
               onChange={(e) => setOpeningDate(e.target.value)}
             />
           </div>
@@ -150,9 +153,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               Closing Date
             </label>
             <input
-              type="date"
+              type="datetime-local"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700"
-              value={closingDate}
+              value={formattedDateTimeCD}
               onChange={(e) => setClosingDate(e.target.value)}
             />
           </div>
@@ -239,8 +242,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
-
-
 
         <div className="mt-6 flex justify-end gap-2">
           <button
