@@ -117,6 +117,7 @@ const Sidebar = () => {
           >
             Ballot
           </Link>
+
           <Link
             to="/staff/announcements"
             className={`block py-2 px-3 rounded-md ${
@@ -155,9 +156,9 @@ const Sidebar = () => {
           <div className="text-gray-400 text-sm mt-6">Manage Account</div>
 
           <Link
-            to="/staff/profile"
+            to="/staff/profile/user"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/staff/profile'
+              location.pathname === '/staff/profile/user'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}

@@ -4,12 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 const ProfileHeader: FC = () => {
   const location = useLocation();
 
-  // Check if user is under /admin, /student, or /staff
+  
   const isAdmin = location.pathname.startsWith('/admin');
   const isStudent = location.pathname.startsWith('/student');
   const isStaff = location.pathname.startsWith('/staff');
 
-  // Dynamic links based on the current role
+
   const links = isAdmin
     ? [
         { label: 'Password', path: '/admin/profile/password' },
