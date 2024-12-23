@@ -49,6 +49,54 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+
+exports.updateUserDetails = async (req, res) => {
+  try {
+    const { user_id } = req.query; // Accessing from URL parameter
+    const {
+      username,
+      email,
+      first_name,
+      middle_initial,
+      last_name,
+      year_level,
+      role_id,
+      section,
+      contact_number,
+      status,
+    } = req.body;
+
+    // Find the user by ID
+    const user = await Users.findByPk(user_id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the user fields
+    await user.update({
+      username,
+      email,
+      first_name,
+      middle_initial,
+      last_name,
+      year_level,
+      role_id,
+      section,
+      contact_number,
+      status,
+    });
+
+    return res.status(200).json({ message: 'User updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({
+      message: 'An error occurred while updating the user',
+      error: error.message,
+    });
+  }
+};
+
 // Delete a user
 exports.deleteUser = async (req, res) => {
   try {
