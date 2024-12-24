@@ -28,22 +28,23 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
       let fullUrl = null;
 
       if (file) {
-        // Prepare FormData to send file via POST request
         const formData = new FormData();
         formData.append('file', file);
 
-        // Use Axios to upload the file to the backend
-        const response = await axios.post('http://localhost:5000/api/upload/uploadSingle', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await axios.post(
+          'http://localhost:5000/api/upload/uploadSingle',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
 
-        // Handle the response from the server
         if (response.status === 200) {
           console.log(response.data);
-          fileUrl = response.data.fileUrl; // Assuming your backend returns the file URL
-          fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`
+          fileUrl = response.data.fileUrl;
+          fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
           console.log('Image uploaded successfully:', fileUrl);
         } else {
           throw new Error('Image upload failed');
@@ -52,20 +53,22 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
 
       const announcementData = {
         title_header: title,
-        time_date: new Date(), // Get current date
-        image_url: fullUrl, // File URL from the upload response
+        time_date: new Date(),
+        image_url: fullUrl,
         description_text: body,
       };
 
-      // Send the announcement data to the backend
-      const createResponse = await axios.post('http://localhost:5000/api/announcement/createAnnouncement', announcementData);
+      const createResponse = await axios.post(
+        'http://localhost:5000/api/announcement/createAnnouncement',
+        announcementData
+      );
 
       // Handle the response from the server
       if (createResponse.status === 201) {
         console.log('Announcement created successfully:', createResponse.data);
-        alert("ANNOUNCEMENT CREATED!!!")
-        // You can call onSubmit if needed or handle the response in other ways
-        onSubmit(title, body, fileUrl);
+        alert('ANNOUNCEMENT CREATED!!!');
+
+        onSubmit(title, body, fileUrl || null);
         onClose();
       } else {
         throw new Error('Failed to create announcement');

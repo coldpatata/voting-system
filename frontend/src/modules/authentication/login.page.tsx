@@ -4,6 +4,7 @@ import { FC, useState, useEffect } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 
 const LoginPage: FC = () => {
   const navigate = useNavigate();
@@ -16,7 +17,11 @@ const LoginPage: FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const saveToCookies = (accessToken: string, userType: string, uid: string) => {
+  const saveToCookies = (
+    accessToken: string,
+    userType: string,
+    uid: string
+  ) => {
     Cookies.set('accessToken', accessToken, { expires: 7, secure: true });
     Cookies.set('userType', userType, { expires: 7, secure: true });
     Cookies.set('username', username, { expires: 7, secure: true });
@@ -36,6 +41,16 @@ const LoginPage: FC = () => {
       const { accessToken, role_id, uid } = response.data;
 
       saveToCookies(accessToken, role_id, uid);
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'You have successfully logged in.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+      });
+
       switch (role_id) {
         case 1:
           navigate('/student'); // Navigate to Admin Dashboard
@@ -51,11 +66,16 @@ const LoginPage: FC = () => {
           break;
       }
     } catch (error) {
-      if (error instanceof AxiosError && error.response?.data?.error) {
-        setErrorMessage(error.response.data.error);
-      } else {
-        setErrorMessage('Login failed. Please try again.');
-      }
+      Swal.fire({
+        title: 'Login Failed',
+        text:
+          error instanceof AxiosError && error.response?.data?.error
+            ? error.response.data.error
+            : 'Login failed. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'Retry',
+        allowOutsideClick: false,
+      });
     }
   };
 
@@ -64,17 +84,6 @@ const LoginPage: FC = () => {
       handleLogin();
     }
   };
-
-
-  useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => {
-        setErrorMessage('');
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [errorMessage]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -141,11 +150,6 @@ const LoginPage: FC = () => {
                   Forgot your password?
                 </Link>
               </p>
-              {errorMessage && (
-                <p className="text-center text-red-500 text-sm mb-4">
-                  {errorMessage}
-                </p>
-              )}
             </div>
 
             <div className="flex items-center justify-center">
