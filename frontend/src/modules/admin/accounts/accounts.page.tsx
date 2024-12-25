@@ -8,15 +8,15 @@ const AccountsPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
-  const pollingInterval = 5000; // Poll every 5 seconds
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
-      const limit = 10;
+      const limit = 10; // Number of items per page
       const response = await axios.get(
         `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
       );
+      console.log(response.data.data);
       setUsers(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
@@ -29,17 +29,22 @@ const AccountsPage: FC = () => {
 
   const handleArchive = async (userId: string, currentStatus: string) => {
     try {
+      // Toggle status based on current status
       const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+      // Prepare the request body
       const requestBody = {
         user_id: userId,
         status: updatedStatus,
       };
+
+      // Make the PUT request
       const response = await axios.put(
         'http://localhost:5000/api/users/updateUserStatus',
         requestBody
       );
-      if (response.status === 200) {
-        await fetchUsers(currentPage); // Refresh data after updating status
+      if (response.status == 200) {
+        window.location.reload();
       } else {
         alert('SERVER ERROR');
       }
@@ -49,25 +54,49 @@ const AccountsPage: FC = () => {
     }
   };
 
+  const fetchUsersByRole = async (role = '') => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}`
+      );
+      setUsers(response.data); // Directly set the array of users
+    } catch (error) {
+      console.error('Error fetching users by role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFilteredUsers = async (page: number, username = '') => {
+    setLoading(true);
+    try {
+      const limit = 5;
+      const response = await axios.get(
+        `http://localhost:5000/api/users/searchUsers?username=${username}&page=${page}&limit=${limit}`
+      );
+      setUsers(response.data.data);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching filtered users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
+      setLoading(true); // Ensure consistent loading state
       try {
         if (searchQuery.trim() === '' && selectedRole.trim() === '') {
+          // Fetch all users if no search query or role is selected
           await fetchUsers(currentPage);
         } else if (selectedRole.trim() !== '') {
-          const response = await axios.get(
-            `http://localhost:5000/api/users/searchUsersByRole?role_name=${selectedRole}`
-          );
-          setUsers(response.data);
+          // Fetch users by role
+          await fetchUsersByRole(selectedRole);
         } else {
-          const limit = 5;
-          const response = await axios.get(
-            `http://localhost:5000/api/users/searchUsers?username=${searchQuery}&page=${currentPage}&limit=${limit}`
-          );
-          setUsers(response.data.data);
-          setCurrentPage(response.data.currentPage);
-          setTotalPages(response.data.totalPages);
+          // Fetch users based on search query
+          await fetchFilteredUsers(currentPage, searchQuery);
         }
       } catch (error) {
         console.error('Error loading data:', error);
@@ -77,17 +106,7 @@ const AccountsPage: FC = () => {
     };
 
     loadData();
-
-    // Polling mechanism
-    const intervalId = setInterval(() => {
-      if (users.length === 0 && !loading) {
-        loadData();
-      }
-    }, pollingInterval);
-
-    // Cleanup
-    return () => clearInterval(intervalId);
-  }, [currentPage, loading, searchQuery, selectedRole, users.length]);
+  }, [currentPage, searchQuery, selectedRole]);
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -98,6 +117,7 @@ const AccountsPage: FC = () => {
   const handleRoleChange = (role: string) => {
     setSelectedRole(role);
   };
+
 
   return (
     <>
