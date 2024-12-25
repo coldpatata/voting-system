@@ -259,3 +259,13 @@ exports.getUsersByRoleName = async (req, res) => {
 };
 
 
+exports.countUsers = async (req, res) => {
+  try {
+    const totalUsers = await Users.count(); 
+    res.status(200).json({ totalUsers });
+  } catch (error) {
+    console.error('Error counting users:', error);
+    res.status(500).json({ message: 'An error occurred while counting users', error });
+  }
+};
+

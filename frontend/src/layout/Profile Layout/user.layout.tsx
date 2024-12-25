@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import swal from 'sweetalert2';
 
 const UserLayout: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -21,26 +22,40 @@ const UserLayout: FC = () => {
           throw new Error('User ID not found in cookies');
         }
 
-        await axios.put(`http://localhost:5000/api/users/updateUserDetails?user_id=${uid}`, {
-          username: userData.userName,
-          first_name: userData.firstName,
-          last_name: userData.lastName,
-          middle_initial: userData.middleName,
-          email: userData.email,
-          contact_number: userData.contactNumber,
+        await axios.put(
+          `http://localhost:5000/api/users/updateUserDetails?user_id=${uid}`,
+          {
+            username: userData.userName,
+            first_name: userData.firstName,
+            last_name: userData.lastName,
+            middle_initial: userData.middleName,
+            email: userData.email,
+            contact_number: userData.contactNumber,
+          }
+        );
+
+        swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'User details update successfully!',
+          allowOutsideClick: true,
         });
 
-        alert('User details updated successfully!');
         window.location.reload();
-
       } catch (error) {
-        console.error('Error updating user details:', error);
-        alert('Failed to update user details. Please try again.');
+        console.error('Error Updating', error);
+
+        swal.fire({
+          icon: 'error',
+          title: 'User details update failed',
+          text: 'Failed to update user details. Please try again.',
+          confirmButtonText: 'Retry',
+          allowOutsideClick: true,
+        });
       }
     }
     setIsEditing(!isEditing);
   };
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -89,8 +104,9 @@ const UserLayout: FC = () => {
             </div>
             <div className="flex items-center mb-4">
               <button
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                  }`}
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
+                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                }`}
                 disabled={!isEditing}
               >
                 Choose File

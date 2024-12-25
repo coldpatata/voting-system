@@ -8,6 +8,8 @@ const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isViewOpen, setViewOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [ballots, setBallots] = useState<Ballot[]>([]);
 
   interface Ballot {
     ballot_id: number;
@@ -20,7 +22,6 @@ const BallotPageAdmin: FC = () => {
   const closeModall = () => setModalOpen(false);
   const openViewModal = () => setViewOpen(true);
   const closeViewModal = () => setViewOpen(false);
-  const [ballots, setBallots] = useState<Ballot[]>([]);
 
   // Fetch ballots from API
   useEffect(() => {
@@ -37,6 +38,11 @@ const BallotPageAdmin: FC = () => {
 
     fetchBallots();
   }, []);
+
+  // Filter ballots by search query
+  const filteredBallots = ballots.filter((ballot) =>
+    ballot.ballot_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -61,6 +67,8 @@ const BallotPageAdmin: FC = () => {
             <input
               type="text"
               placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="border border-gray-300 px-2 py-1"
             />
             <button className="bg-yellow-400 text-black rounded-r-md px-4">
@@ -82,11 +90,13 @@ const BallotPageAdmin: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {ballots.length > 0 ? (
-                ballots.map((ballot) => (
+              {filteredBallots.length > 0 ? (
+                filteredBallots.map((ballot) => (
                   <tr key={ballot.ballot_id} className="border">
-                    <td className="border px-4 py-2">{ballot.ballot_name}</td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
+                      {ballot.ballot_name}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
                       {new Intl.DateTimeFormat('en-US', {
                         year: 'numeric',
                         month: '2-digit',
@@ -95,7 +105,7 @@ const BallotPageAdmin: FC = () => {
                         minute: '2-digit',
                       }).format(new Date(ballot.opening_date))}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
                       {new Intl.DateTimeFormat('en-US', {
                         year: 'numeric',
                         month: '2-digit',
@@ -104,7 +114,7 @@ const BallotPageAdmin: FC = () => {
                         minute: '2-digit',
                       }).format(new Date(ballot.closing_date))}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
                       {new Date() < new Date(ballot.closing_date)
                         ? 'Open'
                         : 'Closed'}
@@ -116,8 +126,8 @@ const BallotPageAdmin: FC = () => {
                       >
                         View
                       </button>
-                      <button className="bg-green-500 px-2 py-1 text-white rounded">
-                        Done
+                      <button className="bg-red-600 px-2 py-1 text-white rounded">
+                        Edit
                       </button>
                     </td>
                   </tr>

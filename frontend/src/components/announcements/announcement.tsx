@@ -77,7 +77,7 @@ const Announcement: React.FC = () => {
               <img
                 src={announcement.image_url}
                 alt="Announcement related"
-                className="w-64 h-48 object-cover rounded-lg shadow-md"
+                className="w-full h-80 object-cover rounded-lg shadow-md"
               />
             </div>
             <p className="text-gray-600 text-sm">
