@@ -9,10 +9,9 @@ const AccountsPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
 
-  const fetchUsers = async (page: number, role: string = '') => {
+  const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
-<<<<<<< Updated upstream
       const limit = 10; // Number of items per page
       const response = await axios.get(
         `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
@@ -21,18 +20,6 @@ const AccountsPage: FC = () => {
       setUsers(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
-=======
-      const limit = 10;
-      const url =
-        role.trim() === ''
-          ? `http://localhost:5000/api/users/getUsersWithRoles?page=${page}&limit=${limit}`
-          : `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}&page=${page}&limit=${limit}`;
-      const response = await axios.get(url);
-
-      setUsers(response.data.data || response.data);
-      setCurrentPage(response.data.currentPage || 1);
-      setTotalPages(response.data.totalPages || 1);
->>>>>>> Stashed changes
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -42,7 +29,6 @@ const AccountsPage: FC = () => {
 
   const handleArchive = async (userId: string, currentStatus: string) => {
     try {
-<<<<<<< Updated upstream
       // Toggle status based on current status
       const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
@@ -53,35 +39,14 @@ const AccountsPage: FC = () => {
       };
 
       // Make the PUT request
-=======
-      const updatedUsers = users.map((user) =>
-        user.user_id === userId
-          ? {
-              ...user,
-              status: currentStatus === 'active' ? 'inactive' : 'active',
-            }
-          : user
-      );
-      setUsers(updatedUsers);
-
-      const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      const requestBody = { user_id: userId, status: updatedStatus };
-
->>>>>>> Stashed changes
       const response = await axios.put(
         'http://localhost:5000/api/users/updateUserStatus',
         requestBody
       );
-<<<<<<< Updated upstream
       if (response.status == 200) {
-        window.location.reload();
+        // window.location.reload();
       } else {
         alert('SERVER ERROR');
-=======
-
-      if (response.status !== 200) {
-        alert('Failed to update user status. Please try again.');
->>>>>>> Stashed changes
       }
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -127,12 +92,8 @@ const AccountsPage: FC = () => {
           // Fetch all users if no search query or role is selected
           await fetchUsers(currentPage);
         } else if (selectedRole.trim() !== '') {
-<<<<<<< Updated upstream
           // Fetch users by role
           await fetchUsersByRole(selectedRole);
-=======
-          await fetchUsers(1, selectedRole); // Fetch users by role
->>>>>>> Stashed changes
         } else {
           // Fetch users based on search query
           await fetchFilteredUsers(currentPage, searchQuery);
@@ -145,19 +106,7 @@ const AccountsPage: FC = () => {
     };
 
     loadData();
-<<<<<<< Updated upstream
   }, [currentPage, searchQuery, selectedRole]);
-=======
-
-    const intervalId = setInterval(() => {
-      if (users.length === 0 && !loading) {
-        loadData();
-      }
-    }, pollingInterval);
-
-    return () => clearInterval(intervalId);
-  }, [currentPage, loading, searchQuery, selectedRole, users.length]);
->>>>>>> Stashed changes
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -167,9 +116,7 @@ const AccountsPage: FC = () => {
 
   const handleRoleChange = (role: string) => {
     setSelectedRole(role);
-    setCurrentPage(1); // Reset to the first page when role changes
   };
-
 
   return (
     <>
@@ -215,8 +162,8 @@ const AccountsPage: FC = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 ">
-                    <p className="animate animate-pulse"> Loading...</p>
+                  <td colSpan={5} className="text-center py-4">
+                    Loading...
                   </td>
                 </tr>
               ) : users.length > 0 ? (
