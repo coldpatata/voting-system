@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { logo } from '../../assets/image/image';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
@@ -11,7 +11,7 @@ const LoginPage: FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  // const [errorMessage, setErrorMessage] = useState('');
 
   const passwordVisibility = () => {
     setShowPassword(!showPassword);
@@ -67,7 +67,7 @@ const LoginPage: FC = () => {
       }
     } catch (error) {
       Swal.fire({
-        title: 'Login Failed',
+        title: 'Account Inactive',
         text:
           error instanceof AxiosError && error.response?.data?.error
             ? error.response.data.error

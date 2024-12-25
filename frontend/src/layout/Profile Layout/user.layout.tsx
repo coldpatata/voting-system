@@ -38,10 +38,10 @@ const UserLayout: FC = () => {
           icon: 'success',
           title: 'Success!',
           text: 'User details update successfully!',
+          timer: 1500,
           allowOutsideClick: true,
         });
 
-        window.location.reload();
       } catch (error) {
         console.error('Error Updating', error);
 
@@ -50,6 +50,7 @@ const UserLayout: FC = () => {
           title: 'User details update failed',
           text: 'Failed to update user details. Please try again.',
           confirmButtonText: 'Retry',
+          timer: 1500,
           allowOutsideClick: true,
         });
       }
