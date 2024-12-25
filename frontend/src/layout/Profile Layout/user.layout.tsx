@@ -13,9 +13,34 @@ const UserLayout: FC = () => {
     contactNumber: '',
   });
 
-  const toggleEditing = () => {
+  const toggleEditing = async () => {
+    if (isEditing) {
+      try {
+        const uid = Cookies.get('uid');
+        if (!uid) {
+          throw new Error('User ID not found in cookies');
+        }
+
+        await axios.put(`http://localhost:5000/api/users/updateUserDetails?user_id=${uid}`, {
+          username: userData.userName,
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          middle_initial: userData.middleName,
+          email: userData.email,
+          contact_number: userData.contactNumber,
+        });
+
+        alert('User details updated successfully!');
+        window.location.reload();
+
+      } catch (error) {
+        console.error('Error updating user details:', error);
+        alert('Failed to update user details. Please try again.');
+      }
+    }
     setIsEditing(!isEditing);
   };
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -64,9 +89,8 @@ const UserLayout: FC = () => {
             </div>
             <div className="flex items-center mb-4">
               <button
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
-                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                }`}
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                  }`}
                 disabled={!isEditing}
               >
                 Choose File
