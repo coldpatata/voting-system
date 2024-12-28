@@ -304,3 +304,28 @@ exports.getStudentDetails = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while fetching student details', error });
   }
 };
+
+exports.getStaffDetails = async (req,res) => {
+  try {
+
+    const staffRole = await UserRoles.findOne({where: {role_name: 'staff'}});
+
+    if(!staffRole){
+      return res.status(404).json({
+        message: 'Staff role not found'
+      });
+    }
+
+    const staff = await Users.findAll({
+      attributes: ['username', 'first_name', 'last_name', 'middle_initial'],
+    where: {role_id: staffRole.role_id},});
+
+    if (staff.length === 0){
+      return res.status(404).json({message: 'No staff found'});
+    }
+    res.status(200).json(staff);
+    } catch (error){
+      console.error('Error fetching staff details:', error);
+      res.status(500).json({ message: 'An error occurred while fetching staff details', error });
+    }
+  };

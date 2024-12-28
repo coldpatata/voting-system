@@ -1,97 +1,146 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
+import axios from 'axios';
 import Header from '../../../components/header/header';
 
+interface Staff {
+  username: string;
+  first_name: string;
+  last_name: string;
+  middle_initial: string;
+}
+
 const StaffPage: FC = () => {
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [filteredStaff, setFilteredStaff] = useState<Staff[]>([]);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState('');
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/api/users/getStaffDetails'
+        );
+        setStaff(response.data);
+        setFilteredStaff(response.data);
+      } catch (err) {
+        setError('Failed to fetch staff details. Please try again later.');
+        console.error(err);
+      }
+    };
+    fetchStaff();
+  }, []);
+
+  const handleSearch = (searchTerm: string) => {
+    setSearch(searchTerm);
+    const term = searchTerm.toLowerCase();
+    const filtered = staff.filter(
+      (s) =>
+        s.username.toLowerCase().includes(term) ||
+        s.first_name.toLowerCase().includes(term) ||
+        s.last_name.toLowerCase().includes(term)
+    );
+    setFilteredStaff(filtered);
+    setCurrentPage(1); // Reset to the first page after filtering
+  };
+
+  const paginatedStaff = filteredStaff.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+
   return (
     <>
-      {' '}
       <Header />
       <div className="min-h-screen bg-gray-200 p-4">
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Staff</h1>
-
           <div className="flex items-center">
-            <div className="mr-2">
-              <button className="bg-yellow-400 text-black p-2 ml-2 rounded">
-                Add Staff
-              </button>
-            </div>
-
-            <input type="text" className="p-2" />
-            <button className="bg-yellow-400 text-black p-2 ml-2">
-              Search
+            <button className="bg-yellow-400 text-black p-2 ml-2 rounded">
+              Add Staff
             </button>
+            <input
+              type="text"
+              className="p-2 ml-4"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
         </div>
         <div className="overflow-x-auto mt-4">
+          {error && (
+            <div className="bg-red-200 text-red-800 p-4 mb-4 rounded">
+              {error}
+            </div>
+          )}
           <table className="min-w-full bg-white">
             <thead>
               <tr>
                 <th className="py-2 px-4 border-b">Username</th>
                 <th className="py-2 px-4 border-b">First Name</th>
                 <th className="py-2 px-4 border-b">Last Name</th>
-                <th className="py-2 px-4 border-b">M.Initial</th>
-
+                <th className="py-2 px-4 border-b">M. Initial</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-
-                <td className="py-2 px-4 border-b justify-center flex gap-5">
-                  <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
-                    View
-                  </button>
-                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
-                    Edit
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-
-                <td className="py-2 px-4 border-b justify-center flex gap-5">
-                  <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
-                    View
-                  </button>
-                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
-                    Edit
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-
-                <td className="py-2 px-4 border-b justify-center flex gap-5">
-                  <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
-                    View
-                  </button>
-                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
-                    Edit
-                  </button>
-                </td>
-              </tr>
+              {paginatedStaff.length > 0 ? (
+                paginatedStaff.map((staffMember, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 border-b text-center">
+                      {staffMember.username}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {staffMember.first_name}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {staffMember.last_name}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
+                      {staffMember.middle_initial}
+                    </td>
+                    <td className="py-2 px-4 border-b flex justify-center gap-2">
+                      <button className="bg-yellow-400 text-black px-4 py-1 rounded">
+                        View
+                      </button>
+                      <button className="bg-red-600 text-black px-4 py-1 rounded">
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="py-4 px-4 border-b text-center" colSpan={5}>
+                    No staff found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center items-center mt-4">
-          <button className="px-4 py-2 mx-1 text-gray-600">« Previous</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">1</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">2</button>
-          <button className="px-4 py-2 mx-1 bg-blue-800 text-white">3</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">4</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">5</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">Next »</button>
+          {Array.from(
+            { length: Math.ceil(filteredStaff.length / itemsPerPage) },
+            (_, i) => (
+              <button
+                key={i}
+                onClick={() => handlePageChange(i + 1)}
+                className={`px-4 py-2 mx-1 ${
+                  currentPage === i + 1
+                    ? 'bg-blue-800 text-white'
+                    : 'text-gray-600'
+                }`}
+              >
+                {i + 1}
+              </button>
+            )
+          )}
         </div>
       </div>
     </>
