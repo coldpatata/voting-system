@@ -3,6 +3,7 @@ import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/add-ballot';
 import ViewBallot from '../../../components/modal/view-ballot';
+import Header from '../../../components/header/header';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -46,12 +47,8 @@ const BallotPageAdmin: FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
 
-      {/* Main Content */}
       <div className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">

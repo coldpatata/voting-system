@@ -2,6 +2,7 @@ import { FC, useState, useEffect } from 'react';
 import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import AddAnnouncement from '../../../components/modal/add-announcement';
 import axios from 'axios';
+import Header from '../../../components/header/header';
 
 interface Announcement {
   announcement_id: number;
@@ -94,9 +95,7 @@ const AnnouncementPage: FC = () => {
 
   return (
     <>
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
       <div className="bg-gray">
         <div className="max-w-4xl mx-auto p-4">
           <div className="bg-blue-700 text-white p-4 flex justify-between items-center">

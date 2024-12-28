@@ -1,11 +1,10 @@
 import { FC } from 'react';
+import Header from '../../../components/header/header';
 
 const CandidatePage: FC = () => {
   return (
     <>
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
       <div className="min-h-screen bg-gray-200 p-8">
         <div className="bg-blue-900 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Candidates</h1>
