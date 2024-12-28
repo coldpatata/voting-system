@@ -1,28 +1,48 @@
 import CustomMonthLayout from '../../../components/calendar/calendar';
 import Announcement from '../../../components/announcements/announcement';
+import CardBox from '../../../components/card-box/card-box';
+import { useEffect, useState } from 'react';
+import Header from '../../../components/header/header';
 
 function DashboardPageStaff() {
+  const [totalStudents, setTotalStudents] = useState(0);
+
+  const fetchStudentCount = async () => {
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/users/count/students'
+      );
+      const data = await response.json();
+      setTotalStudents(data.totalStudents || 0);
+    } catch (error) {
+      console.error('Error fetching student count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudentCount();
+  }, []);
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-gray-800 p-4 text-white">
-        <h1 className="text-2xl font-bold">Staff Dashboard</h1>
-        <p className="text-sm">Welcome back, staff member!</p>
-      </div>
-
-      {/* Main Content */}
+    <>
+    <header/>
       <div className="p-4 flex flex-col lg:flex-row gap-4">
-        {/* Announcements Section */}
-        <div className="flex-1">
-          <Announcement />
-        </div>
+        <div className="p-4 flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <div className="card grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
+              <CardBox title="No. of Candidates" value={0} />
+              <CardBox title="No. of Ballots" value={0} />
+              <CardBox title="No. of Students" value={totalStudents} />
+            </div>
+            <Announcement />
+          </div>
 
-        {/* Calendar Section */}
-        <div className="w-full lg:w-1/3">
-          <CustomMonthLayout />
+          <div className="w-full lg:w-1/3">
+            <CustomMonthLayout />
+          </div>
         </div>
       </div>
-    </div>
+    
+      </>
   );
 }
 

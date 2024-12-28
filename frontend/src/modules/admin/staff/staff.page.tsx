@@ -1,12 +1,11 @@
 import { FC } from 'react';
+import Header from '../../../components/header/header';
 
 const StaffPage: FC = () => {
   return (
     <>
       {' '}
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
       <div className="min-h-screen bg-gray-200 p-4">
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Students</h1>
@@ -33,7 +32,7 @@ const StaffPage: FC = () => {
                 <th className="py-2 px-4 border-b">Last Name</th>
                 <th className="py-2 px-4 border-b">M.Initial</th>
                 <th className="py-2 px-4 border-b">Suffix</th>
-            
+
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
@@ -44,7 +43,7 @@ const StaffPage: FC = () => {
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">N/A</td>
-          
+
                 <td className="py-2 px-4 border-b flex justify-center">
                   <button className="bg-yellow-400 text-black px-4 py-1 rounded">
                     View

@@ -1,11 +1,12 @@
 import { FC } from 'react';
 import ProfileLayout from '../../../layout/Profile Layout/profile.layout';
-
+import Header from '../../../components/header/header';
 
 const ProfilePage: FC = () => {
   return (
     <>
       {' '}
+      <Header />
       <div className="p-4 h-screen">
         <ProfileLayout />
       </div>

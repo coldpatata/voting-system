@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
+import Header from '../../../components/header/header';
 
 const AccountsPage: FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -29,21 +30,19 @@ const AccountsPage: FC = () => {
 
   const handleArchive = async (userId: string, currentStatus: string) => {
     try {
-   
       const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
-     
       const requestBody = {
         user_id: userId,
         status: updatedStatus,
       };
       window.location.reload();
- 
+
       const response = await axios.put(
         'http://localhost:5000/api/users/updateUserStatus',
         requestBody
       );
-     
+
       if (response.status == 200) {
         // window.location.reload();
       } else {
@@ -121,9 +120,7 @@ const AccountsPage: FC = () => {
 
   return (
     <>
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
       <div className="min-h-screen bg-gray-200 p-4">
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Accounts</h1>
