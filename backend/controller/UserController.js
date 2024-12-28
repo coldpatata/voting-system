@@ -269,3 +269,12 @@ exports.countUsers = async (req, res) => {
   }
 };
 
+exports.countStudents = async (req, res) => {
+  try {
+    const studentCount = await Users.count({ where: { role_id: 1 } }); // Filter by role_id for 'student'
+    res.status(200).json({ totalStudents: studentCount });
+  } catch (error) {
+    console.error('Error counting students:', error);
+    res.status(500).json({ message: 'An error occurred while counting students', error });
+  }
+};
