@@ -31,18 +31,18 @@ const StudentPage: FC = () => {
                 <th className="py-2 px-4 border-b">First Name</th>
                 <th className="py-2 px-4 border-b">Last Name</th>
                 <th className="py-2 px-4 border-b">M.Initial</th>
-                <th className="py-2 px-4 border-b">Suffix</th>
+
                 <th className="py-2 px-4 border-b">Year Level</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="py-2 px-4 border-b">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+
                 <td className="py-2 px-4 border-b text-center">2nd Year</td>
                 <td className="py-2 px-4 border-b flex justify-center">
                   <button className="bg-yellow-400 text-black px-4 py-1 rounded">
@@ -51,11 +51,11 @@ const StudentPage: FC = () => {
                 </td>
               </tr>
               <tr>
-                <td className="py-2 px-4 border-b">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+
                 <td className="py-2 px-4 border-b text-center">2nd Year</td>
                 <td className="py-2 px-4 border-b flex justify-center">
                   <button className="bg-yellow-400 text-black px-4 py-1 rounded">
@@ -64,11 +64,11 @@ const StudentPage: FC = () => {
                 </td>
               </tr>
               <tr>
-                <td className="py-2 px-4 border-b">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+
                 <td className="py-2 px-4 border-b text-center">2nd Year</td>
                 <td className="py-2 px-4 border-b flex justify-center">
                   <button className="bg-yellow-400 text-black px-4 py-1 rounded ">

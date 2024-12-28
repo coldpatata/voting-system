@@ -6,16 +6,16 @@ const createAnnouncement = async (req, res) => {
     try {
         const { title_header, time_date, image_url, description_text } = req.body;
 
-        // Validate required fields
-        if (!title_header || !time_date || !image_url || !description_text) {
-            return res.status(400).json({ message: 'All fields are required.' });
+        // Validate required fields (image_url is optional)
+        if (!title_header || !time_date || !description_text) {
+            return res.status(400).json({ message: 'Title, date, and description are required.' });
         }
 
         // Create a new announcement
         const newAnnouncement = await Announcements.create({
             title_header,
             time_date,
-            image_url,
+            image_url: image_url || null, // Set to null if not provided
             description_text,
         });
 
@@ -84,17 +84,17 @@ const getAllAnnouncements = async (req, res) => {
     }
 };
 
-
+// Update the status of an announcement
 const updateStatus = async (req, res) => {
     try {
         const { announcement_id, status } = req.body;
 
-        
+        // Validate status input
         if (!status || (status !== 'active' && status !== 'archived')) {
             return res.status(400).json({ message: 'Status must be either "active" or "archived".' });
         }
 
-        
+        // Find the announcement
         const announcement = await Announcements.findByPk(announcement_id);
 
         // Check if the announcement exists
@@ -120,5 +120,5 @@ module.exports = {
     createAnnouncement,
     getAnnouncements,
     getAllAnnouncements,
-    updateStatus, 
+    updateStatus,
 };

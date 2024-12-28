@@ -24,61 +24,70 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
 
   const handleSubmit = async () => {
     try {
+      // Initialize file-related variables
       let fileUrl = null;
       let fullUrl = null;
 
+      // Check if a file is provided
       if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
 
-        const response = await axios.post(
-          'http://localhost:5000/api/upload/uploadSingle',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
+          // Upload the file
+          const response = await axios.post(
+            'http://localhost:5000/api/upload/uploadSingle',
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            fileUrl = response.data.fileUrl;
+            fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
+            console.log('Image uploaded successfully:', fileUrl);
+          } else {
+            console.warn('File upload failed with status:', response.status);
           }
-        );
-
-        if (response.status === 200) {
-          console.log(response.data);
-          fileUrl = response.data.fileUrl;
-          fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
-          console.log('Image uploaded successfully:', fileUrl);
-        } else {
-          throw new Error('Image upload failed');
+        } catch (uploadError) {
+          console.error('Error during file upload:', uploadError);
+          alert('Image upload failed. Proceeding without an image.');
         }
       }
 
+      // Prepare the announcement data
       const announcementData = {
         title_header: title,
         time_date: new Date(),
-        image_url: fullUrl,
+        image_url: fullUrl, // Will be null if no file was uploaded
         description_text: body,
       };
 
+      // Create the announcement
       const createResponse = await axios.post(
         'http://localhost:5000/api/announcement/createAnnouncement',
         announcementData
       );
 
-      // Handle the response from the server
       if (createResponse.status === 201) {
         console.log('Announcement created successfully:', createResponse.data);
-        alert('ANNOUNCEMENT CREATED!!!');
-
-        onSubmit(title, body, fileUrl || null);
-        onClose();
+        alert('Announcement created successfully!');
+        onSubmit(title, body, fileUrl); // Pass the `fileUrl` (null if no file uploaded)
+        onClose(); // Close the modal
       } else {
         throw new Error('Failed to create announcement');
       }
-
     } catch (error) {
       console.error('Error submitting announcement:', error);
-      alert('Error submitting announcement. Please try again.');
+      alert(
+        'An error occurred while submitting the announcement. Please try again.'
+      );
     }
   };
+  
 
   if (!isOpen) return null;
 
