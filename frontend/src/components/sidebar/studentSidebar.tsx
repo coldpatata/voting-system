@@ -111,7 +111,8 @@ const Sidebar = () => {
           <Link
             to="/student/profile/user"
             className={`block py-2 px-3 rounded-md ${
-              location.pathname === '/student/profile/user'
+              location.pathname === '/student/profile/user' ||
+              location.pathname === '/student/profile/password'
                 ? 'bg-blue-600'
                 : 'hover:bg-gray-700'
             }`}

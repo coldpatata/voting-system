@@ -278,3 +278,29 @@ exports.countStudents = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while counting students', error });
   }
 };
+
+exports.getStudentDetails = async (req, res) => {
+  try {
+    // Find the role_id for "student" dynamically
+    const studentRole = await UserRoles.findOne({ where: { role_name: 'student' } });
+
+    if (!studentRole) {
+      return res.status(404).json({ message: 'Student role not found' });
+    }
+
+    // Fetch students with specific fields
+    const students = await Users.findAll({
+      attributes: ['username', 'first_name', 'last_name', 'middle_initial', 'year_level'],
+      where: { role_id: studentRole.role_id },
+    });
+
+    if (students.length === 0) {
+      return res.status(404).json({ message: 'No students found' });
+    }
+
+    res.status(200).json(students);
+  } catch (error) {
+    console.error('Error fetching student details:', error);
+    res.status(500).json({ message: 'An error occurred while fetching student details', error });
+  }
+};

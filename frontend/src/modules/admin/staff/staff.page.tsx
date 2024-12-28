@@ -8,12 +8,12 @@ const StaffPage: FC = () => {
       <Header />
       <div className="min-h-screen bg-gray-200 p-4">
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
-          <h1 className="text-xl font-bold mb-2 md:mb-0">Students</h1>
+          <h1 className="text-xl font-bold mb-2 md:mb-0">Staff</h1>
 
           <div className="flex items-center">
             <div className="mr-2">
               <button className="bg-yellow-400 text-black p-2 ml-2 rounded">
-                Add Student
+                Add Staff
               </button>
             </div>
 
@@ -31,48 +31,53 @@ const StaffPage: FC = () => {
                 <th className="py-2 px-4 border-b">First Name</th>
                 <th className="py-2 px-4 border-b">Last Name</th>
                 <th className="py-2 px-4 border-b">M.Initial</th>
-                <th className="py-2 px-4 border-b">Suffix</th>
 
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="py-2 px-4 border-b">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
                 <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
 
-                <td className="py-2 px-4 border-b flex justify-center">
-                  <button className="bg-yellow-400 text-black px-4 py-1 rounded">
-                    View
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
-
-                <td className="py-2 px-4 border-b flex justify-center">
-                  <button className="bg-yellow-400 text-black px-4 py-1 rounded">
-                    View
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">admin</td>
-                <td className="py-2 px-4 border-b text-center">N/A</td>
-
-                <td className="py-2 px-4 border-b flex justify-center">
+                <td className="py-2 px-4 border-b justify-center flex gap-5">
                   <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
                     View
+                  </button>
+                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+
+                <td className="py-2 px-4 border-b justify-center flex gap-5">
+                  <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
+                    View
+                  </button>
+                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+                <td className="py-2 px-4 border-b text-center">admin</td>
+
+                <td className="py-2 px-4 border-b justify-center flex gap-5">
+                  <button className="bg-yellow-400 text-black px-4 py-1 rounded ">
+                    View
+                  </button>
+                  <button className="bg-red-600 text-black px-4 py-1 rounded ">
+                    Edit
                   </button>
                 </td>
               </tr>

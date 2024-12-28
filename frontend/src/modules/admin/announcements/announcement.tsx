@@ -140,8 +140,7 @@ const AnnouncementPage: FC = () => {
                   <p className="mt-4 text-lg">
                     {announcement.description_text}
                   </p>
-
-                  {announcement.image_url ? (
+                  {announcement.image_url && (
                     <div className="mt-6">
                       <img
                         src={announcement.image_url}
@@ -149,8 +148,7 @@ const AnnouncementPage: FC = () => {
                         className="w-full h-[30rem]"
                       />
                     </div>
-                  ) : null}
-
+                  )}
                   <p className="mt-4 text-sm text-gray-600">
                     Announcement Created{' '}
                     {new Date(announcement.time_date).toLocaleString()}
@@ -160,7 +158,7 @@ const AnnouncementPage: FC = () => {
             ) : (
               <p>No announcements available.</p>
             )}
-
+            {/* Pagination Controls */}
             <div className="flex justify-center mt-4">
               <button
                 className="bg-gray-400 text-white px-4 py-2 rounded mx-2"

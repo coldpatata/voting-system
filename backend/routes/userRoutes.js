@@ -4,6 +4,7 @@ const userController = require('../controller/UserController');
 
 
 router.get('/count', userController.countUsers);
+router.get('/getStudentDetails', userController.getStudentDetails);
 router.get('/count/students', userController.countStudents);
 router.get('/', userController.getAllUsers);
 router.get('/getUsersWithRoles', userController.getUsersWithRoles);
@@ -15,5 +16,6 @@ router.put('/updateUserStatus', userController.updateUserStatus);
 router.put('/updateUserDetails', userController.updateUserDetails);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
+
 
 module.exports = router;
