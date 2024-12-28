@@ -29,20 +29,21 @@ const AccountsPage: FC = () => {
 
   const handleArchive = async (userId: string, currentStatus: string) => {
     try {
-      // Toggle status based on current status
+   
       const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
-      // Prepare the request body
+     
       const requestBody = {
         user_id: userId,
         status: updatedStatus,
       };
-
-      // Make the PUT request
+      window.location.reload();
+ 
       const response = await axios.put(
         'http://localhost:5000/api/users/updateUserStatus',
         requestBody
       );
+     
       if (response.status == 200) {
         // window.location.reload();
       } else {
