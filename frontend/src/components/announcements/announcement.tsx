@@ -30,7 +30,7 @@ const Announcement: React.FC = () => {
       } else {
         setError(result.message || 'Failed to fetch announcements');
       }
-    } catch  {
+    } catch {
       setError('Error fetching announcements');
     } finally {
       setLoading(false);
@@ -73,13 +73,18 @@ const Announcement: React.FC = () => {
             <p className="text-gray-700 mb-4 max-h-24 overflow-hidden overflow-y-auto">
               {announcement.description_text}
             </p>
-            <div className="flex justify-center mb-4">
-              <img
-                src={announcement.image_url}
-                alt="Announcement related"
-                className="w-full h-80 object-cover rounded-lg shadow-md"
-              />
-            </div>
+
+            {/* Conditional rendering of image */}
+            {announcement.image_url && (
+              <div className="flex justify-center mb-4">
+                <img
+                  src={announcement.image_url}
+                  alt="Announcement related"
+                  className="w-full h-80 object-cover rounded-lg shadow-md"
+                />
+              </div>
+            )}
+
             <p className="text-gray-600 text-sm">
               Announcement Created{' '}
               {new Date(announcement.time_date).toLocaleString()}
