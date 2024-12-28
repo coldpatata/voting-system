@@ -61,7 +61,7 @@ const Announcement: React.FC = () => {
       {announcements.map((announcement) => (
         <div
           key={announcement.announcement_id}
-          className="w-full max-w-3xl bg-white shadow-md rounded-lg p-6"
+          className="w-full max-w-3xl bg-white-500 shadow-md rounded-lg p-6"
         >
           <div className="bg-blue-900 text-white text-center py-2 rounded-t-lg">
             <h1 className="text-lg font-bold text-left ml-4">Announcement</h1>
@@ -70,11 +70,10 @@ const Announcement: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4">
               {announcement.title_header}
             </h2>
-            <p className="text-gray-700 mb-4 max-h-24 overflow-hidden overflow-y-auto">
+            <p className="text-gray-700 mb-4 max-h-54 overflow-hidden overflow-y-auto text-justify">
               {announcement.description_text}
             </p>
 
-            {/* Conditional rendering of image */}
             {announcement.image_url && (
               <div className="flex justify-center mb-4">
                 <img

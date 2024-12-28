@@ -12,7 +12,7 @@ const Sidebar = () => {
   const username = Cookies.get('username');
 
   const handleLogout = () => {
-    // Remove the cookies
+   
     Cookies.remove('accessToken');
     Cookies.remove('userType');
     Cookies.remove('username');

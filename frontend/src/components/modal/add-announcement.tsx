@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 
 interface AddAnnouncementProps {
@@ -74,9 +75,15 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
 
       if (createResponse.status === 201) {
         console.log('Announcement created successfully:', createResponse.data);
-        alert('Announcement created successfully!');
-        onSubmit(title, body, fileUrl); // Pass the `fileUrl` (null if no file uploaded)
-        onClose(); // Close the modal
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Announcement created successfully!',
+        }).then(() => {
+          onSubmit(title, body, fileUrl); // Pass the `fileUrl` (null if no file uploaded)
+          onClose(); // Close the modal
+          window.location.reload();
+        });
       } else {
         throw new Error('Failed to create announcement');
       }
@@ -87,7 +94,6 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
       );
     }
   };
-  
 
   if (!isOpen) return null;
 
@@ -99,7 +105,10 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
         </div>
         <div className="mt-4">
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="title"
+            >
               Title
             </label>
             <input
@@ -112,7 +121,10 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="body">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="body"
+            >
               Announcement Body
             </label>
             <textarea
@@ -128,7 +140,9 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
             <p className="text-gray-700">Or add photo as announcement</p>
             <div className="flex items-center justify-center mt-2">
               <i className="fas fa-info-circle text-blue-500 mr-2"></i>
-              <span className="text-blue-500">Accepted formats are png and jpeg.</span>
+              <span className="text-blue-500">
+                Accepted formats are png and jpeg.
+              </span>
             </div>
             <div className="mt-4">
               <label className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-2 px-4 rounded cursor-pointer">
