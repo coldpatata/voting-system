@@ -67,7 +67,7 @@ const LoginPage: FC = () => {
       }
     } catch (error) {
       Swal.fire({
-        title: 'Account Inactive',
+        title: 'Login Failed',
         text:
           error instanceof AxiosError && error.response?.data?.error
             ? error.response.data.error

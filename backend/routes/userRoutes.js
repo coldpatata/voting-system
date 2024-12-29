@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controller/UserController');
+const multer = require('multer');
 
+const upload = multer({ dest: 'uploads/' });
 
 router.get('/count', userController.countUsers);
 router.get('/getStudentDetails', userController.getStudentDetails);
@@ -17,6 +19,8 @@ router.put('/updateUserStatus', userController.updateUserStatus);
 router.put('/updateUserDetails', userController.updateUserDetails);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
+
+router.post('/importStudents', upload.single('file'), userController.importStudents);
 
 
 module.exports = router;

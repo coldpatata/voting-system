@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
+import Swal from 'sweetalert2';
 
 interface Student {
   username: string;
@@ -16,6 +17,9 @@ const StudentPage: FC = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
+  const [file, setFile] = useState<File | null>(null); // File state
+  const [uploadError, setUploadError] = useState('');
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -47,6 +51,57 @@ const StudentPage: FC = () => {
     setCurrentPage(1); // Reset to the first page after filtering
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!file) {
+      setUploadError('Please select a file to upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      await axios.post(
+        'http://localhost:5000/api/users/importStudents',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
+      setUploadError('');
+      setIsModalOpen(false);
+      const response = await axios.get(
+        'http://localhost:5000/api/users/getStudentDetails'
+      );
+      setStudents(response.data);
+      setFilteredStudents(response.data);
+
+      // Show success message
+      Swal.fire({
+        title: 'Success!',
+        text: 'Students have been successfully imported!',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+    } catch (err) {
+      console.error(err);
+      setUploadError('Failed to upload file. Please try again.');
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to upload the file. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
+
   const paginatedStudents = filteredStudents.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -61,12 +116,15 @@ const StudentPage: FC = () => {
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Students</h1>
           <div className="flex items-center">
-            <button className="bg-yellow-400 text-black p-2 ml-2 rounded">
+            <button
+              onClick={() => setIsModalOpen(true)} // Open the modal
+              className="bg-yellow-400 text-black p-2 ml-2 rounded"
+            >
               Add Student
             </button>
             <input
               type="text"
-              className="p-2 ml-4"
+              className="p-2 ml-4 text-black"
               placeholder="Search..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
@@ -130,24 +188,61 @@ const StudentPage: FC = () => {
           </table>
         </div>
         <div className="flex justify-center items-center mt-4">
-          {Array.from(
-            { length: Math.ceil(filteredStudents.length / itemsPerPage) },
-            (_, i) => (
-              <button
-                key={i}
-                onClick={() => handlePageChange(i + 1)}
-                className={`px-4 py-2 mx-1 ${
-                  currentPage === i + 1
-                    ? 'bg-blue-800 text-white'
-                    : 'text-gray-600'
-                }`}
-              >
-                {i + 1}
-              </button>
-            )
+          {filteredStudents.length > itemsPerPage && (
+            <div>
+              {Array.from(
+                { length: Math.ceil(filteredStudents.length / itemsPerPage) },
+                (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-4 py-2 mx-1 ${
+                      currentPage === i + 1
+                        ? 'bg-blue-800 text-white'
+                        : 'text-gray-600'
+                    }`}
+                    disabled={i + 1 === currentPage} // Disable the current page button
+                  >
+                    {i + 1}
+                  </button>
+                )
+              )}
+            </div>
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-xl font-bold mb-4">Import Students</h2>
+            <input
+              type="file"
+              accept=".xlsx"
+              onChange={handleFileChange}
+              className="mb-4"
+            />
+            {uploadError && (
+              <div className="text-red-600 text-sm mb-2">{uploadError}</div>
+            )}
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleImport}
+                className="px-4 py-2 bg-blue-800 text-white rounded"
+              >
+                Import
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
