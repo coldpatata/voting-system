@@ -168,7 +168,7 @@ exports.searchUsers = async (req, res) => {
           [Op.like]: `%${username}%`, // Use a LIKE query for partial matches
         },
       },
-      attributes: ['username', 'email', 'status'],
+      attributes: ['user_id', 'username', 'email', 'status'],
       include: [{
         model: UserRoles,
         as: 'role',

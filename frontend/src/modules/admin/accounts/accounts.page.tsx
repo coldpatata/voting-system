@@ -31,7 +31,6 @@ const AccountsPage: FC = () => {
   const handleArchive = async (userId: string, currentStatus: string) => {
     try {
       const updatedStatus = currentStatus === 'active' ? 'inactive' : 'active';
-
       const requestBody = {
         user_id: userId,
         status: updatedStatus,
@@ -57,7 +56,7 @@ const AccountsPage: FC = () => {
         alert('SERVER ERROR');
       }
     } catch (error) {
-      console.error('Error updating user status:', error.response || error);
+      console.error('Error updating user status:', error);
       alert('Failed to update user status. Please try again.');
     }
   };
@@ -85,6 +84,8 @@ const AccountsPage: FC = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/searchUsers?username=${username}&page=${page}&limit=${limit}`
       );
+      console.log("-----")
+      console.log(response.data.data)
       setUsers(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
