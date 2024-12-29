@@ -126,6 +126,7 @@ const AccountsPage: FC = () => {
   };
 
   const handleRoleChange = (role: string) => {
+    setSearchQuery('');
     setSelectedRole(role);
   };
 
