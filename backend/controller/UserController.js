@@ -119,7 +119,7 @@ exports.deleteUser = async (req, res) => {
 exports.getUsersWithRoles = async (req, res) => {
   try {
     // Get page and limit from query parameters (default to page 1, limit 5)
-    const { page = 1, limit = 5 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     // Calculate offset and limit
     const offset = (page - 1) * limit;
