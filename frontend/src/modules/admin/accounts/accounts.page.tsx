@@ -63,19 +63,22 @@ const AccountsPage: FC = () => {
   
   
 
-  const fetchUsersByRole = async (role = '') => {
+  const fetchUsersByRole = async (role = '', page = 1, limit = 10) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}`
+        `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}&page=${page}&limit=${limit}`
       );
-      setUsers(response.data); // Directly set the array of users
+  
+      const { data } = response.data;
+      setUsers(data);
     } catch (error) {
       console.error('Error fetching users by role:', error);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
