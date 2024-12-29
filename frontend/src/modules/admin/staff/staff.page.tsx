@@ -65,7 +65,7 @@ const StaffPage: FC = () => {
             </button>
             <input
               type="text"
-              className="p-2 ml-4"
+              className="p-2 ml-4 text-black"
               placeholder="Search..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}

@@ -1,6 +1,11 @@
 const db = require('../models/main'); // Adjust the path based on your structure
 const { Users, UserRoles } = db;
 const { Op } = require('sequelize');
+const path = require('path');
+const xlsx = require('xlsx');
+const bcrypt = require('bcrypt');
+const fs = require('fs');
+
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
@@ -194,14 +199,13 @@ exports.updateUserStatus = async (req, res) => {
   const { user_id, status } = req.body;
 
   try {
-    // Validate the status input
-    if (!['active', 'inactive'].includes(status)) {
-      return res.status(400).json({ message: "Invalid status. Use 'ACTIVE' or 'INACTIVE'." });
+    // Validate the input
+    if (!user_id) {
+      return res.status(400).json({ message: 'User ID is required.' });
     }
 
-    // Check if user_id exists
-    if (!user_id) {
-      return res.status(400).json({ message: "User ID is required." });
+    if (!['active', 'inactive'].includes(status.toLowerCase())) {
+      return res.status(400).json({ message: "Invalid status. Use 'active' or 'inactive'." });
     }
 
     // Find the user by user_id
@@ -211,19 +215,28 @@ exports.updateUserStatus = async (req, res) => {
     }
 
     // Update the user's status
-    user.status = status;
+    user.status = status.toLowerCase(); // Normalize status to lowercase
     await user.save();
 
     // Send success response
     return res.status(200).json({
-      message: `User status updated to ${status}`,
-      user: { user_id: user.user_id, status: user.status },
+      message: `User status updated successfully.`,
+      user: {
+        user_id: user.user_id,
+        status: user.status,
+      },
     });
   } catch (error) {
     console.error('Error updating user status:', error);
-    return res.status(500).json({ message: 'Internal Server Error.' });
+
+    // Handle Sequelize-specific errors or generic errors
+    return res.status(500).json({
+      message: 'An error occurred while updating the user status.',
+      error: error.message,
+    });
   }
 };
+
 
 exports.getUsersByRoleName = async (req, res) => {
   const { role_name } = req.query;
@@ -327,5 +340,60 @@ exports.getStaffDetails = async (req,res) => {
     } catch (error){
       console.error('Error fetching staff details:', error);
       res.status(500).json({ message: 'An error occurred while fetching staff details', error });
+    }
+  };
+
+
+  exports.importStudents = async (req, res) => {
+    try {
+      // Ensure a file was uploaded
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+  
+      const filePath = path.join(__dirname, '../', req.file.path);
+  
+      // Read and parse Excel file
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const studentData = xlsx.utils.sheet_to_json(sheet);
+  
+      // Hashing passwords asynchronously
+      const hashedUsers = await Promise.all(
+        studentData.map(async (student) => ({
+          username: student.username,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          middle_initial: student.middle_initial,
+          year_level: student.year_level,
+          password: await bcrypt.hash(student.username, 10), // Hashing the password
+          role_id: 1, 
+          contact_number: null, 
+          status: 'active', // Default status is 'active'
+          picture: null, // Default picture is null
+          email: student.email || `${student.username}@example.com`, // Default email
+        }))
+      );
+  
+      // Bulk create students in the database
+      await Users.bulkCreate(hashedUsers, { validate: true });
+  
+      // Delete the uploaded file after processing
+      fs.unlinkSync(filePath);
+  
+      res.status(201).json({ message: 'Students imported successfully', users: hashedUsers });
+    } catch (error) {
+      console.error('Error importing students:', error);
+  
+      // Ensure uploaded file is deleted even if there's an error
+      if (req.file) {
+        const filePath = path.join(__dirname, '../', req.file.path);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+  
+      res.status(500).json({ error: 'Failed to import students' });
     }
   };

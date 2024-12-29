@@ -36,23 +36,33 @@ const AccountsPage: FC = () => {
         user_id: userId,
         status: updatedStatus,
       };
-      window.location.reload();
+
+      console.log('Archiving user with payload:', requestBody);
 
       const response = await axios.put(
         'http://localhost:5000/api/users/updateUserStatus',
         requestBody
       );
 
-      if (response.status == 200) {
-        // window.location.reload();
+      if (response.status === 200) {
+        console.log('User status updated successfully:', response.data);
+
+        // Update the user's status locally
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.user_id === userId ? { ...user, status: updatedStatus } : user
+          )
+        );
       } else {
         alert('SERVER ERROR');
       }
     } catch (error) {
-      console.error('Error updating user status:', error);
+      console.error('Error updating user status:', error.response || error);
       alert('Failed to update user status. Please try again.');
     }
   };
+  
+  
 
   const fetchUsersByRole = async (role = '') => {
     setLoading(true);
