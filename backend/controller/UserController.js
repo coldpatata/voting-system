@@ -239,32 +239,39 @@ exports.updateUserStatus = async (req, res) => {
 
 
 exports.getUsersByRoleName = async (req, res) => {
-  const { role_name } = req.query;
+  const { role_name, page = 1, limit = 10 } = req.query;
 
   if (!role_name) {
     return res.status(400).json({ error: 'role_name query parameter is required' });
   }
 
+  const offset = (page - 1) * limit;
+
   try {
-    // Find users with the given role_name
-    const users = await Users.findAll({
+    const { count, rows: users } = await Users.findAndCountAll({
       include: [
         {
           model: UserRoles,
           as: 'role',
-          attributes: ['role_name'], // Only include the role_name attribute
-          where: { role_name }, // Filter by the role_name
+          attributes: ['role_name'],
+          where: { role_name },
         },
       ],
-      attributes: { exclude: ['password'] }, // Exclude sensitive data like password
+      attributes: { exclude: ['password'] },
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
     });
 
-    // Check if any users are found
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'No users found with the specified role' });
-    }
+    const totalPages = Math.ceil(count / limit);
 
-    res.status(200).json(users);
+    res.status(200).json({
+      data: users,
+      meta: {
+        total: count,
+        page: parseInt(page, 10),
+        totalPages,
+      },
+    });
   } catch (error) {
     console.error('Error fetching users by role:', error);
     res.status(500).json({ error: 'An error occurred while fetching users' });
@@ -272,9 +279,10 @@ exports.getUsersByRoleName = async (req, res) => {
 };
 
 
+
 exports.countUsers = async (req, res) => {
   try {
-    const totalUsers = await Users.count(); 
+    const totalUsers = await Users.count();
     res.status(200).json({ totalUsers });
   } catch (error) {
     console.error('Error counting users:', error);
@@ -318,12 +326,12 @@ exports.getStudentDetails = async (req, res) => {
   }
 };
 
-exports.getStaffDetails = async (req,res) => {
+exports.getStaffDetails = async (req, res) => {
   try {
 
-    const staffRole = await UserRoles.findOne({where: {role_name: 'staff'}});
+    const staffRole = await UserRoles.findOne({ where: { role_name: 'staff' } });
 
-    if(!staffRole){
+    if (!staffRole) {
       return res.status(404).json({
         message: 'Staff role not found'
       });
@@ -331,69 +339,70 @@ exports.getStaffDetails = async (req,res) => {
 
     const staff = await Users.findAll({
       attributes: ['username', 'first_name', 'last_name', 'middle_initial'],
-    where: {role_id: staffRole.role_id},});
+      where: { role_id: staffRole.role_id },
+    });
 
-    if (staff.length === 0){
-      return res.status(404).json({message: 'No staff found'});
+    if (staff.length === 0) {
+      return res.status(404).json({ message: 'No staff found' });
     }
     res.status(200).json(staff);
-    } catch (error){
-      console.error('Error fetching staff details:', error);
-      res.status(500).json({ message: 'An error occurred while fetching staff details', error });
+  } catch (error) {
+    console.error('Error fetching staff details:', error);
+    res.status(500).json({ message: 'An error occurred while fetching staff details', error });
+  }
+};
+
+
+exports.importStudents = async (req, res) => {
+  try {
+    // Ensure a file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
-  };
 
+    const filePath = path.join(__dirname, '../', req.file.path);
 
-  exports.importStudents = async (req, res) => {
-    try {
-      // Ensure a file was uploaded
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
-  
+    // Read and parse Excel file
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const studentData = xlsx.utils.sheet_to_json(sheet);
+
+    // Hashing passwords asynchronously
+    const hashedUsers = await Promise.all(
+      studentData.map(async (student) => ({
+        username: student.username,
+        first_name: student.first_name,
+        last_name: student.last_name,
+        middle_initial: student.middle_initial,
+        year_level: student.year_level,
+        password: await bcrypt.hash(student.username, 10), // Hashing the password
+        role_id: 1,
+        contact_number: null,
+        status: 'active', // Default status is 'active'
+        picture: null, // Default picture is null
+        email: student.email || `${student.username}@example.com`, // Default email
+      }))
+    );
+
+    // Bulk create students in the database
+    await Users.bulkCreate(hashedUsers, { validate: true });
+
+    // Delete the uploaded file after processing
+    fs.unlinkSync(filePath);
+
+    res.status(201).json({ message: 'Students imported successfully', users: hashedUsers });
+  } catch (error) {
+    console.error('Error importing students:', error);
+
+    // Ensure uploaded file is deleted even if there's an error
+    if (req.file) {
       const filePath = path.join(__dirname, '../', req.file.path);
-  
-      // Read and parse Excel file
-      const workbook = xlsx.readFile(filePath);
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const studentData = xlsx.utils.sheet_to_json(sheet);
-  
-      // Hashing passwords asynchronously
-      const hashedUsers = await Promise.all(
-        studentData.map(async (student) => ({
-          username: student.username,
-          first_name: student.first_name,
-          last_name: student.last_name,
-          middle_initial: student.middle_initial,
-          year_level: student.year_level,
-          password: await bcrypt.hash(student.username, 10), // Hashing the password
-          role_id: 1, 
-          contact_number: null, 
-          status: 'active', // Default status is 'active'
-          picture: null, // Default picture is null
-          email: student.email || `${student.username}@example.com`, // Default email
-        }))
-      );
-  
-      // Bulk create students in the database
-      await Users.bulkCreate(hashedUsers, { validate: true });
-  
-      // Delete the uploaded file after processing
-      fs.unlinkSync(filePath);
-  
-      res.status(201).json({ message: 'Students imported successfully', users: hashedUsers });
-    } catch (error) {
-      console.error('Error importing students:', error);
-  
-      // Ensure uploaded file is deleted even if there's an error
-      if (req.file) {
-        const filePath = path.join(__dirname, '../', req.file.path);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
-  
-      res.status(500).json({ error: 'Failed to import students' });
     }
-  };
+
+    res.status(500).json({ error: 'Failed to import students' });
+  }
+};
