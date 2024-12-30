@@ -15,6 +15,7 @@ router.get('/searchUsers', userController.searchUsers);
 router.get('/searchUsersByRole', userController.getUsersByRoleName);
 router.get('/searchWithRole', userController.searchUsersByRole);
 router.get('/:id', userController.getUserById);
+router.post('/addStudent', userController.addStudent);
 router.post('/', userController.createUser);
 router.put('/updateUserStatus', userController.updateUserStatus);
 router.put('/updateUserDetails', userController.updateUserDetails);
