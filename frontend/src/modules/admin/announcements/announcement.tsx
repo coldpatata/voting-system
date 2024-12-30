@@ -3,6 +3,7 @@ import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import AddAnnouncement from '../../../components/modal/add-announcement';
 import axios from 'axios';
 import Header from '../../../components/header/header';
+import Announcement from '../../../components/announcements/announcement';
 
 interface Announcement {
   announcement_id: number;
@@ -137,9 +138,13 @@ const AnnouncementPage: FC = () => {
                         : 'Unarchive'}
                     </button>
                   </div>
-                  <p className="mt-4 text-lg">
+                  <p
+                    className="text-gray-700 mb-4 max-h-54 overflow-hidden overflow-y-auto text-justify"
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  >
                     {announcement.description_text}
                   </p>
+
                   {announcement.image_url && (
                     <div className="mt-6">
                       <img
@@ -150,7 +155,7 @@ const AnnouncementPage: FC = () => {
                     </div>
                   )}
                   <p className="mt-4 text-sm text-gray-600">
-                    Announcement Created{' '}
+                    <strong> Announcement Created: </strong>{' '}
                     {new Date(announcement.time_date).toLocaleString()}
                   </p>
                 </div>

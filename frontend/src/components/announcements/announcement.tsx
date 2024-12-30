@@ -61,31 +61,32 @@ const Announcement: React.FC = () => {
       {announcements.map((announcement) => (
         <div
           key={announcement.announcement_id}
-          className="w-full max-w-3xl bg-white-500 shadow-md rounded-lg p-6"
+          className="w-full max-w-3xl bg-white shadow-md rounded-lg overflow-hidden mb-6"
         >
-          <div className="bg-blue-900 text-white text-center py-2 rounded-t-lg">
-            <h1 className="text-lg font-bold text-left ml-4">Announcement</h1>
+          <div className="bg-blue-900 text-white py-4 px-6">
+            <h1 className="text-xl font-semibold">Announcement</h1>
           </div>
-          <div className="p-4">
+          <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">
               {announcement.title_header}
             </h2>
-            <p className="text-gray-700 mb-4 max-h-54 overflow-hidden overflow-y-auto text-justify">
+            <p
+              className="text-gray-700 mb-4 max-h-54 overflow-hidden overflow-y-auto text-justify"
+              style={{ whiteSpace: 'pre-wrap' }}
+            >
               {announcement.description_text}
             </p>
-
             {announcement.image_url && (
               <div className="flex justify-center mb-4">
                 <img
                   src={announcement.image_url}
                   alt="Announcement related"
-                  className="w-full h-80 object-cover rounded-lg shadow-md"
+                  className="w-full h-[30rem]"
                 />
               </div>
             )}
-
             <p className="text-gray-600 text-sm">
-              Announcement Created{' '}
+              <strong>Announcement Created:</strong>{' '}
               {new Date(announcement.time_date).toLocaleString()}
             </p>
           </div>
