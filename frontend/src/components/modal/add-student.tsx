@@ -63,19 +63,18 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
     try {
       await axios.post(
         'http://localhost:5000/api/users/importStudents',
-        formData,
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
+        formData
       );
       Swal.fire({
         title: 'Success!',
         text: 'Students have been successfully imported!',
         icon: 'success',
         confirmButtonText: 'OK',
+      }).then(() => {
+        resetForm();
+        onClose();
+        window.location.reload();
       });
-      resetForm();
-      onClose();
     } catch (err) {
       console.error(err);
       Swal.fire({
@@ -138,6 +137,8 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
 
   if (!isOpen) return null;
 
+  const isFormFilled = Object.values(formData).every((value) => value);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -197,43 +198,43 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
             </select>
           </div>
         </div>
-
-        <div className="mt-4 flex justify-between">
-          {!file ? (
-            <div className="flex items-center">
-              <label
-                htmlFor="file-upload"
-                className="px-4 py-2 bg-blue-800 text-white rounded cursor-pointer"
+        {!file ? (
+          <div className="flex items-center justify-center p-6">
+            <label
+              htmlFor="file-upload"
+              className="px-4 py-2 bg-blue-800 text-white rounded cursor-pointer"
+            >
+              Choose File
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col-reverse justify-center items-center w-full">
+            <div className="flex gap-4">
+              <button
+                onClick={handleImport}
+                className="px-4 py-2 bg-yellow-500 text-black rounded"
               >
-                Choose File
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                onChange={handleFileChange}
-                className="hidden"
-              />
+                Submit
+              </button>
+              <button
+                onClick={() => setFile(null)}
+                className="px-4 py-2 bg-gray-300 text-black rounded"
+              >
+                Cancel
+              </button>
             </div>
-          ) : (
-            <div className="flex justify-between items-center w-full">
-              <div className="text-green-500">File selected: {file.name}</div>
-              <div className="flex gap-4">
-                <button
-                  onClick={handleImport}
-                  className="px-4 py-2 bg-yellow-500 text-black rounded"
-                >
-                  Submit
-                </button>
-                <button
-                  onClick={() => setFile(null)}
-                  className="px-4 py-2 bg-gray-300 text-black rounded"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
 
+            <div className="text-green-500 p-2">File selected: {file.name}</div>
+          </div>
+        )}
+
+        <div className="mt-4 flex justify-end">
           <div className="flex gap-5">
             <button
               onClick={() => {
@@ -244,12 +245,14 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
             >
               Close
             </button>
-            <button
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-green-500 text-white rounded"
-            >
-              Submit
-            </button>
+            {isFormFilled && (
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-green-500 text-white rounded"
+              >
+                Submit
+              </button>
+            )}
           </div>
         </div>
 
