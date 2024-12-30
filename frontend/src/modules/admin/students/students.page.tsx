@@ -31,7 +31,7 @@ const StudentPage: FC = () => {
         setStudents(response.data);
         setFilteredStudents(response.data);
       } catch (err) {
-        setError('Failed to fetch student details. Please try again later.');
+        setError('No records of student');
         console.error(err);
       }
     };
@@ -81,6 +81,7 @@ const StudentPage: FC = () => {
       );
       setStudents(response.data);
       setFilteredStudents(response.data);
+      setError('');
 
       // Show success message
       Swal.fire({
