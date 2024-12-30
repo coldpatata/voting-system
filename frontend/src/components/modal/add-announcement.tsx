@@ -16,26 +16,26 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
   const [title, setTitle] = useState<string>('');
   const [body, setBody] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>(''); // State to store the file name
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
     }
   };
 
   const handleSubmit = async () => {
     try {
-      // Initialize file-related variables
       let fileUrl = null;
       let fullUrl = null;
 
-      // Check if a file is provided
       if (file) {
         try {
           const formData = new FormData();
           formData.append('file', file);
 
-          // Upload the file
           const response = await axios.post(
             'http://localhost:5000/api/upload/uploadSingle',
             formData,
@@ -55,19 +55,21 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
           }
         } catch (uploadError) {
           console.error('Error during file upload:', uploadError);
-          alert('Image upload failed. Proceeding without an image.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Image upload failed. Proceeding without an image.',
+          });
         }
       }
 
-      // Prepare the announcement data
       const announcementData = {
         title_header: title,
         time_date: new Date(),
-        image_url: fullUrl, // Will be null if no file was uploaded
+        image_url: fullUrl,
         description_text: body,
       };
 
-      // Create the announcement
       const createResponse = await axios.post(
         'http://localhost:5000/api/announcement/createAnnouncement',
         announcementData
@@ -80,8 +82,8 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
           title: 'Success',
           text: 'Announcement created successfully!',
         }).then(() => {
-          onSubmit(title, body, fileUrl); // Pass the `fileUrl` (null if no file uploaded)
-          onClose(); // Close the modal
+          onSubmit(title, body, fileUrl);
+          onClose();
           window.location.reload();
         });
       } else {
@@ -89,9 +91,11 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
       }
     } catch (error) {
       console.error('Error submitting announcement:', error);
-      alert(
-        'An error occurred while submitting the announcement. Please try again.'
-      );
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while submitting the announcement. Please try again.',
+      });
     }
   };
 
@@ -134,6 +138,19 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
               placeholder="Announcement Body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Tab') {
+                  e.preventDefault();
+                  const target = e.target as HTMLTextAreaElement; // Explicitly cast as HTMLTextAreaElement
+                  const { selectionStart, selectionEnd, value } = target;
+                  target.value =
+                    value.substring(0, selectionStart) +
+                    '\t' +
+                    value.substring(selectionEnd);
+                  target.selectionStart = target.selectionEnd =
+                    selectionStart + 1;
+                }
+              }}
             ></textarea>
           </div>
           <div className="mb-4 text-center">
@@ -153,6 +170,12 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
                   onChange={handleFileChange}
                 />
               </label>
+              {fileName && (
+                <>
+                  <p className="mt-2 text-gray-700 font-bold">Selected file:</p>
+                  <span> {fileName}</span>
+                </>
+              )}
             </div>
           </div>
           <div className="flex justify-end mt-8">
