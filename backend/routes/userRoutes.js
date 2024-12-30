@@ -20,8 +20,9 @@ router.put('/updateUserStatus', userController.updateUserStatus);
 router.put('/updateUserDetails', userController.updateUserDetails);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
-
+router.post('/addStudent', userController.addStudent);
 router.post('/importStudents', upload.single('file'), userController.importStudents);
+
 
 
 module.exports = router;
