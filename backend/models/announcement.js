@@ -32,13 +32,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
             defaultValue: 'active',
-            validate: {
-                isIn: [['active', 'inactive']], 
-            },
+         
         },
     }, {
         tableName: 'announcements', 
-        timestamps: true, 
+        timestamps: false, 
     });
 
     return Announcement;

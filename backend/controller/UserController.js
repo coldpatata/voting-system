@@ -451,3 +451,63 @@ exports.importStudents = async (req, res) => {
     res.status(500).json({ error: 'Failed to import students' });
   }
 };
+
+
+
+
+exports.addStudent = async (req, res) => {
+  try {
+    const {
+      username,
+      email,
+      first_name,
+      middle_initial,
+      last_name,
+      year_level,
+      section,
+      contact_number,
+    } = req.body;
+
+    // Ensure the required fields are provided
+    if (!username || !email || !first_name || !last_name || !year_level ) {
+      return res.status(400).json({ message: 'Required fields are missing.' });
+    }
+
+    // Find the role_id for 'student' dynamically
+    const studentRole = await UserRoles.findOne({ where: { role_name: 'student' } });
+
+    if (!studentRole) {
+      return res.status(404).json({ message: 'Student role not found.' });
+    }
+
+    // Hash the password (same as username)
+    const hashedPassword = await bcrypt.hash(username, 10);
+
+    // Create the student user
+    const newStudent = await Users.create({
+      username,
+      email,
+      password: hashedPassword, // Use the hashed password here
+      first_name,
+      middle_initial,
+      last_name,
+      year_level,
+      role_id: studentRole.role_id,
+      section,
+      contact_number,
+      status: 'active', // Default status for new students
+    });
+
+    res.status(201).json({
+      message: 'Student added successfully.',
+      student: newStudent,
+    });
+  } catch (error) {
+    console.error('Error adding student:', error);
+    res.status(500).json({
+      message: 'An error occurred while adding the student.',
+      error: error.message,
+    });
+  }
+};
+

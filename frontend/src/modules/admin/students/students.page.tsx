@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
 import Swal from 'sweetalert2';
+import AddStudentModal from '../../../components/modal/add-student';
 
 interface Student {
   username: string;
@@ -19,7 +20,7 @@ const StudentPage: FC = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
   const [file, setFile] = useState<File | null>(null); // File state
-  const [uploadError, setUploadError] = useState('');
+
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -51,64 +52,33 @@ const StudentPage: FC = () => {
     setCurrentPage(1); // Reset to the first page after filtering
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleImport = async () => {
-    if (!file) {
-      setUploadError('Please select a file to upload.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      await axios.post(
-        'http://localhost:5000/api/users/importStudents',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      );
-      setUploadError('');
-      setIsModalOpen(false);
-      const response = await axios.get(
-        'http://localhost:5000/api/users/getStudentDetails'
-      );
-      setStudents(response.data);
-      setFilteredStudents(response.data);
-      setError('');
-
-      // Show success message
-      Swal.fire({
-        title: 'Success!',
-        text: 'Students have been successfully imported!',
-        icon: 'success',
-        confirmButtonText: 'OK',
-      });
-    } catch (err) {
-      console.error(err);
-      setUploadError('Failed to upload file. Please try again.');
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: 'Failed to upload the file. Please try again.',
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
-    }
-  };
-
   const paginatedStudents = filteredStudents.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   const handlePageChange = (page: number) => setCurrentPage(page);
+
+  const handleAddStudent = (studentData: Record<string, string>) => {
+    const newStudent: Student = {
+      username: studentData.username,
+      first_name: studentData.first_name,
+      last_name: studentData.last_name,
+      middle_initial: studentData.middle_initial,
+      year_level: studentData.year_level,
+    };
+    setStudents((prev) => [...prev, newStudent]);
+    setFilteredStudents((prev) => [...prev, newStudent]);
+    setIsModalOpen(false);
+
+   
+    Swal.fire({
+      title: 'Student Added',
+      text: 'The student has been successfully added.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+    });
+  };
 
   return (
     <>
@@ -119,10 +89,15 @@ const StudentPage: FC = () => {
           <div className="flex items-center">
             <button
               onClick={() => setIsModalOpen(true)} // Open the modal
-              className="bg-yellow-400 text-black p-2 ml-2 rounded"
+              className="bg-yellow-400 text-black p-2  rounded"
             >
               Add Student
             </button>
+            <AddStudentModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleAddStudent}
+            />
             <input
               type="text"
               className="p-2 ml-4 text-black"
@@ -212,38 +187,6 @@ const StudentPage: FC = () => {
           )}
         </div>
       </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">Import Students</h2>
-            <input
-              type="file"
-              accept=".xlsx"
-              onChange={handleFileChange}
-              className="mb-4"
-            />
-            {uploadError && (
-              <div className="text-red-600 text-sm mb-2">{uploadError}</div>
-            )}
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleImport}
-                className="px-4 py-2 bg-blue-800 text-white rounded"
-              >
-                Import
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
