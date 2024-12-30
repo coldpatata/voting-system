@@ -60,8 +60,8 @@ const AccountsPage: FC = () => {
       alert('Failed to update user status. Please try again.');
     }
   };
-  
-  
+
+
 
   const fetchUsersByRole = async (role = '', page = 1, limit = 10) => {
     setLoading(true);
@@ -69,7 +69,7 @@ const AccountsPage: FC = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/searchUsersByRole?role_name=${role}&page=${page}&limit=${limit}`
       );
-  
+
       const { data } = response.data;
       setUsers(data);
     } catch (error) {
@@ -78,7 +78,7 @@ const AccountsPage: FC = () => {
       setLoading(false);
     }
   };
-  
+
 
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
@@ -98,6 +98,25 @@ const AccountsPage: FC = () => {
       setLoading(false);
     }
   };
+  const fetchFilteredUsersWithRoles = async (page: number, username = '', role = '') => {
+    setLoading(true);
+    try {
+      const limit = 5;
+      const response = await axios.get(
+        `http://localhost:5000/api/users/searchWithRole?username=${username}&role=${role}&page=${page}&limit=${limit}
+`
+      );
+      console.log("-----")
+      console.log(response.data.data)
+      setUsers(response.data.data);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching filtered users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const loadData = async () => {
       setLoading(true); // Ensure consistent loading state
@@ -105,6 +124,8 @@ const AccountsPage: FC = () => {
         if (searchQuery.trim() === '' && selectedRole.trim() === '') {
           // Fetch all users if no search query or role is selected
           await fetchUsers(currentPage);
+        } else if (searchQuery.trim() !== '' && selectedRole.trim() !== '') {
+          fetchFilteredUsersWithRoles(currentPage,searchQuery,selectedRole)
         } else if (selectedRole.trim() !== '') {
           // Fetch users by role
           await fetchUsersByRole(selectedRole);
@@ -129,7 +150,6 @@ const AccountsPage: FC = () => {
   };
 
   const handleRoleChange = (role: string) => {
-    setSearchQuery('');
     setSelectedRole(role);
   };
 
@@ -192,11 +212,10 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${
-                        user.status === 'active'
-                          ? 'text-green-500'
-                          : 'text-red-500'
-                      }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                        }`}
                     >
                       {user.status}
                     </td>
@@ -206,11 +225,10 @@ const AccountsPage: FC = () => {
                       </button>
                       <button
                         onClick={() => handleArchive(user.user_id, user.status)}
-                        className={`px-4 py-1 rounded ${
-                          user.status === 'active'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-blue-500 text-white'
-                        }`}
+                        className={`px-4 py-1 rounded ${user.status === 'active'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-blue-500 text-white'
+                          }`}
                       >
                         {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
@@ -239,11 +257,10 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${
-                currentPage === page
-                  ? 'bg-blue-800 text-white'
-                  : 'text-gray-600'
-              }`}
+              className={`px-4 py-2 mx-1 ${currentPage === page
+                ? 'bg-blue-800 text-white'
+                : 'text-gray-600'
+                }`}
             >
               {page}
             </button>

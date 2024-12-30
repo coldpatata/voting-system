@@ -194,6 +194,51 @@ exports.searchUsers = async (req, res) => {
   }
 };
 
+exports.searchUsersByRole = async (req, res) => {
+  try {
+    const { username = '', role = '', page = 1, limit = 5 } = req.query;
+
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+
+    // Fetch users with the specified username and role
+    const { rows: users, count: totalUsers } = await Users.findAndCountAll({
+      where: {
+        username: {
+          [Op.like]: `%${username}%`, // Use a LIKE query for partial matches on username
+        },
+      },
+      include: [{
+        model: UserRoles,
+        as: 'role',
+        where: {
+          role_name: {
+            [Op.like]: `%${role}%`, // Use a LIKE query for partial matches on role name
+          },
+        },
+        attributes: ['role_name'],
+      }],
+      attributes: ['user_id', 'username', 'email', 'status'],
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+    });
+
+    // Calculate total pages for pagination
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Respond with the filtered users, pagination details
+    res.status(200).json({
+      currentPage: parseInt(page, 10),
+      totalPages,
+      totalUsers,
+      data: users,
+    });
+  } catch (error) {
+    console.error('Error searching users by username and role:', error);
+    res.status(500).json({ message: 'An error occurred while searching for users by username and role.' });
+  }
+};
+
 // Controller function to update user status
 exports.updateUserStatus = async (req, res) => {
   const { user_id, status } = req.body;
