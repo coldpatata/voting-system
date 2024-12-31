@@ -223,7 +223,7 @@ exports.searchUsersByRole = async (req, res) => {
       offset: parseInt(offset, 10),
     });
 
-    // Calculate total pages for pagination
+
     const totalPages = Math.ceil(totalUsers / limit);
 
     // Respond with the filtered users, pagination details
@@ -239,12 +239,12 @@ exports.searchUsersByRole = async (req, res) => {
   }
 };
 
-// Controller function to update user status
+
 exports.updateUserStatus = async (req, res) => {
   const { user_id, status } = req.body;
 
   try {
-    // Validate the input
+
     if (!user_id) {
       return res.status(400).json({ message: 'User ID is required.' });
     }
@@ -253,17 +253,17 @@ exports.updateUserStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status. Use 'active' or 'inactive'." });
     }
 
-    // Find the user by user_id
+
     const user = await Users.findByPk(user_id);
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // Update the user's status
-    user.status = status.toLowerCase(); // Normalize status to lowercase
+
+    user.status = status.toLowerCase(); 
     await user.save();
 
-    // Send success response
+
     return res.status(200).json({
       message: `User status updated successfully.`,
       user: {
@@ -274,7 +274,7 @@ exports.updateUserStatus = async (req, res) => {
   } catch (error) {
     console.error('Error updating user status:', error);
 
-    // Handle Sequelize-specific errors or generic errors
+ 
     return res.status(500).json({
       message: 'An error occurred while updating the user status.',
       error: error.message,
@@ -421,26 +421,26 @@ exports.importStudents = async (req, res) => {
         last_name: student.last_name,
         middle_initial: student.middle_initial,
         year_level: student.year_level,
-        password: await bcrypt.hash(student.username, 10), // Hashing the password
+        password: await bcrypt.hash(student.username, 10), 
         role_id: 1,
         contact_number: null,
-        status: 'active', // Default status is 'active'
-        picture: null, // Default picture is null
-        email: student.email || `${student.username}@example.com`, // Default email
+        status: 'active', 
+        picture: null, 
+        email: student.email || `${student.username}@example.com`,
       }))
     );
 
-    // Bulk create students in the database
+   
     await Users.bulkCreate(hashedUsers, { validate: true });
 
-    // Delete the uploaded file after processing
+  
     fs.unlinkSync(filePath);
 
     res.status(201).json({ message: 'Students imported successfully', users: hashedUsers });
   } catch (error) {
     console.error('Error importing students:', error);
 
-    // Ensure uploaded file is deleted even if there's an error
+
     if (req.file) {
       const filePath = path.join(__dirname, '../', req.file.path);
       if (fs.existsSync(filePath)) {
@@ -468,22 +468,22 @@ exports.addStudent = async (req, res) => {
       contact_number,
     } = req.body;
 
-    // Ensure the required fields are provided
+
     if (!username || !email || !first_name || !last_name || !year_level ) {
       return res.status(400).json({ message: 'Required fields are missing.' });
     }
 
-    // Find the role_id for 'student' dynamically
+ 
     const studentRole = await UserRoles.findOne({ where: { role_name: 'student' } });
 
     if (!studentRole) {
       return res.status(404).json({ message: 'Student role not found.' });
     }
 
-    // Hash the password (same as username)
+
     const hashedPassword = await bcrypt.hash(username, 10);
 
-    // Create the student user
+
     const newStudent = await Users.create({
       username,
       email,
@@ -511,3 +511,47 @@ exports.addStudent = async (req, res) => {
   }
 };
 
+exports.addStaff = async (req, res) => {
+  try {
+    console.log('Request body:', req.body);
+    const { username, email, suffix, password, first_name, last_name, middle_initial, contact_number } = req.body;
+
+    if (!username || !email || !first_name || !last_name || !suffix || !middle_initial || !contact_number) {
+      return res.status(400).json({ message: 'All required fields must be provided.' });
+    }
+
+    const existingUser = await Users.findOne({ where: { username } }) || await Users.findOne({ where: { email } });
+    console.log('Existing user:', existingUser);
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username or email already exists.' });
+    }
+
+    const staffRole = await UserRoles.findOne({ where: { role_name: 'staff' } });
+    console.log('Staff role:', staffRole);
+    if (!staffRole) {
+      return res.status(404).json({ message: 'Staff role not found.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(username, 10);
+    console.log('Hashed password:', hashedPassword);
+
+    const newStaff = await Users.create({
+      username,
+      email,
+      suffix,
+      password: hashedPassword,
+      first_name,
+      last_name,
+      middle_initial,
+      contact_number,
+      role_id: staffRole.role_id,
+      status: 'active',
+    });
+
+    const { password: _, ...staffData } = newStaff.toJSON();
+    res.status(201).json({ message: 'Staff created successfully.', data: staffData });
+  } catch (error) {
+    console.error('Error adding staff:', error);
+    res.status(500).json({ message: 'An error occurred while adding staff.', error });
+  }
+};

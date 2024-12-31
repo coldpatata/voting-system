@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
+import AddStaff from '../../../components/modal/staff modal/add-staff';
 
 interface Staff {
   username: string;
@@ -15,6 +16,7 @@ const StaffPage: FC = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -43,7 +45,7 @@ const StaffPage: FC = () => {
         s.last_name.toLowerCase().includes(term)
     );
     setFilteredStaff(filtered);
-    setCurrentPage(1); // Reset to the first page after filtering
+    setCurrentPage(1); 
   };
 
   const paginatedStaff = filteredStaff.slice(
@@ -53,6 +55,18 @@ const StaffPage: FC = () => {
 
   const handlePageChange = (page: number) => setCurrentPage(page);
 
+  const handleAddStaff = (studentData: Record<string, string>) => {
+    const newStaff: Staff = {
+      username: studentData.username,
+      first_name: studentData.first_name,
+      last_name: studentData.last_name,
+      middle_initial: studentData.middle_initial,
+    };
+    setStaff((prev) => [...prev, newStaff]);
+    setFilteredStaff((prev) => [...prev, newStaff]);
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <Header />
@@ -60,9 +74,19 @@ const StaffPage: FC = () => {
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Staff</h1>
           <div className="flex items-center">
-            <button className="bg-yellow-400 text-black p-2 ml-2 rounded">
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+              className="bg-yellow-400 text-black p-2 ml-2 rounded"
+            >
               Add Staff
             </button>
+            <AddStaff
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleAddStaff}
+            />
             <input
               type="text"
               className="p-2 ml-4 text-black"
