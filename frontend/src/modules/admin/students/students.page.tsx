@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
 import Swal from 'sweetalert2';
-import AddStudentModal from '../../../components/modal/add-student';
+import AddStudentModal from '../../../components/modal/student modal/add-student';
 
 interface Student {
   username: string;

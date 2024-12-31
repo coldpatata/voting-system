@@ -73,7 +73,6 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
       }).then(() => {
         resetForm();
         onClose();
-        window.location.reload();
       });
     } catch (err) {
       console.error(err);
@@ -115,11 +114,14 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
           title: 'Success!',
           text: 'Student has been successfully added!',
           icon: 'success',
+          timer: 1200,
           confirmButtonText: 'OK',
+        }).then(() => {
+          onSubmit(formData);
+          resetForm();
+          onClose();
+          window.location.reload();
         });
-        onSubmit(formData);
-        resetForm();
-        onClose();
       }
     } catch (error: any) {
       const errorMessage =
@@ -190,7 +192,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               <option value="" disabled>
                 Gender
               </option>
-              {['Male', 'Female', 'Other'].map((gender) => (
+              {['Male', 'Female'].map((gender) => (
                 <option key={gender} value={gender}>
                   {gender}
                 </option>
@@ -204,7 +206,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               htmlFor="file-upload"
               className="px-4 py-2 bg-blue-800 text-white rounded cursor-pointer"
             >
-              Choose File
+              Import File
             </label>
             <input
               id="file-upload"

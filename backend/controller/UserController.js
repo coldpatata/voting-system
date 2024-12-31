@@ -487,7 +487,7 @@ exports.addStudent = async (req, res) => {
     const newStudent = await Users.create({
       username,
       email,
-      password: hashedPassword, // Use the hashed password here
+      password: hashedPassword, 
       first_name,
       middle_initial,
       last_name,
@@ -495,7 +495,7 @@ exports.addStudent = async (req, res) => {
       role_id: studentRole.role_id,
       section,
       contact_number,
-      status: 'active', // Default status for new students
+      status: 'active', 
     });
 
     res.status(201).json({
