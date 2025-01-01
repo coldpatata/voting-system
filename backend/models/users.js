@@ -57,7 +57,7 @@ module.exports = (sequelize, Sequelize) => {
     profile_url: {
       type: Sequelize.TEXT,
       allowNull: false,
-      defaultValue: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMeN8O1Y5fBbaJgbSsFeMDJWiwUfevjwgr1w&s',
+      defaultValue: 'https://grammedia-vids.s3.ap-southeast-2.amazonaws.com/boy.png',
     },
   }, {
     tableName: 'Users',
