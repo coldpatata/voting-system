@@ -10,6 +10,7 @@ const Sidebar = () => {
 
 
   const username = Cookies.get('username');
+  const profile_url = Cookies.get('profile_url');
 
   const handleLogout = () => {
     // Remove the cookies
@@ -68,7 +69,7 @@ const Sidebar = () => {
         </button>
 
         <div className="flex justify-around items-center mb-5">
-          <img className="w-[3rem] h-[3rem] rounded-full" src={logo} />
+          <img className="w-[3rem] h-[3rem] rounded-full" src={profile_url} />
           <p>
             {username
               ? `Hello ${username.charAt(0).toUpperCase() + username.slice(1)}`

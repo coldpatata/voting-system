@@ -414,7 +414,7 @@ exports.importStudents = async (req, res) => {
     const studentData = xlsx.utils.sheet_to_json(sheet);
 
 
-    const defaultProfilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMeN8O1Y5fBbaJgbSsFeMDJWiwUfevjwgr1w&s';
+    const defaultProfilePicture = 'https://grammedia-vids.s3.ap-southeast-2.amazonaws.com/boy.png';
 
     const hashedUsers = await Promise.all(
       studentData.map(async (student) => ({

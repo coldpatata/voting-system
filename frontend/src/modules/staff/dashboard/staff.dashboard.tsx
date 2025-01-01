@@ -24,25 +24,23 @@ function DashboardPageStaff() {
   }, []);
   return (
     <>
-    <header/>
-      <div className="p-4 flex flex-col lg:flex-row gap-4">
-        <div className="p-4 flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="card grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
-              <CardBox title="No. of Candidates" value={0} />
-              <CardBox title="No. of Ballots" value={0} />
-              <CardBox title="No. of Students" value={totalStudents} />
-            </div>
-            <Announcement />
-          </div>
+      <header />
 
-          <div className="w-full lg:w-1/3">
-            <CustomMonthLayout />
+      <div className="p-4 flex flex-col lg:flex-row gap-4">
+        <div className="flex-1">
+          <div className="card grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
+            <CardBox title="No. of Candidates" value={0} />
+            <CardBox title="No. of Ballots" value={0} />
+            <CardBox title="No. of Students" value={totalStudents} />
           </div>
+          <Announcement />
+        </div>
+
+        <div className="w-full lg:w-1/3">
+          <CustomMonthLayout />
         </div>
       </div>
-    
-      </>
+    </>
   );
 }
 
