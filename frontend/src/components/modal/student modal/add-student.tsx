@@ -154,7 +154,6 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               { name: 'first_name', placeholder: 'First Name' },
               { name: 'last_name', placeholder: 'Last Name' },
               { name: 'middle_initial', placeholder: 'M. Initial' },
-
               { name: 'contact_number', placeholder: 'Contact Number' },
               { name: 'email', placeholder: 'Email (Optional)' },
             ].map(({ name, placeholder }) => (

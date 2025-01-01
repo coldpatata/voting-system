@@ -423,9 +423,9 @@ exports.importStudents = async (req, res) => {
         year_level: student.year_level,
         password: await bcrypt.hash(student.username, 10), 
         role_id: 1,
-        contact_number: null,
+        contact_number: student.contact_number || null,
         status: 'active', 
-        picture: null, 
+        profile_url: student.profile_url || null, 
         email: student.email || `${student.username}@example.com`,
       }))
     );
