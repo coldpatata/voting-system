@@ -37,7 +37,7 @@ module.exports = {
         try {
             const { username, password } = req.body;
             const user = await Users.findOne({ where: { username: username } });
-
+            console.log(user)
             if (!user && !password) {
                 return res.status(400).json({
                     error: "There is no input"
@@ -63,10 +63,11 @@ module.exports = {
                 const accessToken = createTokens(user);
                 // Send a success response
                 res.json({
-                    message: `Logged in! User ID: ${user.user_id} Username: ${user.username} User type: ${user.role_id}`,
+                    message: `Logged in! User ID: ${user.user_id} Username: ${user.username} User type: ${user.role_id}:   ${user.profile_url}`,
                     accessToken: accessToken,
                     role_id: user.role_id,
-                    uid: user.user_id
+                    uid: user.user_id,
+                    profile_url: user.profile_url
                 });
             }
 

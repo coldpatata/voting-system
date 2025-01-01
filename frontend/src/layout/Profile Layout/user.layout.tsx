@@ -4,6 +4,7 @@ import axios from 'axios';
 import swal from 'sweetalert2';
 
 const UserLayout: FC = () => {
+  const profile_url = Cookies.get('profile_url');
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
     userName: '',
@@ -98,7 +99,7 @@ const UserLayout: FC = () => {
           <div className="flex flex-col justify-center items-center w-full">
             <div className="w-32 h-32 mb-4">
               <img
-                src="https://placehold.co/128x128"
+                src={profile_url}
                 alt="Profile icon"
                 className="w-full h-full object-cover rounded-full border-2 border-black"
               />
