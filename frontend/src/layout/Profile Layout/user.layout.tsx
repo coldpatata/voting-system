@@ -1,11 +1,14 @@
 import { FC, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import swal from 'sweetalert2';
 
 const UserLayout: FC = () => {
   const profile_url = Cookies.get('profile_url');
   const [isEditing, setIsEditing] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>(''); // State to store the file name
   const [userData, setUserData] = useState({
     userName: '',
     firstName: '',
@@ -15,14 +18,68 @@ const UserLayout: FC = () => {
     contactNumber: '',
   });
 
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+    }
+  };
+
   const toggleEditing = async () => {
     if (isEditing) {
       try {
         const uid = Cookies.get('uid');
+        let fileUrl = null;
+        let fullUrl = null;
+
+
         if (!uid) {
           throw new Error('User ID not found in cookies');
         }
 
+        // nagupload ko sa file first
+        if (file) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await axios.post(
+              'http://localhost:5000/api/upload/uploadSingle',
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              }
+            );
+
+            if (response.status === 200) {
+              fileUrl = response.data.fileUrl;
+              fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
+              console.log('Image uploaded successfully:', fileUrl);
+              Cookies.set('profile_url', fullUrl, { expires: 7, secure: true });
+            } else {
+              console.warn('File upload failed with status:', response.status);
+              throw new Error('File upload failed');
+            }
+          } catch (uploadError) {
+            console.error('Error during file upload:', uploadError);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Image upload failed. Proceeding without an image.',
+            });
+            return;
+          }
+        }
+
+        if (!fullUrl) {
+          throw new Error('File upload failed or no URL was generated');
+        }
+
+        
         await axios.put(
           `http://localhost:5000/api/users/updateUserDetails?user_id=${uid}`,
           {
@@ -32,21 +89,26 @@ const UserLayout: FC = () => {
             middle_initial: userData.middleName,
             email: userData.email,
             contact_number: userData.contactNumber,
+            profile_url: fullUrl,
           }
         );
 
-        swal.fire({
+        Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'User details update successfully!',
+          text: 'User details updated successfully!',
           timer: 1500,
           allowOutsideClick: true,
+        }).then(() => {
+          window.location.reload();
         });
 
-      } catch (error) {
-        console.error('Error Updating', error);
 
-        swal.fire({
+
+      } catch (error) {
+        console.error('Error Updating:', error);
+
+        Swal.fire({
           icon: 'error',
           title: 'User details update failed',
           text: 'Failed to update user details. Please try again.',
@@ -55,6 +117,7 @@ const UserLayout: FC = () => {
           allowOutsideClick: true,
         });
       }
+
     }
     setIsEditing(!isEditing);
   };
@@ -105,16 +168,27 @@ const UserLayout: FC = () => {
               />
             </div>
             <div className="flex items-center mb-4">
-              <button
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
-                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                }`}
-                disabled={!isEditing}
+              {/* Hidden file input */}
+              <input
+                type="file"
+                id="fileInput"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+
+              {/* Styled button */}
+              <label
+                htmlFor="fileInput"
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                  }`}
+                style={{ cursor: isEditing ? 'pointer' : 'not-allowed' }}
               >
                 Choose File
-              </button>
-              <span>No File Chosen</span>
+              </label>
+              <span>{fileName ? fileName : 'No file chosen'}</span>
             </div>
+
           </div>
         </div>
         <div className="w-full lg:w-1/2 lg:order-1">
