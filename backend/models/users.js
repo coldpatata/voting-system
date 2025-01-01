@@ -9,13 +9,13 @@ module.exports = (sequelize, Sequelize) => {
     username: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true, 
+      unique: true,
     },
     password: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    email: { 
+    email: {
       type: Sequelize.STRING,
       allowNull: false,
       unique: true,
@@ -54,9 +54,10 @@ module.exports = (sequelize, Sequelize) => {
     status: {
       type: Sequelize.STRING,
     },
-    profile_url: { // Updated field to TEXT
+    profile_url: {
       type: Sequelize.TEXT,
       allowNull: true,
+      defaultValue: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMeN8O1Y5fBbaJgbSsFeMDJWiwUfevjwgr1w&s',
     },
   }, {
     tableName: 'Users',
