@@ -154,7 +154,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               { name: 'first_name', placeholder: 'First Name' },
               { name: 'last_name', placeholder: 'Last Name' },
               { name: 'middle_initial', placeholder: 'M. Initial' },
-              { name: 'suffix', placeholder: 'Suffix (Optional)' },
+
               { name: 'contact_number', placeholder: 'Contact Number' },
               { name: 'email', placeholder: 'Email (Optional)' },
             ].map(({ name, placeholder }) => (
@@ -168,6 +168,21 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
                 className="p-2 border rounded text-black"
               />
             ))}
+            <select
+              name="suffix"
+              value={formData.suffix}
+              onChange={handleChange}
+              className="p-2 border rounded text-black"
+            >
+              <option value="" disabled>
+                Suffix
+              </option>
+              {['N/A', 'Jr.', 'Sr.'].map((suffix) => (
+                <option key={suffix} value={suffix}>
+                  {suffix}
+                </option>
+              ))}
+            </select>
             <select
               name="year_level"
               value={formData.year_level}
