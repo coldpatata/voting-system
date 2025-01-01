@@ -71,8 +71,9 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
         icon: 'success',
         confirmButtonText: 'OK',
       }).then(() => {
-        resetForm();
+     
         onClose();
+        window.location.reload();
       });
     } catch (err) {
       console.error(err);
