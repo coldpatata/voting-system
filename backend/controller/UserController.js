@@ -69,6 +69,7 @@ exports.updateUserDetails = async (req, res) => {
       section,
       contact_number,
       status,
+      profile_url
     } = req.body;
 
     // Find the user by ID
@@ -90,6 +91,7 @@ exports.updateUserDetails = async (req, res) => {
       section,
       contact_number,
       status,
+      profile_url
     });
 
     return res.status(200).json({ message: 'User updated successfully', user });
