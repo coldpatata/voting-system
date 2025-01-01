@@ -16,8 +16,8 @@ const UserLayout: FC = () => {
     middleName: '',
     email: '',
     contactNumber: '',
+    profile_url: '',
   });
-
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -34,12 +34,10 @@ const UserLayout: FC = () => {
         let fileUrl = null;
         let fullUrl = null;
 
-
         if (!uid) {
           throw new Error('User ID not found in cookies');
         }
 
-        // nagupload ko sa file first
         if (file) {
           try {
             const formData = new FormData();
@@ -61,7 +59,6 @@ const UserLayout: FC = () => {
               console.log('Image uploaded successfully:', fileUrl);
               Cookies.set('profile_url', fullUrl, { expires: 7, secure: true });
             } else {
-              console.warn('File upload failed with status:', response.status);
               throw new Error('File upload failed');
             }
           } catch (uploadError) {
@@ -71,26 +68,26 @@ const UserLayout: FC = () => {
               title: 'Error',
               text: 'Image upload failed. Proceeding without an image.',
             });
-            return;
           }
         }
 
-        if (!fullUrl) {
-          throw new Error('File upload failed or no URL was generated');
+        const payload = {
+          username: userData.userName,
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          middle_initial: userData.middleName,
+          email: userData.email,
+          contact_number: userData.contactNumber,
+          profile_url: userData.profile_url,
+        };
+
+        if (fullUrl) {
+          payload.profile_url = fullUrl;
         }
 
-        
         await axios.put(
           `http://localhost:5000/api/users/updateUserDetails?user_id=${uid}`,
-          {
-            username: userData.userName,
-            first_name: userData.firstName,
-            last_name: userData.lastName,
-            middle_initial: userData.middleName,
-            email: userData.email,
-            contact_number: userData.contactNumber,
-            profile_url: fullUrl,
-          }
+          payload
         );
 
         Swal.fire({
@@ -102,9 +99,6 @@ const UserLayout: FC = () => {
         }).then(() => {
           window.location.reload();
         });
-
-
-
       } catch (error) {
         console.error('Error Updating:', error);
 
@@ -117,7 +111,6 @@ const UserLayout: FC = () => {
           allowOutsideClick: true,
         });
       }
-
     }
     setIsEditing(!isEditing);
   };
@@ -142,6 +135,7 @@ const UserLayout: FC = () => {
           middleName: data.middle_initial || '',
           email: data.email || '',
           contactNumber: data.contact_number || '',
+          profile_url: data.profile_url || '',
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -175,20 +169,21 @@ const UserLayout: FC = () => {
                 className="hidden"
                 accept="image/*"
                 onChange={handleFileChange}
+                disabled={!isEditing} // Disable input when not editing
               />
 
               {/* Styled button */}
               <label
                 htmlFor="fileInput"
-                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${isEditing ? '' : 'opacity-50 cursor-not-allowed'
-                  }`}
+                className={`bg-yellow-400 text-black px-4 py-2 rounded mr-2 ${
+                  isEditing ? '' : 'opacity-50 cursor-not-allowed'
+                }`}
                 style={{ cursor: isEditing ? 'pointer' : 'not-allowed' }}
               >
                 Choose File
               </label>
               <span>{fileName ? fileName : 'No file chosen'}</span>
             </div>
-
           </div>
         </div>
         <div className="w-full lg:w-1/2 lg:order-1">
