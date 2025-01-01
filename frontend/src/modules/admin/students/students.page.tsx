@@ -3,6 +3,7 @@ import axios from 'axios';
 import Header from '../../../components/header/header';
 import Swal from 'sweetalert2';
 import AddStudentModal from '../../../components/modal/student modal/add-student';
+import EditStudent from '../../../components/modal/student modal/edit-student';
 
 interface Student {
   username: string;
@@ -18,8 +19,8 @@ const StudentPage: FC = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
-  const [file, setFile] = useState<File | null>(null); // File state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const itemsPerPage = 10;
 
@@ -71,7 +72,6 @@ const StudentPage: FC = () => {
     setFilteredStudents((prev) => [...prev, newStudent]);
     setIsModalOpen(false);
 
-   
     Swal.fire({
       title: 'Student Added',
       text: 'The student has been successfully added.',
@@ -144,9 +144,16 @@ const StudentPage: FC = () => {
                       {student.year_level}
                     </td>
                     <td className="py-2 px-4 border-b flex justify-center gap-3">
-                      <button className="bg-yellow-400 text-black px-4 py-1 rounded">
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-yellow-400 text-black px-4 py-1 rounded"
+                      >
                         View
                       </button>
+                      <EditStudent
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                      />
                       <button className="bg-red-600 text-white px-4 py-1 rounded">
                         Edit
                       </button>
