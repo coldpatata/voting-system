@@ -413,7 +413,9 @@ exports.importStudents = async (req, res) => {
     const sheet = workbook.Sheets[sheetName];
     const studentData = xlsx.utils.sheet_to_json(sheet);
 
-    // Hashing passwords asynchronously
+
+    const defaultProfilePicture = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMeN8O1Y5fBbaJgbSsFeMDJWiwUfevjwgr1w&s';
+
     const hashedUsers = await Promise.all(
       studentData.map(async (student) => ({
         username: student.username,
@@ -425,7 +427,7 @@ exports.importStudents = async (req, res) => {
         role_id: 1,
         contact_number: student.contact_number || null,
         status: 'active', 
-        profile_url: student.profile_url || null, 
+        profile_url: student.profile_url || defaultProfilePicture, 
         email: student.email || `${student.username}@example.com`,
       }))
     );
