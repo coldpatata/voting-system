@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,6 +12,8 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     position: '',
     maxVoteCount: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,10 +23,35 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Data:', formData);
-    // Add logic to handle the data submission (e.g., API call)
+    setError('');
+    setIsLoading(true);
+
+    const { position, maxVoteCount } = formData;
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/position/createPosition', {
+        position_name: position,
+        max_vote_count: parseInt(maxVoteCount, 10),
+      });
+
+      console.log('Position created successfully:', response.data);
+      Swal.fire({
+        title: 'Position Created!',
+        text: 'Position created successfully',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        onClose();
+        window.location.reload();
+      });
+    } catch (err) {
+      console.error('Error creating position:', err);
+      setError('Failed to create position. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -67,6 +96,7 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
             />
           </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex justify-end space-x-2">
             <button
               type="button"
@@ -77,9 +107,11 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+              className={`px-4 py-2 text-white rounded-lg ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'
+                }`}
+              disabled={isLoading}
             >
-              Save
+              {isLoading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>
