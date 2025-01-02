@@ -6,7 +6,7 @@ const { Users } = db;
 module.exports = {
     Register: async (req, res) => {
         try {
-            const { username, password, email, first_name, middle_initial, last_name, year_level, role_id, section, contact_number, status } = req.body;
+            const { username, password, email, first_name, middle_initial, last_name, year_level, role_id, section, contact_number, status, gender } = req.body;
             console.log("USER REGISTRATION DATA: ", req.body);
 
             // Hash the password
@@ -24,7 +24,8 @@ module.exports = {
                 role_id,
                 section,
                 contact_number,
-                status
+                status,
+                gender
             });
 
             res.json("USER REGISTERED");

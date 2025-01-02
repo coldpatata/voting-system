@@ -143,7 +143,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
   const isFormFilled = Object.values(formData).every((value) => value);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-80 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
         <div className="bg-blue-800 text-white text-xl font-semibold p-2 rounded-t">
           Add Student Account
@@ -157,6 +157,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               { name: 'middle_initial', placeholder: 'M. Initial' },
               { name: 'contact_number', placeholder: 'Contact Number' },
               { name: 'email', placeholder: 'Email (Optional)' },
+              { name: 'gender', placeholder: 'Gender' },
             ].map(({ name, placeholder }) => (
               <input
                 key={name}

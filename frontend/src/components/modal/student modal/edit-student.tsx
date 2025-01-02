@@ -1,116 +1,221 @@
-import { FC } from 'react';
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 
 interface EditStudentProps {
+  userId: string | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const EditStudent: FC<EditStudentProps> = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+const EditStudent: React.FC<EditStudentProps> = ({
+  userId,
+  isOpen,
+  onClose,
+}) => {
+  const [username, setUsername] = useState('');
+  const [student, setStudent] = useState<any>({});
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [middleInitial, setMiddleInitial] = useState('');
+  const [yearLevel, setYearLevel] = useState('');
+  const [gender, setGender] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [suffix, setSuffix] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (userId) {
+      const fetchStudentData = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/users/${userId}`
+          );
+          setStudent(response.data);
+          setUsername(response.data.username);
+          setFirstName(response.data.first_name);
+          setLastName(response.data.last_name);
+          setMiddleInitial(response.data.middle_initial);
+          setYearLevel(response.data.year_level);
+          setGender(response.data.gender);
+          setEmail(response.data.email);
+          setSuffix(response.data.suffix);
+          setContactNumber(response.data.contact_number);
+        } catch (err) {
+          console.error('Error fetching student data:', err);
+        }
+      };
+
+      fetchStudentData();
+    }
+  }, [userId]);
+
+  const handleSubmit = async () => {
+    try {
+      const updatedStudent = {
+        ...student,
+        username: username,
+        first_name: firstName,
+        last_name: lastName,
+        middle_initial: middleInitial,
+        year_level: yearLevel,
+        gender: gender,
+      };
+
+      await axios.put(
+        `http://localhost:5000/api/users/${userId}`,
+        updatedStudent
+      );
+
+      Swal.fire({
+        title: 'Student Updated',
+        text: 'The student data has been successfully updated.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        window.location.reload();
+      });
+
+      onClose();
+      setIsEditing(false);
+    } catch {
+      Swal.fire({
+        title: 'Error',
+        text: 'There was an error updating the student data.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
+
   return (
-    <>
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-          <div className="bg-blue-800 text-white text-xl font-semibold p-2 rounded-t">
-            Add Student Account
-          </div>
-          <div className="mt-4">
+    isOpen && (
+      <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg gap-4">
+          <div className="mt-4 w-full">
+            <div className="bg-blue-800 w-full text-white text-xl font-semibold p-2 rounded-t mb-2">
+              Edit Student Account
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { name: 'username', placeholder: 'Username' },
-                { name: 'first_name', placeholder: 'First Name' },
-                { name: 'last_name', placeholder: 'Last Name' },
-                { name: 'middle_initial', placeholder: 'M. Initial' },
-                { name: 'contact_number', placeholder: 'Contact Number' },
-                { name: 'email', placeholder: 'Email (Optional)' },
-              ].map(({ name, placeholder }) => (
-                <input
-                  key={name}
-                  type="text"
-                  name={name}
-                  placeholder={placeholder}
-                  className="p-2 border rounded text-black"
-                />
+                {
+                  name: 'username',
+                  placeholder: 'Username',
+                  value: username,
+                  editable: isEditing,
+                },
+                {
+                  name: 'first_name',
+                  placeholder: 'First Name',
+                  value: firstName,
+                  editable: false,
+                },
+                {
+                  name: 'last_name',
+                  placeholder: 'Last Name',
+                  value: lastName,
+                  editable: false,
+                },
+                {
+                  name: 'middle_initial',
+                  placeholder: 'Middle Initial',
+                  value: middleInitial,
+                  editable: false,
+                },
+                {
+                  name: 'contact_number',
+                  placeholder: 'Contact Number',
+                  value: contactNumber,
+                  editable: false,
+                },
+                {
+                  name: 'email',
+                  placeholder: 'Email (Optional)',
+                  value: email,
+                  editable: false,
+                },
+              ].map(({ name, placeholder, value, editable }) => (
+                <div key={name}>
+                  <label className="block text-sm">{placeholder}</label>
+                  <input
+                    type="text"
+                    name={name}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => {
+                      if (name === 'username') setUsername(e.target.value);
+                      if (name === 'first_name') setFirstName(e.target.value);
+                      if (name === 'last_name') setLastName(e.target.value);
+                      if (name === 'middle_initial')
+                        setMiddleInitial(e.target.value);
+                      if (name === 'contact_number')
+                        setContactNumber(e.target.value);
+                      if (name === 'email') setEmail(e.target.value); 
+                    }}
+                    readOnly={!editable}
+                    className={`w-full p-2 mt-2 border text-black ${
+                      editable ? 'bg-white' : 'bg-gray-100 cursor-not-allowed'
+                    }`}
+                  />
+                </div>
               ))}
-              <select name="suffix" className="p-2 border rounded text-black">
-                <option value="" disabled>
-                  Suffix
-                </option>
-                {['N/A', 'Jr.', 'Sr.'].map((suffix) => (
-                  <option key={suffix} value={suffix}>
-                    {suffix}
-                  </option>
-                ))}
-              </select>
-              <select
-                name="year_level"
-                className="p-2 border rounded text-black"
-              >
-                <option value="" disabled>
-                  Year Level
-                </option>
-                {['1st Year', '2nd Year', '3rd Year', '4th Year'].map(
-                  (year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  )
-                )}
-              </select>
-              <select name="gender" className="p-2 border rounded text-black">
-                <option value="" disabled>
-                  Gender
-                </option>
-                {['Male', 'Female'].map((gender) => (
-                  <option key={gender} value={gender}>
-                    {gender}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block text-sm">Suffix</label>
+                <input
+                  type="text"
+                  name="suffix"
+                  value={suffix}
+                  readOnly
+                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm">Year Level</label>
+                <input
+                  type="text"
+                  name="year_level"
+                  value={yearLevel}
+                  readOnly
+                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm">Gender</label>
+                <input
+                  type="text"
+                  name="gender"
+                  value={gender}
+                  readOnly
+                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
+                />
+              </div>
             </div>
           </div>
-          {/* {!file ? (
-            <div className="flex items-center justify-center p-6">
-              <label
-                htmlFor="file-upload"
-                className="px-4 py-2 bg-blue-800 text-white rounded cursor-pointer"
-              >
-                Import File
-              </label>
-              <input id="file-upload" type="file" className="hidden" />
-            </div>
-          ) : (
-            <div className="flex flex-col-reverse justify-center items-center w-full">
-              <div className="flex gap-4">
-                <button className="px-4 py-2 bg-yellow-500 text-black rounded">
-                  Submit
-                </button>
-                <button className="px-4 py-2 bg-gray-300 text-black rounded">
-                  Cancel
-                </button>
-              </div>
 
-              <div className="text-green-500 p-2">
-                File selected: {file.name}
-              </div>
-            </div>
-          )} */}
-
-          <div className="mt-4 flex justify-end">
-            <div className="flex gap-5">
-              <button
-                onClick={() => {
-                  onClose();
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded"
-              >
-                Close
-              </button>
-            </div>
+          <div className="mt-6 w-full flex justify-end gap-4">
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  handleSubmit();
+                } else {
+                  setIsEditing(true); // Enable editing
+                }
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              {isEditing ? 'Save' : 'Edit'}
+            </button>
+            <button
+              onClick={onClose}
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
-    </>
+    )
   );
 };
 

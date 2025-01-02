@@ -358,7 +358,7 @@ exports.getStudentDetails = async (req, res) => {
 
     // Fetch students with specific fields
     const students = await Users.findAll({
-      attributes: ['username', 'first_name', 'last_name', 'middle_initial', 'year_level'],
+      attributes: ['user_id','username', 'first_name', 'last_name', 'middle_initial', 'year_level'],
       where: { role_id: studentRole.role_id },
     });
 
@@ -425,6 +425,7 @@ exports.importStudents = async (req, res) => {
         last_name: student.last_name,
         middle_initial: student.middle_initial,
         year_level: student.year_level,
+        gender: student.gender,
         password: await bcrypt.hash(student.username, 10), 
         role_id: 1,
         contact_number: student.contact_number || null,

@@ -6,6 +6,7 @@ import AddStudentModal from '../../../components/modal/student modal/add-student
 import EditStudent from '../../../components/modal/student modal/edit-student';
 
 interface Student {
+  user_id: string;
   username: string;
   first_name: string;
   last_name: string;
@@ -21,6 +22,7 @@ const StudentPage: FC = () => {
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
@@ -62,6 +64,7 @@ const StudentPage: FC = () => {
 
   const handleAddStudent = (studentData: Record<string, string>) => {
     const newStudent: Student = {
+      user_id: studentData.user_id,
       username: studentData.username,
       first_name: studentData.first_name,
       last_name: studentData.last_name,
@@ -78,6 +81,11 @@ const StudentPage: FC = () => {
       icon: 'success',
       confirmButtonText: 'OK',
     });
+  };
+
+  const handleViewClick = (userId: string) => {
+    setSelectedUserId(userId); // Save user_id for use in the modal
+    setIsEditModalOpen(true); // Open the modal
   };
 
   return (
@@ -145,17 +153,10 @@ const StudentPage: FC = () => {
                     </td>
                     <td className="py-2 px-4 border-b flex justify-center gap-3">
                       <button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => handleViewClick(student.user_id)}
                         className="bg-yellow-400 text-black px-4 py-1 rounded"
                       >
                         View
-                      </button>
-                      <EditStudent
-                        isOpen={isEditModalOpen}
-                        onClose={() => setIsEditModalOpen(false)}
-                      />
-                      <button className="bg-red-600 text-white px-4 py-1 rounded">
-                        Edit
                       </button>
                     </td>
                   </tr>
@@ -194,6 +195,11 @@ const StudentPage: FC = () => {
           )}
         </div>
       </div>
+      <EditStudent
+        userId={selectedUserId}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
     </>
   );
 };
