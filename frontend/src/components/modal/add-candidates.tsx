@@ -35,7 +35,7 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
+      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[30%] p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-blue-700">{title}</h2>
           <button
@@ -49,7 +49,10 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstname" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="firstname"
+                className="text-sm font-medium text-gray-700"
+              >
                 Firstname
               </label>
               <input
@@ -61,7 +64,10 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
               />
             </div>
             <div>
-              <label htmlFor="lastname" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="lastname"
+                className="text-sm font-medium text-gray-700"
+              >
                 Lastname
               </label>
               <input
@@ -73,21 +79,27 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
               />
             </div>
           </div>
-          <div>
-            <label htmlFor="position" className="text-sm font-medium text-gray-700">
+          <select
+            name="Position"
+            value=""
+            onChange={handleChange}
+            className="p-2 w-full border rounded text-black"
+          >
+            <option value="" disabled>
               Position
-            </label>
-            <input
-              type="text"
-              id="position"
-              name="position"
-              className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
-              onChange={handleChange}
-            />
-          </div>
+            </option>
+            {['Provide', 'A', 'Position'].map((suffix) => (
+              <option key={suffix} value={suffix}>
+                {suffix}
+              </option>
+            ))}
+          </select>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="middleInitial" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="middleInitial"
+                className="text-sm font-medium text-gray-700"
+              >
                 Middle Initial
               </label>
               <input
@@ -99,7 +111,10 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
               />
             </div>
             <div>
-              <label htmlFor="suffix" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="suffix"
+                className="text-sm font-medium text-gray-700"
+              >
                 Suffix (Optional)
               </label>
               <input
@@ -112,7 +127,10 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
             </div>
           </div>
           <div>
-            <label htmlFor="candidateNumber" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="candidateNumber"
+              className="text-sm font-medium text-gray-700"
+            >
               Candidate Number
             </label>
             <input
@@ -124,7 +142,10 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
             />
           </div>
           <div>
-            <label htmlFor="photo" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="photo"
+              className="text-sm font-medium text-gray-700"
+            >
               Photo Attachment
             </label>
             <input

@@ -39,7 +39,7 @@ const PositionPage: FC = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleOpenAddPositionModal}
-              className="bg-yellow-400 text-black px-4"
+              className="bg-yellow-400 text-black px-4 py-2 rounded"
             >
               Add
             </button>
@@ -65,7 +65,9 @@ const PositionPage: FC = () => {
               {positions.map((position) => (
                 <tr key={position.position_id} className="text-center">
                   <td className="py-2 px-4 border">{position.position_name}</td>
-                  <td className="py-2 px-4 border">{position.max_vote_count}</td>
+                  <td className="py-2 px-4 border">
+                    {position.max_vote_count}
+                  </td>
 
                   <td className="py-2 px-4 border">
                     <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
@@ -93,8 +95,9 @@ const PositionPage: FC = () => {
           {[1, 2, 3, 4, 5].map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-                }`}
+              className={`px-3 py-1 rounded ${
+                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
+              }`}
             >
               {page}
             </button>
@@ -104,7 +107,8 @@ const PositionPage: FC = () => {
       </div>
       <AddPositionModal
         isOpen={isAddPositionModalOpen}
-        onClose={handleCloseAddPositionModal} />
+        onClose={handleCloseAddPositionModal}
+      />
     </>
   );
 };

@@ -17,7 +17,7 @@ const CandidatePage: FC = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={handleOpenAddCandidatesModal}
-              className="bg-yellow-400 text-black px-4"
+              className="bg-yellow-400 text-black px-4 py-2 rounded"
             >
               Add
             </button>
@@ -91,9 +91,9 @@ const CandidatePage: FC = () => {
         </div>
       </div>
       <AddCandidatesModal
-        isOpen={isAddCandidatesModalOpen}  
+        isOpen={isAddCandidatesModalOpen}
         title="Add New Candidate"
-        onClose={handleCloseAddCandidatesModal}  
+        onClose={handleCloseAddCandidatesModal}
       />
     </>
   );
