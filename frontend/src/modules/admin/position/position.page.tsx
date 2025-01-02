@@ -1,17 +1,30 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
 import Header from '../../../components/header/header';
-import AddPositionModal from '../../../components/modal/add-position'; 
+import AddPositionModal from '../../../components/modal/add-position';
+import axios from 'axios';
 
 const PositionPage: FC = () => {
+  const [positions, setPositions] = useState<any[]>([]); // State to store the positions
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
-  const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);  
+  const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);
+
+  // Fetch positions from the API on component mount
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/position/getAllPositions')
+      .then((response) => {
+        setPositions(response.data.data); // Set the fetched positions
+      })
+      .catch((error) => {
+        console.error('Error fetching positions:', error);
+      });
+  }, []);
 
   const handleOpenArchiveModal = () => setIsArchiveModalOpen(true);
   const handleCloseArchiveModal = () => setIsArchiveModalOpen(false);
 
-  const handleOpenAddPositionModal = () => setIsAddPositionModalOpen(true);  
-  const handleCloseAddPositionModal = () => setIsAddPositionModalOpen(false); 
+  const handleOpenAddPositionModal = () => setIsAddPositionModalOpen(true);
+  const handleCloseAddPositionModal = () => setIsAddPositionModalOpen(false);
   const handleConfirmArchive = () => {
     alert('Item archived!');
     setIsArchiveModalOpen(false);
@@ -49,20 +62,10 @@ const PositionPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {[
-                { id: 'President', name: 1 },
-                { id: 'Vice-President', name: 1 },
-                { id: 'Secretary', name: 1 },
-                { id: 'Treasurer', name: 1 },
-                { id: 'Auditor', name: 1 },
-                { id: 'P.I.O', name: 1 },
-                { id: "People's Choice Award", name: 1 },
-                { id: 'Best in Costume', name: 1 },
-                { id: 'Representative', name: 1 },
-              ].map((candidate) => (
-                <tr key={candidate.id} className="text-center">
-                  <td className="py-2 px-4 border">{candidate.id}</td>
-                  <td className="py-2 px-4 border">{candidate.name}</td>
+              {positions.map((position) => (
+                <tr key={position.position_id} className="text-center">
+                  <td className="py-2 px-4 border">{position.position_name}</td>
+                  <td className="py-2 px-4 border">{position.max_vote_count}</td>
 
                   <td className="py-2 px-4 border">
                     <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
@@ -90,9 +93,8 @@ const PositionPage: FC = () => {
           {[1, 2, 3, 4, 5].map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${
-                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-              }`}
+              className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
+                }`}
             >
               {page}
             </button>
