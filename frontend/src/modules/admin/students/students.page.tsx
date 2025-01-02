@@ -176,23 +176,60 @@ const StudentPage: FC = () => {
         <div className="flex justify-center items-center mt-4">
           {filteredStudents.length > itemsPerPage && (
             <div>
-              {Array.from(
-                { length: Math.ceil(filteredStudents.length / itemsPerPage) },
-                (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handlePageChange(i + 1)}
-                    className={`px-4 py-2 mx-1 ${
-                      currentPage === i + 1
-                        ? 'bg-blue-800 text-white'
-                        : 'text-gray-600'
-                    }`}
-                    disabled={i + 1 === currentPage} // Disable the current page button
-                  >
-                    {i + 1}
-                  </button>
-                )
-              )}
+              {(() => {
+                const totalPages = Math.ceil(
+                  filteredStudents.length / itemsPerPage
+                );
+                const maxVisiblePages = 10;
+                const currentStartPage =
+                  Math.floor((currentPage - 1) / maxVisiblePages) *
+                    maxVisiblePages +
+                  1;
+                const currentEndPage = Math.min(
+                  currentStartPage + maxVisiblePages - 1,
+                  totalPages
+                );
+
+                const pages = [];
+                for (let i = currentStartPage; i <= currentEndPage; i++) {
+                  pages.push(i);
+                }
+
+                return (
+                  <>
+                    {currentStartPage > 1 && (
+                      <button
+                        onClick={() => handlePageChange(currentStartPage - 1)}
+                        className="px-4 py-2 mx-1 text-gray-600"
+                      >
+                        Prev
+                      </button>
+                    )}
+                    {pages.map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-4 py-2 mx-1 ${
+                          currentPage === page
+                            ? 'bg-blue-800 text-white'
+                            : 'text-gray-600'
+                        }`}
+                        disabled={currentPage === page}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    {currentEndPage < totalPages && (
+                      <button
+                        onClick={() => handlePageChange(currentEndPage + 1)}
+                        className="px-4 py-2 mx-1 text-gray-600"
+                      >
+                        Next
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
