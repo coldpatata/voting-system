@@ -54,6 +54,10 @@ module.exports = (sequelize, Sequelize) => {
     status: {
       type: Sequelize.STRING,
     },
+    gender: {
+        type: Sequelize.STRING,
+    },
+
     profile_url: {
       type: Sequelize.TEXT,
       allowNull: false,
