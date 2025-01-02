@@ -17,7 +17,7 @@ const AddButton: React.FC<ButtonProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className="bg-yellow-400 text-black rounded hover:bg-yellow-500"
+      className="bg-yellow-400 text-black rounded-full hover:bg-yellow-500 font-bold border-2 border-blue-900"
       style={{
         height: height || 'auto',
         width: width || 'auto',

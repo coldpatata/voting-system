@@ -3,7 +3,7 @@ import PageLayout from "../layout/page.layout";
 import LoginPage from "../modules/authentication/login.page";
 import DashboardPage from "../modules/admin/dashboard/dashboard.page";
 import AdminLayout from "../layout/admin.layout";
-import CandidatePage from "../modules/admin/candidates/candidate.page";
+import CandidatePage from "../modules/admin/candidates/candidate.page.tsx";
 import PositionPage from "../modules/admin/position/position.page";
 import ErrorPage from "../modules/error/error.page";
 import BallotPage from "../modules/student/ballots/ballots.page";

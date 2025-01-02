@@ -1,7 +1,13 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import Header from '../../../components/header/header';
+import AddCandidatesModal from '../../../components/modal/add-candidates'; 
 
 const CandidatePage: FC = () => {
+  const [isAddCandidatesModalOpen, setIsAddCandidatesModalOpen] = useState(false);  // State for AddCandidatesModal
+
+  const handleOpenAddCandidatesModal = () => setIsAddCandidatesModalOpen(true);  // Function to open AddCandidatesModal
+  const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);  // Function to close AddCandidatesModal
+
   return (
     <>
       <Header />
@@ -9,7 +15,10 @@ const CandidatePage: FC = () => {
         <div className="bg-blue-900 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Candidates</h1>
           <div className="flex items-center space-x-2">
-            <button className="bg-yellow-400 text-black px-4 py-2 rounded">
+            <button
+              onClick={handleOpenAddCandidatesModal}
+              className="bg-yellow-400 text-black px-4"
+            >
               Add
             </button>
             <div className="flex">
@@ -81,6 +90,11 @@ const CandidatePage: FC = () => {
           <button className="text-gray-600">Next &raquo;</button>
         </div>
       </div>
+      <AddCandidatesModal
+        isOpen={isAddCandidatesModalOpen}  
+        title="Add New Candidate"
+        onClose={handleCloseAddCandidatesModal}  
+      />
     </>
   );
 };

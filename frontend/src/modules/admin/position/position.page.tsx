@@ -1,28 +1,33 @@
 import { FC, useState } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
 import Header from '../../../components/header/header';
+import AddPositionModal from '../../../components/modal/add-position'; 
 
 const PositionPage: FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);  
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpenArchiveModal = () => setIsArchiveModalOpen(true);
+  const handleCloseArchiveModal = () => setIsArchiveModalOpen(false);
 
+  const handleOpenAddPositionModal = () => setIsAddPositionModalOpen(true);  
+  const handleCloseAddPositionModal = () => setIsAddPositionModalOpen(false); 
   const handleConfirmArchive = () => {
-    // Handle the archive confirmation action here
     alert('Item archived!');
-    setIsModalOpen(false);
+    setIsArchiveModalOpen(false);
   };
 
   return (
     <>
-      {''}
       <Header />
       <div className="min-h-screen bg-gray-200 p-8">
         <div className="bg-blue-900 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Position</h1>
           <div className="flex items-center space-x-2">
-            <button className="bg-yellow-400 text-black px-4 py-2 rounded">
+            <button
+              onClick={handleOpenAddPositionModal}
+              className="bg-yellow-400 text-black px-4"
+            >
               Add
             </button>
             <div className="flex">
@@ -65,13 +70,13 @@ const PositionPage: FC = () => {
                     </button>
                     <button
                       className="bg-red-600 text-white px-4 py-2 rounded"
-                      onClick={handleOpenModal}
+                      onClick={handleOpenArchiveModal}
                     >
                       Archive
                     </button>
                     <ArchiveModal
-                      isOpen={isModalOpen}
-                      onClose={handleCloseModal}
+                      isOpen={isArchiveModalOpen}
+                      onClose={handleCloseArchiveModal}
                       onConfirm={handleConfirmArchive}
                     />
                   </td>
@@ -95,7 +100,9 @@ const PositionPage: FC = () => {
           <button className="text-gray-600">Next &raquo;</button>
         </div>
       </div>
-      ;{' '}
+      <AddPositionModal
+        isOpen={isAddPositionModalOpen}
+        onClose={handleCloseAddPositionModal} />
     </>
   );
 };
