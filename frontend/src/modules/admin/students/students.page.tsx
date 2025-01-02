@@ -26,6 +26,7 @@ const StudentPage: FC = () => {
 
   const itemsPerPage = 10;
 
+  // Fetch students from the API
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -42,6 +43,7 @@ const StudentPage: FC = () => {
     fetchStudents();
   }, []);
 
+  // Search functionality
   const handleSearch = (searchTerm: string) => {
     setSearch(searchTerm);
     const term = searchTerm.toLowerCase();
