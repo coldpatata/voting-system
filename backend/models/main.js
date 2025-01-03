@@ -23,15 +23,13 @@ db.Sequelize = Sequelize;
 db.Users = require('./users')(sequelize, Sequelize);
 db.UserRoles = require('./user_roles')(sequelize, Sequelize);
 db.Announcements = require('./announcement')(sequelize, Sequelize);
-db.Ballots = require('./ballot')(sequelize, Sequelize);
-db.Candidates = require('./candidates')(sequelize, Sequelize);
 db.Positions = require('./position')(sequelize, Sequelize);
+db.Candidates = require('./candidate')(sequelize, Sequelize);
+
 
 // Define associations
 db.Users.belongsTo(db.UserRoles, { foreignKey: 'role_id', as: 'role' });
 db.UserRoles.hasMany(db.Users, { foreignKey: 'role_id', as: 'users' });
-db.Ballots.hasMany(db.Candidates, { foreignKey: 'ballot_id', as: 'candidates' });
-db.Candidates.belongsTo(db.Ballots, { foreignKey: 'ballot_id', as: 'ballot' });
 
 // Export db object with models and Sequelize instance
 module.exports = db;

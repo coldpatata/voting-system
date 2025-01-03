@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 interface ModalProps {
   isOpen: boolean;
@@ -17,6 +19,41 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
     photo: null,
   });
 
+
+
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
+  const [positions, setPositions] = useState<{ position_id: number; position_name: string }[]>([]);
+
+  useEffect(() => {
+    // Fetch positions from the API
+    const fetchPositions = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/position/getAllPositions');
+        const positionsData = response.data.data;
+        setPositions(positionsData);
+
+        
+        if (positionsData.length > 0) {
+          setFormData((prev) => ({
+            ...prev,
+            position: positionsData[0].position_name,
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching positions:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to fetch positions. Please try again later.',
+        });
+      }
+    };
+
+    fetchPositions();
+  }, []);
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target as HTMLInputElement;
     const files = (e.target as HTMLInputElement).files;
@@ -26,10 +63,88 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Data Submitted:', formData);
+    setLoading(true);
+    setError(null);
+
+    const { firstname, lastname, position, middleInitial, suffix, candidateNumber, photo } = formData;
+
+    let photoUrl = null;
+
+    // Step 1: Upload the photo if it exists
+    if (photo) {
+      try {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', photo);
+
+        const uploadResponse = await axios.post(
+          'http://localhost:5000/api/upload/uploadSingle',
+          uploadFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        if (uploadResponse.status === 200) {
+          const fileUrl = uploadResponse.data.fileUrl;
+          photoUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
+          console.log('Image uploaded successfully:', photoUrl);
+        } else {
+          throw new Error('File upload failed');
+        }
+      } catch (uploadError) {
+        console.error('Error during file upload:', uploadError);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Image upload failed. Proceeding without an image.',
+        });
+      }
+    }
+
+    // Step 2: Submit the candidate data
+    try {
+      const candidateData = {
+        firstname,
+        lastname,
+        position,
+        middle_initial: middleInitial,
+        suffix,
+        candidate_number: candidateNumber,
+        photo_url: photoUrl, // Use the uploaded photo URL
+      };
+
+      const response = await axios.post('http://localhost:5000/api/candidate/createCandidate', candidateData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Response:', response.data);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Candidate created successfully!',
+      }).then(() => {
+        onClose();
+        window.location.reload();
+      });
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      setError('An error occurred while creating the candidate. Please try again.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to create the candidate. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   if (!isOpen) return null;
 
@@ -61,6 +176,7 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
                 name="firstname"
                 className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
@@ -76,21 +192,22 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
                 name="lastname"
                 className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
           <select
-            name="Position"
-            value=""
+            name="position"
             onChange={handleChange}
             className="p-2 w-full border rounded text-black"
+            required
           >
             <option value="" disabled>
-              Position
+              Select Position
             </option>
-            {['Provide', 'A', 'Position'].map((suffix) => (
-              <option key={suffix} value={suffix}>
-                {suffix}
+            {positions.map((position) => (
+              <option key={position.position_id} value={position.position_name}>
+                {position.position_name}
               </option>
             ))}
           </select>
@@ -139,6 +256,7 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
               name="candidateNumber"
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
               onChange={handleChange}
+              required
             />
           </div>
           <div>
@@ -156,6 +274,7 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
               onChange={handleChange}
             />
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           <div className="flex justify-end space-x-2">
             <button
               type="button"
@@ -167,8 +286,9 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
             <button
               type="submit"
               className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+              disabled={loading}
             >
-              Save
+              {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>
