@@ -1,12 +1,37 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import axios from 'axios';
 import Header from '../../../components/header/header';
-import AddCandidatesModal from '../../../components/modal/add-candidates'; 
+import AddCandidatesModal from '../../../components/modal/add-candidates';
+
+type Candidate = {
+  id: number;
+  firstname: string;
+  lastname: string;
+  position: string;
+  middle_initial: string;
+  suffix: string;
+  candidate_number: number;
+  photo_url: string;
+};
 
 const CandidatePage: FC = () => {
-  const [isAddCandidatesModalOpen, setIsAddCandidatesModalOpen] = useState(false);  // State for AddCandidatesModal
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isAddCandidatesModalOpen, setIsAddCandidatesModalOpen] = useState(false);
 
-  const handleOpenAddCandidatesModal = () => setIsAddCandidatesModalOpen(true);  // Function to open AddCandidatesModal
-  const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);  // Function to close AddCandidatesModal
+  const handleOpenAddCandidatesModal = () => setIsAddCandidatesModalOpen(true);
+  const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);
+
+  useEffect(() => {
+    // Fetch candidates from the API
+    axios
+      .get('http://localhost:5000/api/candidate/getAllCandidates')
+      .then((response) => {
+        setCandidates(response.data.data); // Set the fetched candidates
+      })
+      .catch((error) => {
+        console.error('Error fetching candidates:', error);
+      });
+  }, []);
 
   return (
     <>
@@ -41,25 +66,17 @@ const CandidatePage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {[
-                { id: 40, name: 'Emma Carter' },
-                { id: 41, name: 'Liam Reynolds' },
-                { id: 42, name: 'Ava Mitchell' },
-                { id: 43, name: 'Noah Brooks' },
-                { id: 44, name: 'Sophia Bennett' },
-                { id: 45, name: 'Jackson Hayes' },
-                { id: 46, name: 'Olivia Parker' },
-                { id: 1, name: 'Ethan Cooper' },
-                { id: 2, name: 'Mia Thompson' },
-              ].map((candidate) => (
+              {candidates.map((candidate) => (
                 <tr key={candidate.id} className="text-center">
-                  <td className="py-2 px-4 border">{candidate.id}</td>
-                  <td className="py-2 px-4 border">{candidate.name}</td>
+                  <td className="py-2 px-4 border">{candidate.candidate_number}</td>
+                  <td className="py-2 px-4 border">
+                    {candidate.firstname} {candidate.middle_initial}. {candidate.lastname} {candidate.suffix}
+                  </td>
                   <td className="py-2 px-4 border">
                     <img
-                      src="https://placehold.co/50x50"
-                      alt="Candidate photo"
-                      className="mx-auto"
+                      src={candidate.photo_url}
+                      alt={`${candidate.firstname} ${candidate.lastname}`}
+                      className="mx-auto h-12 w-12 object-cover"
                     />
                   </td>
                   <td className="py-2 px-4 border">
@@ -80,9 +97,8 @@ const CandidatePage: FC = () => {
           {[1, 2, 3, 4, 5].map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${
-                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-              }`}
+              className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
+                }`}
             >
               {page}
             </button>
