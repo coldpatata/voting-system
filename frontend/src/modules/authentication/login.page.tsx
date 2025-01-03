@@ -21,13 +21,15 @@ const LoginPage: FC = () => {
     accessToken: string,
     userType: string,
     uid: string,
-    profile_url: string
+    profile_url: string,
+    first_name: string
   ) => {
     Cookies.set('accessToken', accessToken, { expires: 7, secure: true });
     Cookies.set('userType', userType, { expires: 7, secure: true });
     Cookies.set('username', username, { expires: 7, secure: true });
     Cookies.set('uid', uid, { expires: 7, secure: true });
     Cookies.set('profile_url', profile_url, { expires: 7, secure: true });
+    Cookies.set('first_name', first_name, { expires: 7, secure: true });
   };
 
   const handleLogin = async () => {
@@ -40,9 +42,10 @@ const LoginPage: FC = () => {
         }
       );
 
-      const { accessToken, role_id, uid, profile_url } = response.data;
-      console.log(response.data)
-      saveToCookies(accessToken, role_id, uid, profile_url);
+      const { accessToken, role_id, uid, profile_url, first_name } =
+        response.data;
+      console.log(response.data);
+      saveToCookies(accessToken, role_id, uid, profile_url, first_name);
 
       Swal.fire({
         title: 'Success!',

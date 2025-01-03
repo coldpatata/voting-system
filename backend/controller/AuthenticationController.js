@@ -62,14 +62,16 @@ module.exports = {
                 return res.status(400).json({ error: "Wrong username and password combination" });
             } else {
                 const accessToken = createTokens(user);
-                // Send a success response
+
                 res.json({
                     message: `Logged in! User ID: ${user.user_id} Username: ${user.username} User type: ${user.role_id}:   ${user.profile_url}`,
                     accessToken: accessToken,
                     role_id: user.role_id,
                     uid: user.user_id,
-                    profile_url: user.profile_url
-                });
+                    profile_url: user.profile_url,
+                    first_name: user.first_name
+               
+                });    
             }
 
         } catch (error) {
@@ -82,12 +84,11 @@ module.exports = {
         try {
             const { email, password } = req.body;
 
-            // Check if both email and password are provided
+
             if (!email || !password) {
                 return res.status(400).json({ error: "Email and password are required." });
             }
 
-            // Find the user by email
             const user = await Users.findOne({ where: { email } });
 
             if (!user) {

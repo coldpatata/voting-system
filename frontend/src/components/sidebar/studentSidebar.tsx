@@ -9,7 +9,7 @@ const Sidebar = () => {
   const navigate = useNavigate(); 
 
 
-  const username = Cookies.get('username');
+  const first_name = Cookies.get('first_name');
   const profile_url = Cookies.get('profile_url');
 
   const handleLogout = () => {
@@ -17,6 +17,8 @@ const Sidebar = () => {
     Cookies.remove('accessToken');
     Cookies.remove('userType');
     Cookies.remove('username');
+    Cookies.remove('profile_url');
+    Cookies.remove('uid');
 
     navigate('/');
   };
@@ -71,8 +73,10 @@ const Sidebar = () => {
         <div className="flex justify-around items-center mb-5">
           <img className="w-[3rem] h-[3rem] rounded-full" src={profile_url} />
           <p>
-            {username
-              ? `Hello ${username.charAt(0).toUpperCase() + username.slice(1)}`
+            {first_name
+              ? `Hello ${
+                  first_name.charAt(0).toUpperCase() + first_name.slice(1)
+                }`
               : 'Hello'}
           </p>
         </div>
