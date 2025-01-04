@@ -13,7 +13,7 @@ const ArchiveModal: React.FC<ArchiveModalProps> = ({
 }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div className="bg-white rounded-lg p-6 w-80">
         <div className="text-center">
           <div className="`text-orange-500 text-4xl mb-4">!</div>
