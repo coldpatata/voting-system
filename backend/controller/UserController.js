@@ -415,37 +415,39 @@ exports.importStudents = async (req, res) => {
     const sheet = workbook.Sheets[sheetName];
     const studentData = xlsx.utils.sheet_to_json(sheet);
 
-
     const defaultProfilePicture = 'https://grammedia-vids.s3.ap-southeast-2.amazonaws.com/boy.png';
 
     const hashedUsers = await Promise.all(
-      studentData.map(async (student) => ({
-        username: student.username,
-        first_name: student.first_name,
-        last_name: student.last_name,
-        middle_initial: student.middle_initial,
-        year_level: student.year_level,
-        gender: student.gender,
-        password: await bcrypt.hash(student.username, 10), 
-        role_id: 1,
-        contact_number: student.contact_number || null,
-        status: 'active', 
-        profile_url: student.profile_url || defaultProfilePicture, 
-        email: student.email || `${student.username}@example.com`,
-      }))
+      studentData.map(async (student) => {
+        const username = String(student.username); // Convert the username to a string
+        return {
+          username,
+          first_name: student.first_name,
+          last_name: student.last_name,
+          middle_initial: student.middle_initial,
+          year_level: student.year_level,
+          gender: student.gender,
+          password: await bcrypt.hash(username, 10), // Use the string version of the username for password hashing
+          role_id: 1,
+          contact_number: student.contact_number || null,
+          status: 'active', 
+          profile_url: student.profile_url || defaultProfilePicture,
+          email: student.email || `${username}@example.com`,
+        };
+      })
     );
 
-   
+    // Save the students to the database
     await Users.bulkCreate(hashedUsers, { validate: true });
 
-  
+    // Remove the uploaded file
     fs.unlinkSync(filePath);
 
     res.status(201).json({ message: 'Students imported successfully', users: hashedUsers });
   } catch (error) {
     console.error('Error importing students:', error);
 
-
+    // Remove the file if an error occurred
     if (req.file) {
       const filePath = path.join(__dirname, '../', req.file.path);
       if (fs.existsSync(filePath)) {
@@ -456,6 +458,7 @@ exports.importStudents = async (req, res) => {
     res.status(500).json({ error: 'Failed to import students' });
   }
 };
+
 
 
 
