@@ -1,11 +1,11 @@
-const db = require('../models/main'); 
+const db = require('../models/main');
 
-// Insert a new positon
+// Insert a new candidate
 const createCandidate = async (req, res) => {
     try {
-        const { firstname, lastname, position, middle_initial, suffix, candidate_number, photo_url} = req.body;
+        const { firstname, lastname, position, middle_initial, suffix, candidate_number, photo_url } = req.body;
 
-        console.log(req.body)
+        console.log(req.body);
 
         const newCandidate = await db.Candidates.create({
             firstname,
@@ -18,20 +18,20 @@ const createCandidate = async (req, res) => {
         });
 
         return res.status(201).json({
-            message: 'candidate created successfully.',
+            message: 'Candidate created successfully.',
             ballot_id: newCandidate.id,
             data: newCandidate,
         });
     } catch (error) {
-        console.error('Error creating position:', error);
-        res.status(500).json({ error: 'An error occurred while creating the position.' });
+        console.error('Error creating candidate:', error);
+        res.status(500).json({ error: 'An error occurred while creating the candidate.' });
     }
 };
 
-// Retrieve all positon
+// Retrieve all candidates
 const getAllCandidates = async (req, res) => {
     try {
-        const candidates = await db.Candidates.findAll(); // Adjust the query if using Sequelize or raw SQL
+        const candidates = await db.Candidates.findAll();
 
         if (candidates.length === 0) {
             return res.status(404).json({ message: 'No candidates found.' });
@@ -47,7 +47,35 @@ const getAllCandidates = async (req, res) => {
     }
 };
 
+// Retrieve candidates by position
+const getCandidatesByPosition = async (req, res) => {
+    try {
+        const { position } = req.query; // Get the 'position' from query parameters
+        console.log(req.query)
+        if (!position) {
+            return res.status(400).json({ message: 'Position query parameter is required.' });
+        }
+
+        const candidates = await db.Candidates.findAll({
+            where: { position }, // Sequelize WHERE clause
+        });
+
+        if (candidates.length === 0) {
+            return res.status(404).json({ message: `No candidates found for position: ${position}` });
+        }
+
+        return res.status(200).json({
+            message: `Candidates for position "${position}" retrieved successfully.`,
+            data: candidates,
+        });
+    } catch (error) {
+        console.error('Error retrieving candidates by position:', error);
+        res.status(500).json({ error: 'An error occurred while retrieving the candidates by position.' });
+    }
+};
+
 module.exports = {
     createCandidate,
     getAllCandidates,
+    getCandidatesByPosition,
 };

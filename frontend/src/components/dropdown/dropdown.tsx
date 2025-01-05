@@ -1,61 +1,116 @@
-import  { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const Dropdown = () => {
-  const [positions, setPositions] = useState([
-    { id: '1', name: 'President' },
-    { id: '2', name: 'Vice President' },
-    { id: '3', name: 'Secretary' },
-  ]); 
+interface Position {
+  id: number;
+  name: string;
+}
 
-  const [selectedPosition, setSelectedPosition] = useState('');
-  const [candidates, setCandidates] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showCandidates, setShowCandidates] = useState(true); 
+export interface Candidate {
+  id: string;
+  firstname: string;
+  lastname: string;
+  middle_initial: string;
+  position: string;
+  photo_url: string;
+}
 
+// Declare the variable outside the component to persist data
+let ballotCandidates: Candidate[] = []; // Explicitly typed as an array of Candidate
 
-  const candidatesData = {
-    '1': [
-      { id: '101', name: 'Emma Carter', image: '/images/emma.png' },
-      { id: '102', name: 'Ava Mitchell', image: '/images/ava.png' },
-      { id: '103', name: 'John Smith', image: '/images/john.png' },
-      { id: '104', name: 'Sophia Brown', image: '/images/sophia.png' },
-    ],
-    '2': [
-      { id: '201', name: 'Liam Johnson', image: '/images/liam.png' },
-      { id: '202', name: 'Olivia Davis', image: '/images/olivia.png' },
-    ],
-    '3': [{ id: '301', name: 'William Moore', image: '/images/william.png' }],
-  };
+// Define the props interface for the Dropdown component
+interface DropdownProps {
+  onBallotCandidatesUpdate: (candidates: Candidate[]) => void;
+}
+
+const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [selectedPosition, setSelectedPosition] = useState<string>('');
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showCandidates, setShowCandidates] = useState<boolean>(true);
+
+  // Fetch positions from API when the component mounts
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/position/getAllPositions');
+        const data = await response.json();
+        if (response.ok) {
+          setPositions(
+            data.data.map((position: any) => ({
+              id: position.position_id,
+              name: position.position_name,
+            }))
+          );
+        } else {
+          console.error('Failed to fetch positions:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching positions:', error);
+      }
+    };
+
+    fetchPositions();
+  }, []);
 
   // Fetch candidates when a position is selected
-  const handlePositionChange = (positionId) => {
-    setSelectedPosition(positionId);
-    if (positionId) {
+  const handlePositionChange = async (position: string) => {
+    setSelectedPosition(position);
+    console.log('Selected position:', position);
+
+    if (position) {
       setIsLoading(true);
 
-      // Simulated delay to mimic backend fetching
-      setTimeout(() => {
-        setCandidates(candidatesData[positionId] || []);
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/candidate/getCandidatesByPosition?position=${position}`
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          // Append new candidates to React state
+          setCandidates((prevCandidates) => [
+            ...prevCandidates,
+            ...(data.data || []),
+          ]);
+
+          // Append to normal array (ballotCandidates)
+          if (data.data && Array.isArray(data.data)) {
+            ballotCandidates = [...ballotCandidates, ...data.data];
+            // Pass the updated ballotCandidates to the parent component
+            onBallotCandidatesUpdate(ballotCandidates);
+          }
+
+          // Log the updated array
+          console.log("Updated ballotCandidates:", ballotCandidates);
+        } else {
+          console.error('Failed to fetch candidates:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching candidates:', error);
+      } finally {
         setIsLoading(false);
         setShowCandidates(true);
-      }, 500);
+      }
     } else {
-      setCandidates([]);
+      setCandidates([]); // Clear candidates when position is empty
+      ballotCandidates = []; // Clear non-state array
+      onBallotCandidatesUpdate(ballotCandidates); // Pass empty array to parent
     }
   };
 
-
-
   return (
-    <div className=" p-6 font-sans rounded-lg">
+    <div className="p-6 font-sans rounded-lg">
       {/* Position Dropdown */}
-      <label className="block mb-2 text-xl font-medium text-black">
-        Position
-      </label>
+      <label className="block mb-2 text-xl font-medium text-black">Position</label>
       <select
         className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        value={selectedPosition}
-        onChange={(e) => handlePositionChange(e.target.value)}
+        onChange={(e) => {
+          const selected = positions.find((pos) => pos.id === Number(e.target.value));
+          if (selected) {
+            handlePositionChange(selected.name); // Pass the name of the position
+          }
+        }}
       >
         <option value="">Select a position</option>
         {positions.map((position) => (
@@ -65,12 +120,11 @@ const Dropdown = () => {
         ))}
       </select>
 
- 
       {isLoading ? (
         <p className="mt-4 text-center text-gray-500">Loading candidates...</p>
       ) : showCandidates && candidates.length > 0 ? (
         <div className="mt-6">
-          <div className="flex  items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Candidates</h2>
           </div>
           <div className="max-h-48 overflow-y-scroll space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -80,21 +134,19 @@ const Dropdown = () => {
                 className="flex items-center bg-gray-100 p-4 rounded-md shadow-sm"
               >
                 <img
-                  src={candidate.image || '/default-avatar.png'} // Replace with default image
-                  alt={candidate.name}
+                  src={candidate.photo_url || '/default-avatar.png'}
+                  alt={candidate.firstname}
                   className="w-12 h-12 rounded-full object-cover mr-4"
                 />
                 <span className="flex-1 text-gray-700 font-medium">
-                  {candidate.name}
+                  {candidate.firstname + " " + candidate.middle_initial + " " + candidate.lastname}
                 </span>
               </div>
             ))}
           </div>
         </div>
       ) : selectedPosition && !isLoading && showCandidates ? (
-        <p className="mt-4 text-gray-500 text-center">
-          No candidates available for this position.
-        </p>
+        <p className="mt-4 text-gray-500 text-center">No candidates available for this position.</p>
       ) : null}
     </div>
   );
