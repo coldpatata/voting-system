@@ -22,7 +22,7 @@ const CandidatePage: FC = () => {
   const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);
 
   useEffect(() => {
-    // Fetch candidates from the API
+  
     axios
       .get('http://localhost:5000/api/candidate/getAllCandidates')
       .then((response) => {
