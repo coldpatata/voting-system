@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import QRCodeModal from './qr-code';
 import { profile } from '../../assets/image/image';
 import axios from 'axios';
+import Dropdown from '../dropdown/dropdown';
 
 interface AddBallotModalProps {
   isOpen: boolean;
@@ -12,17 +13,31 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
-  // States to handle form data
   const [ballotName, setBallotName] = useState('');
   const [openingDate, setOpeningDate] = useState('');
   const [closingDate, setClosingDate] = useState('');
   const [eligibility, setEligibility] = useState('all');
+  const [positions, setPositions] = useState<string[]>([
+    'President',
+    'Vice President',
+  ]);
+
+  const handleRemovePosition = (position: string) => {
+    setPositions((prevPositions) =>
+      prevPositions.filter((p) => p !== position)
+    );
+  };
+
+  const handleAddPosition = () => {
+    const newPosition = `Position ${positions.length + 1}`;
+    setPositions((prevPositions) => [...prevPositions, newPosition]);
+  };
 
   const handleSaveBallot = async () => {
     if (!ballotName || ballotName.trim() === '') {
-      // Notify the user that the ballot name is required
+
       alert('Ballot name is required.');
-      return; // Stop the function if the ballot name is not provided
+      return;
     }
 
     const ballotData = {
@@ -40,36 +55,39 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
     };
 
     try {
-      // Call the createBallot endpoint
+    
       const ballotResponse = await axios.post(
         'http://localhost:5000/api/ballot/createBallot',
         ballotDataPayLoad
       );
       console.log('Ballot created:', ballotResponse.data);
 
-      // Get the ballot ID from the response
+     
       const ballotId = ballotResponse.data.ballot_id;
-      console.log(ballotId)
-      console.log(ballotId)
-      // Get candidate names from the input fields
-      const presidentName = (document.getElementById('candidate-1') as HTMLInputElement)?.value;
-      const vicePresidentName = (document.getElementById('candidate-2') as HTMLInputElement)?.value;
-      console.log(presidentName)
-      console.log(vicePresidentName)
+      console.log(ballotId);
+      console.log(ballotId);
+     
+      const presidentName = (
+        document.getElementById('candidate-1') as HTMLInputElement
+      )?.value;
+      const vicePresidentName = (
+        document.getElementById('candidate-2') as HTMLInputElement
+      )?.value;
+      console.log(presidentName);
+      console.log(vicePresidentName);
 
-      // Example candidate data; adjust as needed
       const candidates = [
         {
-          candidate_name: presidentName || 'Default President Name', // Fallback in case the input is empty
-          ballot_id: ballotId, // Associate the candidate with this ballot
+          candidate_name: presidentName || 'Default President Name', 
+          ballot_id: ballotId, 
         },
         {
-          candidate_name: vicePresidentName || 'Default Vice President Name', // Fallback in case the input is empty
-          ballot_id: ballotId, // Associate the candidate with this ballot
+          candidate_name: vicePresidentName || 'Default Vice President Name',
+          ballot_id: ballotId, 
         },
       ];
 
-      // Loop through each candidate and call the createCandidate endpoint
+
       for (const candidate of candidates) {
         const candidateResponse = await axios.post(
           'http://localhost:5000/api/candidate/createCandidate',
@@ -89,11 +107,11 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error occurred:', error);
-      alert('An error occurred while processing the request. Please try again.');
+      alert(
+        'An error occurred while processing the request. Please try again.'
+      );
     }
   };
-
-
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -106,7 +124,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
+      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-blue-700">Add Ballot</h2>
           <button
@@ -117,10 +135,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             ✖
           </button>
         </div>
-
-        {/* Form Content */}
+     
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Ballot Name */}
+  
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Ballot Name
@@ -134,7 +151,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Opening Date */}
+     
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Opening Date
@@ -147,7 +164,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Closing Date */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Closing Date
@@ -160,7 +176,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Year Level Eligibility */}
+     
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Year Level Eligibility
@@ -178,71 +194,33 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             </select>
           </div>
         </form>
-
-        {/* Positions and Candidates */}
+      
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Positions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* President Section */}
-            <div>
-              <h4 className="font-semibold">President</h4>
-              <ul>
-                <li className="flex items-center gap-2 mb-2">
-                  <img
-                    src={profile}
-                    alt="Candidate"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <input
-                    id="candidate-1" // Generic ID for the first candidate
-                    type="text"
-                    defaultValue="Emma Carter"
-                    className="border rounded-lg p-2 w-full"
-                  />
-                </li>
-                {/* Add Candidate Button */}
-                <div className="space-x-2">
-                  <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
+            {positions.map((position) => (
+              <div key={position} className="flex flex-col justify-end w-full">
+                <div>
+                  <Dropdown />
+                </div>
+                <div className="w-full flex justify-end">
+                  <button
+                    onClick={() => handleRemovePosition(position)}
+                    className="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-md text-sm"
+                  >
                     Remove
                   </button>
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded-lg">
-                    Add Candidate
-                  </button>
                 </div>
-              </ul>
-            </div>
-
-            {/* Vice President Section */}
-            <div>
-              <h4 className="font-semibold">Vice President</h4>
-              <ul>
-                <li className="flex items-center gap-2 mb-2">
-                  <img
-                    src={profile}
-                    alt="Candidate"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <input
-                    id="candidate-2" // Generic ID for the second candidate
-                    type="text"
-                    defaultValue="Emma Carter"
-                    className="border rounded-lg p-2 w-full"
-                  />
-                </li>
-                {/* Add Candidate Button */}
-                <div className="space-x-2">
-                  <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-lg">
-                    Remove
-                  </button>
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded-lg">
-                    Add Candidate
-                  </button>
-                </div>
-              </ul>
-            </div>
+              </div>
+            ))}
           </div>
+          <button
+            onClick={handleAddPosition}
+            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg"
+          >
+            Add Position
+          </button>
         </div>
-
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
@@ -258,7 +236,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             Create Ballot
           </button>
         </div>
-
         <QRCodeModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
