@@ -1,26 +1,71 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  ballotId: number; // Pass the ballot ID to fetch specific data
 }
 
-const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+interface Participant {
+  participant_id: number;
+  participant_name: string;
+  position: string;
+}
+
+const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
+  const [ballotName, setBallotName] = useState('');
+  const [positions, setPositions] = useState<Record<string, Participant[]>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    if (isOpen && ballotId) {
+      fetchBallotData(ballotId);
     }
     return () => {
-      document.body.style.overflow = '';
+      setBallotName('');
+      setPositions({});
     };
-  }, [isOpen]);
+  }, [isOpen, ballotId]);
+
+  const fetchBallotData = async (id: number) => {
+    try {
+      //const ballot_id = Cookies.get('currentBallotID');
+      setIsLoading(true);
+      console.log("ballot id")
+      console.log(id)
+      const response = await axios.get(
+        `http://localhost:5000/api/ballot/getBallotWithParticipants?ballot_id=${id}`
+      );
+
+      if (response.status === 200) {
+        const { ballot_name, participants } = response.data.data;
+
+        setBallotName(ballot_name);
+
+        // Group participants by position
+        const groupedPositions = participants.reduce(
+          (acc: Record<string, Participant[]>, participant: Participant) => {
+            if (!acc[participant.position]) {
+              acc[participant.position] = [];
+            }
+            acc[participant.position].push(participant);
+            return acc;
+          },
+          {}
+        );
+
+        setPositions(groupedPositions);
+      }
+    } catch (error) {
+      console.error('Error fetching ballot data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
-
-  const positions = ['President', 'V-President', 'Secretary', 'Treasurer'];
-  const candidates = ['Emma Carter', 'Ava Mitchell'];
 
   return (
     <div
@@ -35,63 +80,69 @@ const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           View Ballot
         </div>
         <div className="p-4 max-h-[80vh] overflow-y-auto">
-          <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2">
-              Ballot Name
-            </label>
-            <input
-              type="text"
-              value="2024 SSLG Election"
-              className="w-full p-2 border border-gray-300 rounded bg-gray-200"
-              readOnly
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {positions.map((position, index) => (
-              <div key={index} className="border border-gray-300 rounded p-4">
-                <div className="mb-4">
-                  <label className="block text-gray-700 font-bold mb-2">
-                    Position
-                  </label>
-                  <input
-                    type="text"
-                    value={position}
-                    className="w-full p-2 border border-gray-300 rounded bg-gray-200"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700 font-bold mb-2">
-                    Candidates
-                  </label>
-                  <div className="space-y-2">
-                    {candidates.map((candidate, idx) => (
-                      <div key={idx} className="flex items-center space-x-2">
-                        <img
-                          src={`https://placehold.co/50x50?text=${
-                            candidate.split(' ')[0][0]
-                          }`}
-                          alt={`Image of ${candidate}`}
-                          className="w-12 h-12 rounded-full"
-                        />
-                        <input
-                          type="text"
-                          value={candidate}
-                          className="flex-1 p-2 border border-gray-300 rounded bg-gray-200"
-                          readOnly
-                        />
-                        <input
-                          type="radio"
-                          name={`position-${index}`}
-                          className="form-radio h-5 w-5 text-gray-600"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">
+                  Ballot Name
+                </label>
+                <input
+                  type="text"
+                  value={ballotName}
+                  className="w-full p-2 border border-gray-300 rounded bg-gray-200"
+                  readOnly
+                />
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(positions).map(([position, candidates], index) => (
+                  <div key={index} className="border border-gray-300 rounded p-4">
+                    <div className="mb-4">
+                      <label className="block text-gray-700 font-bold mb-2">
+                        Position
+                      </label>
+                      <input
+                        type="text"
+                        value={position}
+                        className="w-full p-2 border border-gray-300 rounded bg-gray-200"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 font-bold mb-2">
+                        Candidates
+                      </label>
+                      <div className="space-y-2">
+                        {candidates.map((candidate) => (
+                          <div key={candidate.participant_id} className="flex items-center space-x-2">
+                            <img
+                              src={`https://placehold.co/50x50?text=${
+                                candidate.participant_name.split(' ')[0][0]
+                              }`}
+                              alt={`Image of ${candidate.participant_name}`}
+                              className="w-12 h-12 rounded-full"
+                            />
+                            <input
+                              type="text"
+                              value={candidate.participant_name}
+                              className="flex-1 p-2 border border-gray-300 rounded bg-gray-200"
+                              readOnly
+                            />
+                            <input
+                              type="radio"
+                              name={`position-${index}`}
+                              className="form-radio h-5 w-5 text-gray-600"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
           <div className="flex justify-end space-x-4 mt-4">
             <button
               onClick={onClose}

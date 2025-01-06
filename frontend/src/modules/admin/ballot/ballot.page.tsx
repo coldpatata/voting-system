@@ -4,6 +4,7 @@ import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/add-ballot';
 import ViewBallot from '../../../components/modal/view-ballot';
 import Header from '../../../components/header/header';
+import Cookies from 'js-cookie';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -11,6 +12,7 @@ const BallotPageAdmin: FC = () => {
   const [isViewOpen, setViewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [ballots, setBallots] = useState<Ballot[]>([]);
+  const [selectedBallotId, setSelectedBallotId] = useState<number | null>(null);
 
   interface Ballot {
     ballot_id: number;
@@ -21,8 +23,15 @@ const BallotPageAdmin: FC = () => {
 
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
-  const openViewModal = () => setViewOpen(true);
-  const closeViewModal = () => setViewOpen(false);
+  const openViewModal = (ballotId: number) => {
+    setSelectedBallotId(ballotId);
+    setViewOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewOpen(false);
+    setSelectedBallotId(null);
+  };
 
   // Fetch ballots from API
   useEffect(() => {
@@ -112,13 +121,11 @@ const BallotPageAdmin: FC = () => {
                       }).format(new Date(ballot.closing_date))}
                     </td>
                     <td className="border px-4 py-2 text-center">
-                      {new Date() < new Date(ballot.closing_date)
-                        ? 'Open'
-                        : 'Closed'}
+                      {new Date() < new Date(ballot.closing_date) ? 'Open' : 'Closed'}
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button
-                        onClick={openViewModal}
+                        onClick={() => openViewModal(ballot.ballot_id)}
                         className="bg-yellow-400 px-2 py-1 rounded"
                       >
                         View
@@ -159,7 +166,13 @@ const BallotPageAdmin: FC = () => {
       </div>
 
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      <ViewBallot isOpen={isViewOpen} onClose={closeViewModal} />
+      {selectedBallotId !== null && (
+        <ViewBallot
+          isOpen={isViewOpen}
+          onClose={closeViewModal}
+          ballotId={selectedBallotId} // Pass the selected ballot ID
+        />
+      )}
       <BallotReportModal
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
