@@ -46,7 +46,40 @@ const getAllBallots = async (req, res) => {
     }
 };
 
+// Fetch a specific Ballot along with its participants
+const getBallotWithParticipants = async (req, res) => {
+    try {
+        const { ballot_id } = req.query; // Get ballot_id from the request parameters
+        console.log(ballot_id)
+        // Find the Ballot by its ID and include associated participants
+        const ballot = await db.Ballot.findOne({
+            where: { ballot_id },
+            include: [
+                {
+                    model: db.Participants,
+                    as: 'participants', // Alias defined in the relationship
+                },
+            ],
+        });
+
+        if (!ballot) {
+            return res.status(404).json({
+                message: `Ballot with ID ${ballot_id} not found.`,
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Ballot retrieved successfully.',
+            data: ballot,
+        });
+    } catch (error) {
+        console.error('Error retrieving ballot with participants:', error);
+        res.status(500).json({ error: 'An error occurred while retrieving the ballot.' });
+    }
+};
+
 module.exports = {
     createBallot,
+    getBallotWithParticipants,
     getAllBallots,
 };
