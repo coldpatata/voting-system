@@ -15,6 +15,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const qrRoute = require('./routes/qrRoute'); 
 const positionRoute = require('./routes/PositionRoute');
 const candidateRoute = require('./routes/candidateRoute');
+const ballotRoute = require('./routes/ballotRoute');
+const participantRoute = require('./routes/participantRoute');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -30,13 +32,20 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/qr', qrRoute);
 app.use('/api/position', positionRoute);
 app.use('/api/candidate', candidateRoute);
+app.use('/api/ballot', ballotRoute);
+app.use('/api/participant', participantRoute);
 // Test endpoint
 app.get('/', (req, res) => {
   res.status(200).send("Hello World");
 });
 
+//http://localhost:5000/api/ballot/createBallot
+//http://localhost:5000/api/participant/
+//http://localhost:5000/api/ballot/getAllBallots
+
 //http://localhost:5000/api/candidate/createCandidate
 //http://localhost:5000/api/candidate/getAllCandidates
+//http://localhost:5000/api/candidate/getCandidatesByPosition
 
 //http://localhost:5000/api/position/getAllPositions
 //http://localhost:5000/api/position/createPosition

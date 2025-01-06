@@ -29,7 +29,7 @@ const BallotPageAdmin: FC = () => {
     const fetchBallots = async () => {
       try {
         const response = await axios.get<{ data: Ballot[] }>(
-          'http://localhost:5000/api/ballot/getAllBallot'
+          'http://localhost:5000/api/ballot/getAllBallots'
         );
         setBallots(response.data.data);
       } catch (error) {

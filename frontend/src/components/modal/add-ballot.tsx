@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QRCodeModal from './qr-code';
 import { profile } from '../../assets/image/image';
 import axios from 'axios';
 import Dropdown from '../dropdown/dropdown';
+import Swal from 'sweetalert2';
+import { Candidate } from '../dropdown/dropdown'; // Adjust the path as needed
+
 
 interface AddBallotModalProps {
   isOpen: boolean;
@@ -12,7 +15,7 @@ interface AddBallotModalProps {
 const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
-
+  const [ballotCandidates, setBallotCandidates] = useState<Candidate[]>([]);
   const [ballotName, setBallotName] = useState('');
   const [openingDate, setOpeningDate] = useState('');
   const [closingDate, setClosingDate] = useState('');
@@ -21,11 +24,33 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
     'President',
     'Vice President',
   ]);
-
   const handleRemovePosition = (position: string) => {
     setPositions((prevPositions) =>
       prevPositions.filter((p) => p !== position)
     );
+  };
+  useEffect(() => {
+    console.log('Updated ballotCandidatesxxxcaaa:', ballotCandidates);
+  }, [ballotCandidates]); // Dependency array ensures this runs when ballotCandidatesState is updated
+
+  const handleBallotCandidatesUpdate = (updatedCandidates: Candidate[]) => {
+    setBallotCandidates(updatedCandidates);
+  };
+
+  const createParticipant = async (ballotId: number, participantName: string, position: string) => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/participant/createParticipants', {
+        ballot_id: ballotId,
+        participant_name: participantName,
+        position: position,
+      });
+
+      console.log('Participant created successfully:', response.data);
+      return response.data; // You can use this data in your app
+    } catch (error) {
+      console.error('Error creating participant:', error);
+      throw error; // Optionally rethrow the error to handle it elsewhere
+    }
   };
 
   const handleAddPosition = () => {
@@ -34,84 +59,65 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleSaveBallot = async () => {
-    if (!ballotName || ballotName.trim() === '') {
-
-      alert('Ballot name is required.');
+    if (!ballotName || !openingDate || !closingDate) {
+      alert("Please fill in all required fields.");
       return;
     }
 
-    const ballotData = {
-      name: ballotName,
-      openingDate: openingDate,
-      closingDate: closingDate,
-      eligibility: eligibility,
-    };
-
-    const ballotDataPayLoad = {
-      ballot_name: ballotName,
-      opening_date: openingDate,
-      closing_date: closingDate,
-      year_level_eligibility: eligibility,
-    };
-
     try {
-    
-      const ballotResponse = await axios.post(
-        'http://localhost:5000/api/ballot/createBallot',
-        ballotDataPayLoad
-      );
-      console.log('Ballot created:', ballotResponse.data);
+      // Send data to the backend to create a ballot
+      const response = await axios.post('http://localhost:5000/api/ballot/createBallot', {
+        ballot_name: ballotName,
+        opening_date: openingDate,
+        closing_date: closingDate,
+        year_level_eligibility: eligibility,
+      });
 
-     
-      const ballotId = ballotResponse.data.ballot_id;
-      console.log(ballotId);
-      console.log(ballotId);
-     
-      const presidentName = (
-        document.getElementById('candidate-1') as HTMLInputElement
-      )?.value;
-      const vicePresidentName = (
-        document.getElementById('candidate-2') as HTMLInputElement
-      )?.value;
-      console.log(presidentName);
-      console.log(vicePresidentName);
+      // Handle the response
+      if (response.status === 201) {
+        // Access the ballot_id from the response's data
+        const ballotID = response.data.ballot_id;
 
-      const candidates = [
-        {
-          candidate_name: presidentName || 'Default President Name', 
-          ballot_id: ballotId, 
-        },
-        {
-          candidate_name: vicePresidentName || 'Default Vice President Name',
-          ballot_id: ballotId, 
-        },
-      ];
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Ballot created!',
+        }).then(async () => {
+          // Now, after creating the ballot, create participants using the candidates' data
+          if (ballotCandidates.length > 0) {
+            for (const candidate of ballotCandidates) {
+              // Call the function to create participants
+              try {
+                const participantResponse = await createParticipant(
+                  ballotID,
+                  `${candidate.firstname} ${candidate.lastname}`,
+                  candidate.position
+                );
+                console.log('Created participant:', participantResponse);
+              } catch (error) {
+                console.error('Error creating participant for candidate:', candidate, error);
+              }
+            }
+          }
 
-
-      for (const candidate of candidates) {
-        const candidateResponse = await axios.post(
-          'http://localhost:5000/api/candidate/createCandidate',
-          candidate
-        );
-        console.log('Candidate created:', candidateResponse.data);
+          // Reset form and states
+          setBallotName('');
+          setOpeningDate('');
+          setClosingDate('');
+          setEligibility('all');
+          window.location.reload(); 
+          onClose(); // Close the modal
+        });
+      } else {
+        alert("Failed to create ballot. Please try again.");
       }
-
-      // Generate the QR code
-      const qrResponse = await axios.post(
-        'http://localhost:5000/api/qr/generate-qr',
-        ballotData
-      );
-      console.log('QR code generated:', qrResponse.data);
-
-      setQrCodeUrl(qrResponse.data.qrCode);
-      setIsModalOpen(true);
     } catch (error) {
-      console.error('Error occurred:', error);
-      alert(
-        'An error occurred while processing the request. Please try again.'
-      );
+      console.error("Error creating ballot:", error);
+      alert("An error occurred while creating the ballot.");
     }
   };
+
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -135,9 +141,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             ✖
           </button>
         </div>
-     
+
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  
+
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Ballot Name
@@ -151,7 +157,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-     
+
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Opening Date
@@ -176,7 +182,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-     
+
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Year Level Eligibility
@@ -194,14 +200,14 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             </select>
           </div>
         </form>
-      
+
         <div className="mt-6">
           <h3 className="text-lg font-bold mb-2">Positions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {positions.map((position) => (
               <div key={position} className="flex flex-col justify-end w-full">
                 <div>
-                  <Dropdown />
+                  <Dropdown onBallotCandidatesUpdate={handleBallotCandidatesUpdate} />
                 </div>
                 <div className="w-full flex justify-end">
                   <button
