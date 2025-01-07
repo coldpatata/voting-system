@@ -40,7 +40,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const createParticipant = async (
     ballotId: number,
     participantName: string,
-    position: string
+    position: string,
+    photo_url: string
   ) => {
     try {
       const response = await axios.post(
@@ -49,6 +50,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           ballot_id: ballotId,
           participant_name: participantName,
           position: position,
+          photo_url: photo_url
         }
       );
 
@@ -101,7 +103,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                 const participantResponse = await createParticipant(
                   ballotID,
                   `${candidate.firstname} ${candidate.lastname}`,
-                  candidate.position
+                  candidate.position, candidate.photo_url
                 );
                 console.log('Created participant:', participantResponse);
               } catch (error) {

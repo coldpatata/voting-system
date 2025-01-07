@@ -12,6 +12,7 @@ interface Participant {
   participant_id: number;
   participant_name: string;
   position: string;
+  photo_url: string
 }
 
 const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
@@ -41,7 +42,8 @@ const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
 
       if (response.status === 200) {
         const { ballot_name, participants } = response.data.data;
-
+        console.log("res")
+        console.log(response.data.data)
         setBallotName(ballot_name);
 
         // Group participants by position
@@ -117,9 +119,7 @@ const ViewBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
                         {candidates.map((candidate) => (
                           <div key={candidate.participant_id} className="flex items-center space-x-2">
                             <img
-                              src={`https://placehold.co/50x50?text=${
-                                candidate.participant_name.split(' ')[0][0]
-                              }`}
+                              src={candidate.photo_url}
                               alt={`Image of ${candidate.participant_name}`}
                               className="w-12 h-12 rounded-full"
                             />
