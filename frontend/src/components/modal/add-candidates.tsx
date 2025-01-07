@@ -29,11 +29,12 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
     // Fetch positions from the API
     const fetchPositions = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/position/getAllPositions');
+        const response = await axios.get(
+          'http://localhost:5000/api/position/getAllPositions'
+        );
         const positionsData = response.data.data;
         setPositions(positionsData);
 
-        
         if (positionsData.length > 0) {
           setFormData((prev) => ({
             ...prev,
@@ -42,19 +43,15 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
         }
       } catch (err) {
         console.error('Error fetching positions:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to fetch positions. Please try again later.',
-        });
       }
     };
 
     fetchPositions();
   }, []);
 
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target as HTMLInputElement;
     const files = (e.target as HTMLInputElement).files;
     setFormData((prev) => ({
@@ -68,11 +65,18 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
     setLoading(true);
     setError(null);
 
-    const { firstname, lastname, position, middleInitial, suffix, candidateNumber, photo } = formData;
+    const {
+      firstname,
+      lastname,
+      position,
+      middleInitial,
+      suffix,
+      candidateNumber,
+      photo,
+    } = formData;
 
     let photoUrl = null;
 
-    // Step 1: Upload the photo if it exists
     if (photo) {
       try {
         const uploadFormData = new FormData();
@@ -117,11 +121,15 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
         photo_url: photoUrl, // Use the uploaded photo URL
       };
 
-      const response = await axios.post('http://localhost:5000/api/candidate/createCandidate', candidateData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/candidate/createCandidate',
+        candidateData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       console.log('Response:', response.data);
       Swal.fire({
@@ -134,7 +142,9 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
       });
     } catch (err) {
       console.error('Error submitting form:', err);
-      setError('An error occurred while creating the candidate. Please try again.');
+      setError(
+        'An error occurred while creating the candidate. Please try again.'
+      );
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -144,7 +154,6 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
       setLoading(false);
     }
   };
-
 
   if (!isOpen) return null;
 
@@ -227,20 +236,22 @@ const AddCandidatesModal: React.FC<ModalProps> = ({ isOpen, title, onClose }) =>
                 onChange={handleChange}
               />
             </div>
-            <div>
-              <label
-                htmlFor="suffix"
-                className="text-sm font-medium text-gray-700"
-              >
-                Suffix (Optional)
-              </label>
-              <input
-                type="text"
-                id="suffix"
+            <div className="flex items-end">
+              <select
                 name="suffix"
-                className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
+                value={formData.suffix}
                 onChange={handleChange}
-              />
+                className="p-2 border rounded text-black w-full flex "
+              >
+                <option value="" disabled>
+                  Suffix
+                </option>
+                {['N/A', 'Jr.', 'Sr.'].map((suffix) => (
+                  <option key={suffix} value={suffix}>
+                    {suffix}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div>
