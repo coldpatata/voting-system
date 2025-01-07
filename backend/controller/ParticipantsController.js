@@ -3,7 +3,7 @@ const db = require('../models/main'); // Adjust the path based on your project s
 // Insert a new Participant
 const createParticipant = async (req, res) => {
     try {
-        const { ballot_id, participant_name, position } = req.body;
+        const { ballot_id, participant_name, position, photo_url } = req.body;
 
         console.log(req.body);
 
@@ -12,6 +12,7 @@ const createParticipant = async (req, res) => {
             ballot_id,
             participant_name,
             position,
+            photo_url
         });
 
         return res.status(201).json({
