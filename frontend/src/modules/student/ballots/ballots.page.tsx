@@ -1,14 +1,18 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
+import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/add-ballot';
 import ViewBallot from '../../../components/modal/view-ballot';
-import axios from 'axios';
+import Header from '../../../components/header/header';
+import Cookies from 'js-cookie';
 
-
-const BallotPageStudent: FC = () => {
+const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isViewOpen, setViewOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [ballots, setBallots] = useState<Ballot[]>([]);
+  const [selectedBallotId, setSelectedBallotId] = useState<number | null>(null);
 
   interface Ballot {
     ballot_id: number;
@@ -19,16 +23,22 @@ const BallotPageStudent: FC = () => {
 
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
-  const openViewModal = () => setViewOpen(true);
-  const closeViewModal = () => setViewOpen(false);
-  const [ballots, setBallots] = useState<Ballot[]>([]);
+  const openViewModal = (ballotId: number) => {
+    setSelectedBallotId(ballotId);
+    setViewOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewOpen(false);
+    setSelectedBallotId(null);
+  };
 
   // Fetch ballots from API
   useEffect(() => {
     const fetchBallots = async () => {
       try {
         const response = await axios.get<{ data: Ballot[] }>(
-          'http://localhost:5000/api/ballot/getAllBallot'
+          'http://localhost:5000/api/ballot/getAllBallots'
         );
         setBallots(response.data.data);
       } catch (error) {
@@ -39,14 +49,15 @@ const BallotPageStudent: FC = () => {
     fetchBallots();
   }, []);
 
+  // Filter ballots by search query
+  const filteredBallots = ballots.filter((ballot) =>
+    ballot.ballot_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-900 p-4 text-white">
-        <h1 className="text-xl">Good Day!</h1>
-      </div>
+      <Header />
 
-      {/* Main Content */}
       <div className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
@@ -62,11 +73,10 @@ const BallotPageStudent: FC = () => {
             <input
               type="text"
               placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="border border-gray-300 px-2 py-1"
             />
-            <button className="bg-yellow-400 text-black rounded-r-md px-4">
-              Search
-            </button>
           </div>
         </div>
 
@@ -83,11 +93,13 @@ const BallotPageStudent: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {ballots.length > 0 ? (
-                ballots.map((ballot) => (
+              {filteredBallots.length > 0 ? (
+                filteredBallots.map((ballot) => (
                   <tr key={ballot.ballot_id} className="border">
-                    <td className="border px-4 py-2">{ballot.ballot_name}</td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
+                      {ballot.ballot_name}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
                       {new Intl.DateTimeFormat('en-US', {
                         year: 'numeric',
                         month: '2-digit',
@@ -96,7 +108,7 @@ const BallotPageStudent: FC = () => {
                         minute: '2-digit',
                       }).format(new Date(ballot.opening_date))}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
                       {new Intl.DateTimeFormat('en-US', {
                         year: 'numeric',
                         month: '2-digit',
@@ -105,20 +117,20 @@ const BallotPageStudent: FC = () => {
                         minute: '2-digit',
                       }).format(new Date(ballot.closing_date))}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 text-center">
                       {new Date() < new Date(ballot.closing_date)
                         ? 'Open'
                         : 'Closed'}
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button
-                        onClick={openViewModal}
+                        onClick={() => openViewModal(ballot.ballot_id)}
                         className="bg-yellow-400 px-2 py-1 rounded"
                       >
                         View
                       </button>
-                      <button className="bg-green-500 px-2 py-1 text-white rounded">
-                        Done
+                      <button className="bg-red-600 px-2 py-1 text-white rounded">
+                        Edit
                       </button>
                     </td>
                   </tr>
@@ -153,7 +165,13 @@ const BallotPageStudent: FC = () => {
       </div>
 
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      <ViewBallot isOpen={isViewOpen} onClose={closeViewModal} />
+      {selectedBallotId !== null && (
+        <ViewBallot
+          isOpen={isViewOpen}
+          onClose={closeViewModal}
+          ballotId={selectedBallotId} // Pass the selected ballot ID
+        />
+      )}
       <BallotReportModal
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
@@ -162,4 +180,4 @@ const BallotPageStudent: FC = () => {
   );
 };
 
-export default BallotPageStudent;
+export default BallotPageAdmin;

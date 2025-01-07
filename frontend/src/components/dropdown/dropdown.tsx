@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ImageViewer from '../modal/imageviewer';
 
 interface Position {
   id: number;
@@ -17,7 +18,6 @@ export interface Candidate {
 // Declare the variable outside the component to persist data
 let ballotCandidates: Candidate[] = []; // Explicitly typed as an array of Candidate
 
-// Define the props interface for the Dropdown component
 interface DropdownProps {
   onBallotCandidatesUpdate: (candidates: Candidate[]) => void;
 }
@@ -33,7 +33,9 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/position/getAllPositions');
+        const response = await fetch(
+          'http://localhost:5000/api/position/getAllPositions'
+        );
         const data = await response.json();
         if (response.ok) {
           setPositions(
@@ -56,7 +58,6 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
   // Fetch candidates when a position is selected
   const handlePositionChange = async (position: string) => {
     setSelectedPosition(position);
-    console.log('Selected position:', position);
 
     if (position) {
       setIsLoading(true);
@@ -68,21 +69,16 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
         const data = await response.json();
 
         if (response.ok) {
-          // Append new candidates to React state
           setCandidates((prevCandidates) => [
             ...prevCandidates,
             ...(data.data || []),
           ]);
 
-          // Append to normal array (ballotCandidates)
+          // Append to non-state array
           if (data.data && Array.isArray(data.data)) {
             ballotCandidates = [...ballotCandidates, ...data.data];
-            // Pass the updated ballotCandidates to the parent component
             onBallotCandidatesUpdate(ballotCandidates);
           }
-
-          // Log the updated array
-          console.log("Updated ballotCandidates:", ballotCandidates);
         } else {
           console.error('Failed to fetch candidates:', data.message);
         }
@@ -93,22 +89,26 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
         setShowCandidates(true);
       }
     } else {
-      setCandidates([]); // Clear candidates when position is empty
-      ballotCandidates = []; // Clear non-state array
-      onBallotCandidatesUpdate(ballotCandidates); // Pass empty array to parent
+      setCandidates([]);
+      ballotCandidates = [];
+      onBallotCandidatesUpdate(ballotCandidates);
     }
   };
 
   return (
     <div className="p-6 font-sans rounded-lg">
       {/* Position Dropdown */}
-      <label className="block mb-2 text-xl font-medium text-black">Position</label>
+      <label className="block mb-2 text-xl font-medium text-black">
+        Position
+      </label>
       <select
         className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         onChange={(e) => {
-          const selected = positions.find((pos) => pos.id === Number(e.target.value));
+          const selected = positions.find(
+            (pos) => pos.id === Number(e.target.value)
+          );
           if (selected) {
-            handlePositionChange(selected.name); // Pass the name of the position
+            handlePositionChange(selected.name);
           }
         }}
       >
@@ -133,20 +133,27 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
                 key={candidate.id}
                 className="flex items-center bg-gray-100 p-4 rounded-md shadow-sm"
               >
-                <img
+                {/* Use ImageViewer for the candidate photo */}
+                <ImageViewer
                   src={candidate.photo_url || '/default-avatar.png'}
-                  alt={candidate.firstname}
+                  alt={`${candidate.firstname} ${candidate.lastname}`}
                   className="w-12 h-12 rounded-full object-cover mr-4"
                 />
                 <span className="flex-1 text-gray-700 font-medium">
-                  {candidate.firstname + " " + candidate.middle_initial + " " + candidate.lastname}
+                  {candidate.firstname +
+                    ' ' +
+                    candidate.middle_initial +
+                    ' ' +
+                    candidate.lastname}
                 </span>
               </div>
             ))}
           </div>
         </div>
       ) : selectedPosition && !isLoading && showCandidates ? (
-        <p className="mt-4 text-gray-500 text-center">No candidates available for this position.</p>
+        <p className="mt-4 text-gray-500 text-center">
+          No candidates available for this position.
+        </p>
       ) : null}
     </div>
   );

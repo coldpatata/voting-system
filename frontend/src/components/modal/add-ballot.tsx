@@ -5,7 +5,7 @@ import axios from 'axios';
 import Dropdown from '../dropdown/dropdown';
 import Swal from 'sweetalert2';
 import { Candidate } from '../dropdown/dropdown'; // Adjust the path as needed
-
+import ImageViewer from './imageviewer';
 
 interface AddBallotModalProps {
   isOpen: boolean;
@@ -37,13 +37,20 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
     setBallotCandidates(updatedCandidates);
   };
 
-  const createParticipant = async (ballotId: number, participantName: string, position: string) => {
+  const createParticipant = async (
+    ballotId: number,
+    participantName: string,
+    position: string
+  ) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/participant/createParticipants', {
-        ballot_id: ballotId,
-        participant_name: participantName,
-        position: position,
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/participant/createParticipants',
+        {
+          ballot_id: ballotId,
+          participant_name: participantName,
+          position: position,
+        }
+      );
 
       console.log('Participant created successfully:', response.data);
       return response.data; // You can use this data in your app
@@ -60,18 +67,21 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
 
   const handleSaveBallot = async () => {
     if (!ballotName || !openingDate || !closingDate) {
-      alert("Please fill in all required fields.");
+      alert('Please fill in all required fields.');
       return;
     }
 
     try {
       // Send data to the backend to create a ballot
-      const response = await axios.post('http://localhost:5000/api/ballot/createBallot', {
-        ballot_name: ballotName,
-        opening_date: openingDate,
-        closing_date: closingDate,
-        year_level_eligibility: eligibility,
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/ballot/createBallot',
+        {
+          ballot_name: ballotName,
+          opening_date: openingDate,
+          closing_date: closingDate,
+          year_level_eligibility: eligibility,
+        }
+      );
 
       // Handle the response
       if (response.status === 201) {
@@ -95,7 +105,11 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                 );
                 console.log('Created participant:', participantResponse);
               } catch (error) {
-                console.error('Error creating participant for candidate:', candidate, error);
+                console.error(
+                  'Error creating participant for candidate:',
+                  candidate,
+                  error
+                );
               }
             }
           }
@@ -105,19 +119,17 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           setOpeningDate('');
           setClosingDate('');
           setEligibility('all');
-          window.location.reload(); 
+          window.location.reload();
           onClose(); // Close the modal
         });
       } else {
-        alert("Failed to create ballot. Please try again.");
+        alert('Failed to create ballot. Please try again.');
       }
     } catch (error) {
-      console.error("Error creating ballot:", error);
-      alert("An error occurred while creating the ballot.");
+      console.error('Error creating ballot:', error);
+      alert('An error occurred while creating the ballot.');
     }
   };
-
-
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -143,7 +155,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Ballot Name
@@ -156,7 +167,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               onChange={(e) => setBallotName(e.target.value)}
             />
           </div>
-
 
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
@@ -182,7 +192,6 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-700">
               Year Level Eligibility
@@ -207,7 +216,10 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
             {positions.map((position) => (
               <div key={position} className="flex flex-col justify-end w-full">
                 <div>
-                  <Dropdown onBallotCandidatesUpdate={handleBallotCandidatesUpdate} />
+                  <Dropdown
+                    onBallotCandidatesUpdate={handleBallotCandidatesUpdate}
+                    ImageViewer={ImageViewer}
+                  />
                 </div>
                 <div className="w-full flex justify-end">
                   <button

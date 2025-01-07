@@ -26,7 +26,7 @@ const CandidatePage: FC = () => {
     axios
       .get('http://localhost:5000/api/candidate/getAllCandidates')
       .then((response) => {
-        setCandidates(response.data.data); // Set the fetched candidates
+        setCandidates(response.data.data); 
       })
       .catch((error) => {
         console.error('Error fetching candidates:', error);
