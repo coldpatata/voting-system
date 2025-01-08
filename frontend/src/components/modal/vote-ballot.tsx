@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  ballotId: number; // Pass the ballot ID to fetch specific data
+  ballotId: number;
 }
 
 interface Participant {
@@ -18,6 +18,7 @@ interface Participant {
 const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
   const [ballotName, setBallotName] = useState('');
   const [positions, setPositions] = useState<Record<string, Participant[]>>({});
+  const [selectedCandidates, setSelectedCandidates] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -27,26 +28,21 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
     return () => {
       setBallotName('');
       setPositions({});
+      setSelectedCandidates({});
     };
   }, [isOpen, ballotId]);
 
   const fetchBallotData = async (id: number) => {
     try {
-      //const ballot_id = Cookies.get('currentBallotID');
       setIsLoading(true);
-      console.log('ballot id');
-      console.log(id);
       const response = await axios.get(
         `http://localhost:5000/api/ballot/getBallotWithParticipants?ballot_id=${id}`
       );
 
       if (response.status === 200) {
         const { ballot_name, participants } = response.data.data;
-        console.log('res');
-        console.log(response.data.data);
         setBallotName(ballot_name);
 
-        // Group participants by position
         const groupedPositions = participants.reduce(
           (acc: Record<string, Participant[]>, participant: Participant) => {
             if (!acc[participant.position]) {
@@ -64,6 +60,41 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
       console.error('Error fetching ballot data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCandidateSelection = (position: string, candidateId: number) => {
+    setSelectedCandidates((prev) => ({
+      ...prev,
+      [position]: candidateId,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    const userId = Cookies.get('uid'); // Get user_id from cookies
+    const currentBallotId = ballotId
+
+    if (!userId || !currentBallotId) {
+      alert('User ID or Ballot ID is missing!');
+      return;
+    }
+
+    const votes = Object.entries(selectedCandidates).map(([position, candidateId]) => ({
+      ballot_id: Number(currentBallotId),
+      candidate_id: candidateId,
+      user_id: Number(userId),
+    }));
+
+    try {
+      for (const vote of votes) {
+        await axios.post('http://localhost:5000/api/vote/insertVote', vote);
+      }
+
+      alert('Vote submitted successfully!');
+      onClose(); // Close the modal after successful submission
+    } catch (error) {
+      console.error('Error submitting votes:', error);
+      alert('An error occurred while submitting your votes.');
     }
   };
 
@@ -87,9 +118,7 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
           ) : (
             <>
               <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2">
-                  Ballot Name
-                </label>
+                <label className="block text-gray-700 font-bold mb-2">Ballot Name</label>
                 <input
                   type="text"
                   value={ballotName}
@@ -100,10 +129,7 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(positions).map(
                   ([position, candidates], index) => (
-                    <div
-                      key={index}
-                      className="border border-gray-300 rounded p-4"
-                    >
+                    <div key={index} className="border border-gray-300 rounded p-4">
                       <div className="mb-4">
                         <label className="block text-gray-700 font-bold mb-2">
                           Position
@@ -140,6 +166,9 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
                                 type="radio"
                                 name={`position-${index}`}
                                 className="form-radio h-5 w-5 text-gray-600"
+                                onChange={() =>
+                                  handleCandidateSelection(position, candidate.participant_id)
+                                }
                               />
                             </div>
                           ))}
@@ -158,7 +187,10 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
             >
               Close
             </button>
-            <button className="bg-green-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleSubmit}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
               Submit
             </button>
           </div>

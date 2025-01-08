@@ -17,6 +17,7 @@ const positionRoute = require('./routes/PositionRoute');
 const candidateRoute = require('./routes/candidateRoute');
 const ballotRoute = require('./routes/ballotRoute');
 const participantRoute = require('./routes/participantRoute');
+const voteRoute = require('./routes/voteRoute');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -34,10 +35,13 @@ app.use('/api/position', positionRoute);
 app.use('/api/candidate', candidateRoute);
 app.use('/api/ballot', ballotRoute);
 app.use('/api/participant', participantRoute);
+app.use('/api/vote', voteRoute);
 // Test endpoint
 app.get('/', (req, res) => {
   res.status(200).send("Hello World");
 });
+
+//http://localhost:5000/api/vote/insertVote
 
 //http://localhost:5000/api/ballot/createBallot
 //http://localhost:5000/api/participant/

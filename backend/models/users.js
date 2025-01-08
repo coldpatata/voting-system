@@ -55,9 +55,8 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     gender: {
-        type: Sequelize.STRING,
+      type: Sequelize.STRING,
     },
-
     profile_url: {
       type: Sequelize.TEXT,
       allowNull: false,
@@ -69,9 +68,17 @@ module.exports = (sequelize, Sequelize) => {
   });
 
   Users.associate = (models) => {
+    // Association with UserRoles
     Users.belongsTo(models.UserRoles, {
       foreignKey: 'role_id',
       as: 'role',
+    });
+
+    // Association with Votes
+    Users.hasMany(models.Votes, {
+      foreignKey: 'user_id',
+      as: 'votes',
+      onDelete: 'CASCADE',
     });
   };
 
