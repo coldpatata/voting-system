@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/add-ballot';
-import ViewBallot from '../../../components/modal/view-ballot';
+import VoteBallot from '../../../components/modal/vote-ballot';
 import Header from '../../../components/header/header';
 import Cookies from 'js-cookie';
 
@@ -166,7 +166,7 @@ const BallotPageAdmin: FC = () => {
 
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
       {selectedBallotId !== null && (
-        <ViewBallot
+        <VoteBallot
           isOpen={isViewOpen}
           onClose={closeViewModal}
           ballotId={selectedBallotId} // Pass the selected ballot ID
