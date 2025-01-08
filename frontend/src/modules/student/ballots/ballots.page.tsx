@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
-import AddBallotModal from '../../../components/modal/add-ballot';
-import VoteBallot from '../../../components/modal/vote-ballot';
+import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
+import VoteBallot from '../../../components/modal/ballot modal/vote-ballot';
 import Header from '../../../components/header/header';
 import Cookies from 'js-cookie';
 
@@ -129,8 +129,8 @@ const BallotPageAdmin: FC = () => {
                       >
                         View
                       </button>
-                      <button className="bg-red-600 px-2 py-1 text-white rounded">
-                        Edit
+                      <button className="bg-green-500 px-2 py-1 text-white rounded">
+                        Done
                       </button>
                     </td>
                   </tr>

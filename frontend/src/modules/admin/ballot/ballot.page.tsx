@@ -1,8 +1,8 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import BallotReportModal from '../../../components/modal/ballot-report';
-import AddBallotModal from '../../../components/modal/add-ballot';
-import ViewBallot from '../../../components/modal/view-ballot';
+import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
+import ViewBallot from '../../../components/modal/ballot modal/view-ballot';
 import Header from '../../../components/header/header';
 import Cookies from 'js-cookie';
 

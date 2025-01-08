@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import QRCodeModal from './qr-code';
-import { profile } from '../../assets/image/image';
+import QRCodeModal from '../qr-code';
+import { profile } from '../../../assets/image/image';
 import axios from 'axios';
-import Dropdown from '../dropdown/dropdown';
+import Dropdown from '../../dropdown/dropdown';
 import Swal from 'sweetalert2';
-import { Candidate } from '../dropdown/dropdown'; // Adjust the path as needed
-import ImageViewer from './imageviewer';
+import { Candidate } from '../../dropdown/dropdown'; // Adjust the path as needed
+import ImageViewer from '../imageviewer';
 
 interface AddBallotModalProps {
   isOpen: boolean;
@@ -50,7 +50,7 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           ballot_id: ballotId,
           participant_name: participantName,
           position: position,
-          photo_url: photo_url
+          photo_url: photo_url,
         }
       );
 
@@ -103,7 +103,8 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
                 const participantResponse = await createParticipant(
                   ballotID,
                   `${candidate.firstname} ${candidate.lastname}`,
-                  candidate.position, candidate.photo_url
+                  candidate.position,
+                  candidate.photo_url
                 );
                 console.log('Created participant:', participantResponse);
               } catch (error) {
