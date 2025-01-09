@@ -17,6 +17,7 @@ const AddStaff: FC<AddStaffProps> = ({ isOpen, onClose, onSubmit }) => {
     suffix: '',
     contact_number: '',
     email: '',
+    gender: '',
   });
 
   const resetForm = () => {
@@ -28,6 +29,7 @@ const AddStaff: FC<AddStaffProps> = ({ isOpen, onClose, onSubmit }) => {
       suffix: '',
       contact_number: '',
       email: '',
+      gender: '',
     });
   };
 
@@ -114,6 +116,21 @@ const AddStaff: FC<AddStaffProps> = ({ isOpen, onClose, onSubmit }) => {
                 className="p-2 border rounded text-black"
               />
             ))}
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="p-2 border rounded text-black"
+            >
+              <option value="" disabled>
+                Gender
+              </option>
+              {['Male', 'Female'].map((gender) => (
+                <option key={gender} value={gender}>
+                  {gender}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
