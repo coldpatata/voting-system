@@ -29,10 +29,7 @@ module.exports = {
                 });
 
                 res.json("USER REGISTERED");
-                res.status(201).json({
-                    message: "User added successfully",
-                   user: newUser
-                });
+           
              
             } catch (error) {
                 console.error("Error:", error.message);
