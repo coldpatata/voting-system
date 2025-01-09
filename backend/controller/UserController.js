@@ -385,7 +385,7 @@ exports.getStaffDetails = async (req, res) => {
     }
 
     const staff = await Users.findAll({
-      attributes: ['username', 'first_name', 'last_name', 'middle_initial'],
+      attributes: ['user_id','username', 'first_name', 'last_name', 'middle_initial', 'suffix', 'contact_number', 'email', 'gender'],
       where: { role_id: staffRole.role_id },
     });
 

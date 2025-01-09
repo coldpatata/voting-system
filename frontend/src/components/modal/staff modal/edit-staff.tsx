@@ -2,22 +2,17 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
-interface EditStudentProps {
+interface EditStaffProps {
   userId: string | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const EditStudent: React.FC<EditStudentProps> = ({
-  userId,
-  isOpen,
-  onClose,
-}) => {
+const EditStaff: React.FC<EditStaffProps> = ({ userId, isOpen, onClose }) => {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [middleInitial, setMiddleInitial] = useState('');
-  const [yearLevel, setYearLevel] = useState('');
   const [gender, setGender] = useState('');
   const [email, setEmail] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -26,38 +21,36 @@ const EditStudent: React.FC<EditStudentProps> = ({
 
   useEffect(() => {
     if (userId) {
-      const fetchStudentData = async () => {
+      const fetchStaffData = async () => {
         try {
           const response = await axios.get(
             `http://localhost:5000/api/users/${userId}`
           );
-          const student = response.data;
-          setUsername(student.username);
-          setFirstName(student.first_name);
-          setLastName(student.last_name);
-          setMiddleInitial(student.middle_initial);
-          setYearLevel(student.year_level);
-          setGender(student.gender);
-          setEmail(student.email);
-          setContactNumber(student.contact_number);
-          setSuffix(student.suffix);
+          const staff = response.data;
+          setUsername(staff.username);
+          setFirstName(staff.first_name);
+          setLastName(staff.last_name);
+          setMiddleInitial(staff.middle_initial);
+          setGender(staff.gender);
+          setEmail(staff.email);
+          setContactNumber(staff.contact_number);
+          setSuffix(staff.suffix);
         } catch (err) {
           console.error('Error fetching student data:', err);
         }
       };
 
-      fetchStudentData();
+      fetchStaffData();
     }
   }, [userId]);
 
   const handleSubmit = async () => {
     try {
-      const updatedStudent = {
+      const updatedStaff = {
         username,
         first_name: firstName,
         last_name: lastName,
         middle_initial: middleInitial,
-        year_level: yearLevel,
         gender,
         email,
         contact_number: contactNumber,
@@ -66,12 +59,12 @@ const EditStudent: React.FC<EditStudentProps> = ({
 
       await axios.put(
         `http://localhost:5000/api/users/${userId}`,
-        updatedStudent
+        updatedStaff
       );
 
       Swal.fire({
-        title: 'Student Updated',
-        text: 'The student data has been successfully updated.',
+        title: 'Staff Updated',
+        text: 'The staff data has been successfully updated.',
         icon: 'success',
         confirmButtonText: 'OK',
       }).then(() => {
@@ -80,7 +73,7 @@ const EditStudent: React.FC<EditStudentProps> = ({
 
       onClose();
       setIsEditing(false);
-    } catch (error) {
+    } catch (err) {
       Swal.fire({
         title: 'Error',
         text: 'There was an error updating the student data.',
@@ -96,7 +89,7 @@ const EditStudent: React.FC<EditStudentProps> = ({
     <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
         <div className="bg-blue-800 text-white text-xl font-semibold p-3 rounded-t mb-4">
-          {isEditing ? 'Edit Student Account' : 'View Student Account'}
+          {isEditing ? 'Edit Staff Account' : 'View Staff Account'}
         </div>
         <div className="grid grid-cols-2 gap-4">
           {[
@@ -124,12 +117,7 @@ const EditStudent: React.FC<EditStudentProps> = ({
               setValue: setMiddleInitial,
               editable: false,
             },
-            {
-              label: 'Year Level',
-              value: yearLevel,
-              setValue: setYearLevel,
-              editable: false,
-            },
+
             {
               label: 'Gender',
               value: gender,
@@ -188,4 +176,4 @@ const EditStudent: React.FC<EditStudentProps> = ({
   );
 };
 
-export default EditStudent;
+export default EditStaff;

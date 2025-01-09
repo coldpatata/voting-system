@@ -2,12 +2,18 @@ import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
 import AddStaff from '../../../components/modal/staff modal/add-staff';
+import EditStaff from '../../../components/modal/staff modal/edit-staff';
 
 interface Staff {
+  user_id: string;
   username: string;
   first_name: string;
   last_name: string;
   middle_initial: string;
+  gender: string;
+  contact_number: string;
+  email: string;
+  suffix: string;
 }
 
 const StaffPage: FC = () => {
@@ -17,6 +23,8 @@ const StaffPage: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -45,7 +53,7 @@ const StaffPage: FC = () => {
         s.last_name.toLowerCase().includes(term)
     );
     setFilteredStaff(filtered);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   const paginatedStaff = filteredStaff.slice(
@@ -55,16 +63,26 @@ const StaffPage: FC = () => {
 
   const handlePageChange = (page: number) => setCurrentPage(page);
 
-  const handleAddStaff = (studentData: Record<string, string>) => {
+  const handleAddStaff = (staffData: Record<string, string>) => {
     const newStaff: Staff = {
-      username: studentData.username,
-      first_name: studentData.first_name,
-      last_name: studentData.last_name,
-      middle_initial: studentData.middle_initial,
+      user_id: staffData.user_id,
+      username: staffData.username,
+      first_name: staffData.first_name,
+      last_name: staffData.last_name,
+      middle_initial: staffData.middle_initial,
+      gender: staffData.gender,
+      email: staffData.email,
+      suffix: staffData.suffix,
+      contact_number: staffData.contact_number,
     };
     setStaff((prev) => [...prev, newStaff]);
     setFilteredStaff((prev) => [...prev, newStaff]);
     setIsModalOpen(false);
+  };
+
+  const handleViewClick = (userId: string) => {
+    setSelectedUserId(userId);
+    setIsEditModalOpen(true); // Open the modal
   };
 
   return (
@@ -129,11 +147,11 @@ const StaffPage: FC = () => {
                       {staffMember.middle_initial}
                     </td>
                     <td className="py-2 px-4 border-b flex justify-center gap-2">
-                      <button className="bg-yellow-400 text-black px-4 py-1 rounded">
+                      <button
+                        onClick={() => handleViewClick(staffMember.user_id)}
+                        className="bg-yellow-400 text-black px-4 py-1 rounded"
+                      >
                         View
-                      </button>
-                      <button className="bg-red-600 text-black px-4 py-1 rounded">
-                        Edit
                       </button>
                     </td>
                   </tr>
@@ -167,6 +185,11 @@ const StaffPage: FC = () => {
           )}
         </div>
       </div>
+      <EditStaff
+        userId={selectedUserId}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
     </>
   );
 };
