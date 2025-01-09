@@ -17,7 +17,7 @@ export interface Candidate {
 
 // Declare the variable outside the component to persist data
 let ballotCandidates: Candidate[] = []; // Explicitly typed as an array of Candidate
-let prevPost = '';
+let selectedPositions: string[] = []; // Array to store all selected positions
 interface DropdownProps {
   onBallotCandidatesUpdate: (candidates: Candidate[]) => void;
 }
@@ -56,13 +56,16 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
 
   // Fetch candidates when a position is selected
   const handlePositionChange = async (position: string) => {
-    setSelectedPosition(position); 
-
-    if (prevPost === position) {
+    if (selectedPositions.includes(position)) {
       alert('Position is already selected');
-      return;
+      return; // Exit if the position is already in the array
     }
-    prevPost = position;
+
+    // Add the new position to the array
+    selectedPositions.push(position);
+
+    setSelectedPosition(position);
+
     if (position) {
       setIsLoading(true);
 
