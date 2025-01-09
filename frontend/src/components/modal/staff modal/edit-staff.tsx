@@ -85,6 +85,11 @@ const EditStaff: React.FC<EditStaffProps> = ({ userId, isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setIsEditing(false);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -165,7 +170,7 @@ const EditStaff: React.FC<EditStaffProps> = ({ userId, isOpen, onClose }) => {
             {isEditing ? 'Save' : 'Edit'}
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="bg-red-600 text-white px-4 py-2 rounded"
           >
             Close
