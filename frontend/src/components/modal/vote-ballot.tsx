@@ -149,7 +149,7 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
                           value={position}
                           className="w-full p-2 border border-gray-300 rounded bg-gray-200"
                           readOnly
-                        />
+                        />  
                       </div>
                       <div>
                         <label className="block text-gray-700 font-bold mb-2">

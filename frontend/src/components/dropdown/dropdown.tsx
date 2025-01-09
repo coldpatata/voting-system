@@ -17,7 +17,7 @@ export interface Candidate {
 
 // Declare the variable outside the component to persist data
 let ballotCandidates: Candidate[] = []; // Explicitly typed as an array of Candidate
-
+let prevPost = '';
 interface DropdownProps {
   onBallotCandidatesUpdate: (candidates: Candidate[]) => void;
 }
@@ -28,7 +28,6 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showCandidates, setShowCandidates] = useState<boolean>(true);
-
   // Fetch positions from API when the component mounts
   useEffect(() => {
     const fetchPositions = async () => {
@@ -57,8 +56,13 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
 
   // Fetch candidates when a position is selected
   const handlePositionChange = async (position: string) => {
-    setSelectedPosition(position);
+    setSelectedPosition(position); 
 
+    if (prevPost === position) {
+      alert('Position is already selected');
+      return;
+    }
+    prevPost = position;
     if (position) {
       setIsLoading(true);
 
@@ -67,7 +71,6 @@ const Dropdown = ({ onBallotCandidatesUpdate }: DropdownProps) => {
           `http://localhost:5000/api/candidate/getCandidatesByPosition?position=${position}`
         );
         const data = await response.json();
-
         if (response.ok) {
           setCandidates((prevCandidates) => [
             ...prevCandidates,
