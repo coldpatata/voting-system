@@ -1,6 +1,8 @@
 import { FC } from 'react';
 import CustomMonthLayout from '../../../components/calendar/calendar';
 import Announcement from '../../../components/announcements/announcement';
+import VoteTally from '../../../components/votetally'; // Import VoteTally
+
 const DashboardPageStudent: FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
@@ -21,36 +23,9 @@ const DashboardPageStudent: FC = () => {
             <h2 className="bg-blue-900 text-white text-center py-2 rounded-t-md">
               Vote Tally
             </h2>
-            <table className="min-w-full text-center border-collapse border border-gray-200">
-              <thead>
-                <tr>
-                  <th className="border p-2">President</th>
-                  <th className="border p-2">V-President</th>
-                  <th className="border p-2">Secretary</th>
-                  <th className="border p-2">Treasurer</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border p-2">Person 1</td>
-                  <td className="border p-2">Person 1</td>
-                  <td className="border p-2">Person 1</td>
-                  <td className="border p-2">Person 1</td>
-                </tr>
-                <tr>
-                  <td className="border p-2">Person 2</td>
-                  <td className="border p-2">Person 2</td>
-                  <td className="border p-2">Person 2</td>
-                  <td className="border p-2">Person 2</td>
-                </tr>
-                <tr>
-                  <td className="border p-2">Person 3</td>
-                  <td className="border p-2">Person 3</td>
-                  <td className="border p-2">Person 3</td>
-                  <td className="border p-2">Person 3</td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Use the VoteTally component here, pass the ballotId prop */}
+            <VoteTally ballotId={1} />{' '}
+            {/* Replace '1' with the actual ballot ID */}
           </div>
         </div>
 

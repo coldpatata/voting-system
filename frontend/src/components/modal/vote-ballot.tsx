@@ -72,31 +72,41 @@ const VoteBallot: React.FC<ModalProps> = ({ isOpen, onClose, ballotId }) => {
 
   const handleSubmit = async () => {
     const userId = Cookies.get('uid'); // Get user_id from cookies
-    const currentBallotId = ballotId
-
+    const currentBallotId = ballotId;
+  
     if (!userId || !currentBallotId) {
       alert('User ID or Ballot ID is missing!');
       return;
     }
-
+  
     const votes = Object.entries(selectedCandidates).map(([position, candidateId]) => ({
       ballot_id: Number(currentBallotId),
       candidate_id: candidateId,
       user_id: Number(userId),
     }));
-
+  
     try {
       for (const vote of votes) {
         await axios.post('http://localhost:5000/api/vote/insertVote', vote);
       }
-
+  
+      // Fetch the updated vote tally
+      const tallyResponse = await axios.get(
+        `http://localhost:5000/api/vote/getVoteTally?ballot_id=${currentBallotId}`
+      );
+  
+      console.log('Vote Tally:', tallyResponse.data.data);
+  
       alert('Vote submitted successfully!');
       onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting votes:', error);
-      alert('An error occurred while submitting your votes.');
+      alert(
+        error.response?.data?.message || 'An error occurred while submitting your votes.'
+      );
     }
   };
+  
 
   if (!isOpen) return null;
 

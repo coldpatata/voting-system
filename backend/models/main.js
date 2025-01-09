@@ -34,8 +34,9 @@ db.Users.belongsTo(db.UserRoles, { foreignKey: 'role_id', as: 'role' });
 db.UserRoles.hasMany(db.Users, { foreignKey: 'role_id', as: 'users' });
 db.Ballot.hasMany(db.Participants, { foreignKey: 'ballot_id', as: 'participants' });
 db.Participants.belongsTo(db.Ballot, { foreignKey: 'ballot_id', as: 'ballot' });
-db.Votes.belongsTo(db.Participants, { foreignKey: 'candidate_id', as: 'votes'});
-db.Participants.hasMany(db.Votes, { foreignKey: 'candidate_id', as: 'participants' });
+db.Votes.belongsTo(db.Participants, { foreignKey: 'candidate_id', as: 'candidate' }); // Change alias to 'candidate'
+db.Participants.hasMany(db.Votes, { foreignKey: 'candidate_id', as: 'votes' });
+
 
 
 // Export db object with models and Sequelize instance
