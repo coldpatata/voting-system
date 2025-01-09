@@ -4,36 +4,41 @@ const { createTokens, validateToken } = require('../middlewares/jwt')
 const { Users } = db;
 
 module.exports = {
-    Register: async (req, res) => {
-        try {
-            const { username, password, email, first_name, middle_initial, last_name, year_level, role_id, section, contact_number, status, gender } = req.body;
-            console.log("USER REGISTRATION DATA: ", req.body);
+        Register: async (req, res) => {
+            try {
+                const { username, password, email, first_name, middle_initial, last_name, year_level, role_id, contact_number, suffix, status, gender } = req.body;
+                console.log("USER REGISTRATION DATA: ", req.body);
 
-            // Hash the password
-            const hash = await bcrypt.hash(password, 10);
+                // Hash the password
+                const hash = await bcrypt.hash(password, 10);
 
-            // Create the user
-            const newUser = await Users.create({
-                username,
-                password: hash,
-                email,
-                first_name,
-                middle_initial,
-                last_name,
-                year_level,
-                role_id,
-                section,
-                contact_number,
-                status,
-                gender
-            });
+                // Create the user
+                const newUser = await Users.create({
+                    username,
+                    password: hash,
+                    email,
+                    first_name,
+                    middle_initial,
+                    last_name,
+                    year_level,
+                    role_id,
+                    contact_number,
+                    status,
+                    gender,
+                    suffix
+                });
 
-            res.json("USER REGISTERED");
-        } catch (error) {
-            console.error("Error:", error.message);
-            res.status(500).json({ error: "Internal Server Error" });
-        }
-    },
+                res.json("USER REGISTERED");
+                res.status(201).json({
+                    message: "User added successfully",
+                   user: newUser
+                });
+             
+            } catch (error) {
+                console.error("Error:", error.message);
+                res.status(500).json({ error: "Internal Server Error" });
+            }
+        },
     Login: async (req, res) => {
         try {
             const { username, password } = req.body;

@@ -35,7 +35,7 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
     year_level: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     role_id: {
       type: Sequelize.INTEGER,
@@ -45,14 +45,15 @@ module.exports = (sequelize, Sequelize) => {
         key: 'role_id',
       },
     },
-    section: {
-      type: Sequelize.STRING,
-    },
     contact_number: {
       type: Sequelize.STRING,
     },
     status: {
       type: Sequelize.STRING,
+    },
+    suffix: {
+      type: Sequelize.STRING,
+    
     },
     gender: {
       type: Sequelize.STRING,
@@ -68,7 +69,7 @@ module.exports = (sequelize, Sequelize) => {
   });
 
   Users.associate = (models) => {
-    // Association with UserRoles
+   
     Users.belongsTo(models.UserRoles, {
       foreignKey: 'role_id',
       as: 'role',

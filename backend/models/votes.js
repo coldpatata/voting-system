@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Ballot', // References the Ballot table
+                model: 'Ballot',
                 key: 'ballot_id',
             },
         },
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Participants', // References the Participants table
+                model: 'Participants',
                 key: 'participant_id',
             },
         },
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Users', // References the Users table
+                model: 'Users',
                 key: 'user_id',
             },
         },
@@ -39,22 +39,18 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false,
     });
 
+    // Define Associations
     Votes.associate = (models) => {
-        // Association with Ballot
         Votes.belongsTo(models.Ballot, {
             foreignKey: 'ballot_id',
             as: 'ballot',
             onDelete: 'CASCADE',
         });
-
-        // Association with Participants
         Votes.belongsTo(models.Participants, {
             foreignKey: 'candidate_id',
             as: 'candidate',
             onDelete: 'CASCADE',
         });
-
-        // Association with Users
         Votes.belongsTo(models.Users, {
             foreignKey: 'user_id',
             as: 'user',

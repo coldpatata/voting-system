@@ -157,7 +157,6 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               { name: 'middle_initial', placeholder: 'M. Initial' },
               { name: 'contact_number', placeholder: 'Contact Number' },
               { name: 'email', placeholder: 'Email (Optional)' },
-              { name: 'gender', placeholder: 'Gender' },
             ].map(({ name, placeholder }) => (
               <input
                 key={name}
@@ -193,7 +192,7 @@ const AddStudentModal: FC<AddStudentModalProps> = ({
               <option value="" disabled>
                 Year Level
               </option>
-              {['1st Year', '2nd Year', '3rd Year', '4th Year'].map((year) => (
+              {['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>

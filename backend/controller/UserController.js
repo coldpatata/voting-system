@@ -66,9 +66,9 @@ exports.updateUserDetails = async (req, res) => {
       last_name,
       year_level,
       role_id,
-      section,
       contact_number,
       status,
+      suffix,
       profile_url
     } = req.body;
 
@@ -88,9 +88,9 @@ exports.updateUserDetails = async (req, res) => {
       last_name,
       year_level,
       role_id,
-      section,
       contact_number,
       status,
+      suffix,
       profile_url
     });
 
@@ -472,7 +472,8 @@ exports.addStudent = async (req, res) => {
       middle_initial,
       last_name,
       year_level,
-      section,
+      suffix, 
+      gender,
       contact_number,
     } = req.body;
 
@@ -501,7 +502,9 @@ exports.addStudent = async (req, res) => {
       last_name,
       year_level,
       role_id: studentRole.role_id,
-      section,
+      gender,
+      suffix,
+
       contact_number,
       status: 'active', 
     });

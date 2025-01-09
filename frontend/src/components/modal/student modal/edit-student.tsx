@@ -14,7 +14,6 @@ const EditStudent: React.FC<EditStudentProps> = ({
   onClose,
 }) => {
   const [username, setUsername] = useState('');
-  const [student, setStudent] = useState<any>({});
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [middleInitial, setMiddleInitial] = useState('');
@@ -32,16 +31,16 @@ const EditStudent: React.FC<EditStudentProps> = ({
           const response = await axios.get(
             `http://localhost:5000/api/users/${userId}`
           );
-          setStudent(response.data);
-          setUsername(response.data.username);
-          setFirstName(response.data.first_name);
-          setLastName(response.data.last_name);
-          setMiddleInitial(response.data.middle_initial);
-          setYearLevel(response.data.year_level);
-          setGender(response.data.gender);
-          setEmail(response.data.email);
-          setSuffix(response.data.suffix);
-          setContactNumber(response.data.contact_number);
+          const student = response.data;
+          setUsername(student.username);
+          setFirstName(student.first_name);
+          setLastName(student.last_name);
+          setMiddleInitial(student.middle_initial);
+          setYearLevel(student.year_level);
+          setGender(student.gender);
+          setEmail(student.email);
+          setContactNumber(student.contact_number);
+          setSuffix(student.suffix);
         } catch (err) {
           console.error('Error fetching student data:', err);
         }
@@ -54,13 +53,15 @@ const EditStudent: React.FC<EditStudentProps> = ({
   const handleSubmit = async () => {
     try {
       const updatedStudent = {
-        ...student,
-        username: username,
+        username,
         first_name: firstName,
         last_name: lastName,
         middle_initial: middleInitial,
         year_level: yearLevel,
-        gender: gender,
+        gender,
+        email,
+        contact_number: contactNumber,
+        suffix,
       };
 
       await axios.put(
@@ -79,7 +80,7 @@ const EditStudent: React.FC<EditStudentProps> = ({
 
       onClose();
       setIsEditing(false);
-    } catch {
+    } catch (error) {
       Swal.fire({
         title: 'Error',
         text: 'There was an error updating the student data.',
@@ -89,133 +90,101 @@ const EditStudent: React.FC<EditStudentProps> = ({
     }
   };
 
-  return (
-    isOpen && (
-      <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50">
-        <div className="bg-white p-6 rounded-lg gap-4">
-          <div className="mt-4 w-full">
-            <div className="bg-blue-800 w-full text-white text-xl font-semibold p-2 rounded-t mb-2">
-              Edit Student Account
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                {
-                  name: 'username',
-                  placeholder: 'Username',
-                  value: username,
-                  editable: isEditing,
-                },
-                {
-                  name: 'first_name',
-                  placeholder: 'First Name',
-                  value: firstName,
-                  editable: false,
-                },
-                {
-                  name: 'last_name',
-                  placeholder: 'Last Name',
-                  value: lastName,
-                  editable: false,
-                },
-                {
-                  name: 'middle_initial',
-                  placeholder: 'Middle Initial',
-                  value: middleInitial,
-                  editable: false,
-                },
-                {
-                  name: 'contact_number',
-                  placeholder: 'Contact Number',
-                  value: contactNumber,
-                  editable: false,
-                },
-                {
-                  name: 'email',
-                  placeholder: 'Email (Optional)',
-                  value: email,
-                  editable: false,
-                },
-              ].map(({ name, placeholder, value, editable }) => (
-                <div key={name}>
-                  <label className="block text-sm">{placeholder}</label>
-                  <input
-                    type="text"
-                    name={name}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={(e) => {
-                      if (name === 'username') setUsername(e.target.value);
-                      if (name === 'first_name') setFirstName(e.target.value);
-                      if (name === 'last_name') setLastName(e.target.value);
-                      if (name === 'middle_initial')
-                        setMiddleInitial(e.target.value);
-                      if (name === 'contact_number')
-                        setContactNumber(e.target.value);
-                      if (name === 'email') setEmail(e.target.value); 
-                    }}
-                    readOnly={!editable}
-                    className={`w-full p-2 mt-2 border text-black ${
-                      editable ? 'bg-white' : 'bg-gray-100 cursor-not-allowed'
-                    }`}
-                  />
-                </div>
-              ))}
-              <div>
-                <label className="block text-sm">Suffix</label>
-                <input
-                  type="text"
-                  name="suffix"
-                  value={suffix}
-                  readOnly
-                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Year Level</label>
-                <input
-                  type="text"
-                  name="year_level"
-                  value={yearLevel}
-                  readOnly
-                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label className="block text-sm">Gender</label>
-                <input
-                  type="text"
-                  name="gender"
-                  value={gender}
-                  readOnly
-                  className="w-full p-2 mt-2 border text-black bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-            </div>
-          </div>
+  if (!isOpen) return null;
 
-          <div className="mt-6 w-full flex justify-end gap-4">
-            <button
-              onClick={() => {
-                if (isEditing) {
-                  handleSubmit();
-                } else {
-                  setIsEditing(true); // Enable editing
-                }
-              }}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              {isEditing ? 'Save' : 'Edit'}
-            </button>
-            <button
-              onClick={onClose}
-              className="bg-red-600 text-white px-4 py-2 rounded"
-            >
-              Close
-            </button>
-          </div>
+  return (
+    <div className="fixed inset-0 flex justify-center items-center bg-gray-700 bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <div className="bg-blue-800 text-white text-xl font-semibold p-3 rounded-t mb-4">
+          {isEditing ? 'Edit Student Account' : 'View Student Account'}
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            {
+              label: 'Username',
+              value: username,
+              setValue: setUsername,
+              editable: false,
+            },
+            {
+              label: 'First Name',
+              value: firstName,
+              setValue: setFirstName,
+              editable: false,
+            },
+            {
+              label: 'Last Name',
+              value: lastName,
+              setValue: setLastName,
+              editable: false,
+            },
+            {
+              label: 'Middle Initial',
+              value: middleInitial,
+              setValue: setMiddleInitial,
+              editable: false,
+            },
+            {
+              label: 'Year Level',
+              value: yearLevel,
+              setValue: setYearLevel,
+              editable: false,
+            },
+            {
+              label: 'Gender',
+              value: gender,
+              setValue: setGender,
+              editable: false,
+            },
+            {
+              label: 'Email',
+              value: email,
+              setValue: setEmail,
+              editable: false,
+            },
+            {
+              label: 'Contact Number',
+              value: contactNumber,
+              setValue: setContactNumber,
+              editable: false,
+            },
+            {
+              label: 'Suffix',
+              value: suffix,
+              setValue: setSuffix,
+              editable: false,
+            },
+          ].map(({ label, value, setValue, editable }) => (
+            <div key={label}>
+              <label className="block text-sm font-medium">{label}</label>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                disabled={!isEditing && !editable}
+                className={`w-full border rounded p-2 mt-1 ${
+                  editable ? 'bg-white' : 'bg-gray-200'
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 flex justify-end gap-4">
+          <button
+            onClick={() => (isEditing ? handleSubmit() : setIsEditing(true))}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            {isEditing ? 'Save' : 'Edit'}
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
         </div>
       </div>
-    )
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
-import AddCandidatesModal from '../../../components/modal/add-candidates';
+import AddCandidatesModal from '../../../components/modal/candidate modal/add-candidates';
 
 type Candidate = {
   id: number;
