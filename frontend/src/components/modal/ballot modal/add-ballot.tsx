@@ -74,6 +74,48 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
     }
 
     try {
+      // Generate QR code first
+      const qrResponse = await axios.post(
+        'http://localhost:5000/api/qr/generate-qr',
+        {
+          link: "http://localhost:5173/student/ballot"
+        }
+      );
+
+      if (qrResponse.status !== 200) {
+        alert('Failed to generate QR code. Please try again.');
+        return;
+      }
+
+      // QR code generated successfully
+      const qrCode = qrResponse.data.qrCode;
+
+      // Convert QR code (data URL) to a Blob
+      const qrCodeBlob = await fetch(qrCode).then((res) => res.blob());
+
+      // Prepare FormData to send the QR code to Supabase
+      const formData = new FormData();
+      formData.append('file', qrCodeBlob, `${ballotName}_QRCode.png`);
+
+      // Upload QR code to Supabase
+      const uploadResponse = await axios.post(
+        'http://localhost:5000/api/upload/uploadSingle',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (uploadResponse.status !== 200) {
+        alert('Failed to upload QR code to Supabase. Please try again.');
+        return;
+      }
+
+      // Retrieve the file URL from the upload response
+      const qrCodeFileUrl = uploadResponse.data.fileUrl;
+
       // Send data to the backend to create a ballot
       const response = await axios.post(
         'http://localhost:5000/api/ballot/createBallot',
@@ -82,10 +124,10 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           opening_date: openingDate,
           closing_date: closingDate,
           year_level_eligibility: eligibility,
+          qr_url: 'https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/'+qrCodeFileUrl, // Attach the QR code URL to the ballot
         }
       );
 
-      // Handle the response
       if (response.status === 201) {
         // Access the ballot_id from the response's data
         const ballotID = response.data.ballot_id;
@@ -95,10 +137,9 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
           title: 'Success',
           text: 'Ballot created!',
         }).then(async () => {
-          // Now, after creating the ballot, create participants using the candidates' data
+          // Create participants using the candidates' data
           if (ballotCandidates.length > 0) {
             for (const candidate of ballotCandidates) {
-              // Call the function to create participants
               try {
                 const participantResponse = await createParticipant(
                   ballotID,
@@ -129,10 +170,12 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
         alert('Failed to create ballot. Please try again.');
       }
     } catch (error) {
-      console.error('Error creating ballot:', error);
-      alert('An error occurred while creating the ballot.');
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
     }
   };
+
+
 
   const handleCloseModal = () => {
     setIsModalOpen(false);

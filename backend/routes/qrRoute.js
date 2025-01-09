@@ -6,21 +6,11 @@ const router = express.Router();
 
 // Route to generate QR code (existing)
 router.post('/generate-qr', async (req, res) => {
-    const { name, openingDate, closingDate } = req.body;
+    const { link } = req.body;
 
     try {
-        // Data to encode in the QR code
-        const qrData = {
-            name,
-            openingDate,
-            closingDate,
-        };
-
-        // Convert data to a string
-        const qrString = JSON.stringify(qrData);
-
-        // Generate QR code as a data URL
-        const qrCode = await QRCode.toDataURL(qrString);
+        // Generate QR code directly from the link
+        const qrCode = await QRCode.toDataURL(link);
         res.status(200).json({ qrCode });
     } catch (error) {
         console.error('Error generating QR code:', error);

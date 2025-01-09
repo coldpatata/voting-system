@@ -3,7 +3,7 @@ const db = require('../models/main'); // Adjust the path based on your project s
 // Insert a new Ballot
 const createBallot = async (req, res) => {
     try {
-        const { ballot_name, opening_date, closing_date, year_level_eligibility, status } = req.body;
+        const { ballot_name, opening_date, closing_date, year_level_eligibility, status, qr_url } = req.body;
 
         console.log(req.body);
 
@@ -14,6 +14,7 @@ const createBallot = async (req, res) => {
             closing_date,
             year_level_eligibility,
             status,
+            qr_url
         });
 
         return res.status(201).json({
