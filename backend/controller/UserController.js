@@ -525,7 +525,7 @@ exports.addStudent = async (req, res) => {
 exports.addStaff = async (req, res) => {
   try {
     console.log('Request body:', req.body);
-    const { username, email, suffix, password, first_name, last_name, middle_initial, contact_number } = req.body;
+    const { username, email, suffix, password, gender, first_name, last_name, middle_initial, contact_number } = req.body;
 
     if (!username || !email || !first_name || !last_name || !suffix || !middle_initial || !contact_number) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
@@ -555,6 +555,7 @@ exports.addStaff = async (req, res) => {
       last_name,
       middle_initial,
       contact_number,
+      gender,
       role_id: staffRole.role_id,
       status: 'active',
     });
