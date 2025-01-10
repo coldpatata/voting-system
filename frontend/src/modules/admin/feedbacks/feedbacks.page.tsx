@@ -19,14 +19,14 @@ const FeedbacksPage: FC = () => {
           <table className="min-w-full bg-white">
             <thead>
               <tr>
-                <th className="py-2 px-4 border-b">Ballot Name</th>
-                <th className="py-2 px-4 border-b">Date Created</th>
-                <th className="py-2 px-4 border-b">Status</th>
+                <th className="py-2 px-4 border-b">User ID</th>
+                <th className="py-2 px-4 border-b">Subject</th>
+                <th className="py-2 px-4 border-b">Date Submitted</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr className="">
                 <td className="py-2 px-4 border-b">2024 SSLG Election</td>
                 <td className="py-2 px-4 border-b text-center">01/13/2024</td>
                 <td className="py-2 px-4 border-b text-center">Closed</td>
