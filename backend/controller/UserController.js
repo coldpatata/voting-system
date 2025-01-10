@@ -57,7 +57,7 @@ exports.updateUser = async (req, res) => {
 
 exports.updateUserDetails = async (req, res) => {
   try {
-    const { user_id } = req.query; // Accessing from URL parameter
+    const { user_id } = req.query; 
     const {
       username,
       email,
@@ -567,3 +567,38 @@ exports.addStaff = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while adding staff.', error });
   }
 };
+
+exports.resetUser = async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ message: 'Username is required.' });
+  }
+
+  try {
+    // Hash the username to set as the new password
+    const hashedPassword = await bcrypt.hash(username, 10);
+
+    // Find the user by username
+    const user = await Users.findOne({ where: { username: { [Op.iLike]: username } } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Update the password
+    await user.update({ password: hashedPassword });
+
+    res.status(200).json({
+      message: 'Password reset successfully. The new password is your username (hashed).',
+    });
+  } catch (error) {
+    console.error('Error resetting password:', error.message);
+
+    res.status(500).json({
+      message: 'Unexpected error occurred. Please try again later.',
+    });
+  }
+};
+
+

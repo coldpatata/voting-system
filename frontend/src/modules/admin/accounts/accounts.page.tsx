@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
+import ResetAccount from '../../../components/modal/resetaccount';
 
 const AccountsPage: FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -9,6 +10,11 @@ const AccountsPage: FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
+  const [selectedUser, setSelectedUser] = useState<{
+    username: string;
+    userId: string;
+  } | null>(null);
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -61,8 +67,6 @@ const AccountsPage: FC = () => {
     }
   };
 
-
-
   const fetchUsersByRole = async (role = '', page = 1, limit = 10) => {
     setLoading(true);
     try {
@@ -79,7 +83,6 @@ const AccountsPage: FC = () => {
     }
   };
 
-
   const fetchFilteredUsers = async (page: number, username = '') => {
     setLoading(true);
     try {
@@ -87,8 +90,8 @@ const AccountsPage: FC = () => {
       const response = await axios.get(
         `http://localhost:5000/api/users/searchUsers?username=${username}&page=${page}&limit=${limit}`
       );
-      console.log("-----")
-      console.log(response.data.data)
+      console.log('-----');
+      console.log(response.data.data);
       setUsers(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
@@ -98,7 +101,11 @@ const AccountsPage: FC = () => {
       setLoading(false);
     }
   };
-  const fetchFilteredUsersWithRoles = async (page: number, username = '', role = '') => {
+  const fetchFilteredUsersWithRoles = async (
+    page: number,
+    username = '',
+    role = ''
+  ) => {
     setLoading(true);
     try {
       const limit = 5;
@@ -106,8 +113,8 @@ const AccountsPage: FC = () => {
         `http://localhost:5000/api/users/searchWithRole?username=${username}&role=${role}&page=${page}&limit=${limit}
 `
       );
-      console.log("-----")
-      console.log(response.data.data)
+      console.log('-----');
+      console.log(response.data.data);
       setUsers(response.data.data);
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
@@ -125,7 +132,7 @@ const AccountsPage: FC = () => {
           // Fetch all users if no search query or role is selected
           await fetchUsers(currentPage);
         } else if (searchQuery.trim() !== '' && selectedRole.trim() !== '') {
-          fetchFilteredUsersWithRoles(currentPage,searchQuery,selectedRole)
+          fetchFilteredUsersWithRoles(currentPage, searchQuery, selectedRole);
         } else if (selectedRole.trim() !== '') {
           // Fetch users by role
           await fetchUsersByRole(selectedRole);
@@ -152,6 +159,17 @@ const AccountsPage: FC = () => {
   const handleRoleChange = (role: string) => {
     setSelectedRole(role);
   };
+
+  const handleEditClick = (user: { username: string; userId: string }) => {
+    setSelectedUser(user); // Set the selected user's details dynamically
+    setIsModalOpen(true); // Open the modal
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false); // Close the modal
+    setSelectedUser(null); // Clear selected user details
+  };
+
 
   return (
     <>
@@ -212,23 +230,28 @@ const AccountsPage: FC = () => {
                       {user.role.role_name}
                     </td>
                     <td
-                      className={`py-2 px-4 border-b text-center uppercase ${user.status === 'active'
-                        ? 'text-green-500'
-                        : 'text-red-500'
-                        }`}
+                      className={`py-2 px-4 border-b text-center uppercase ${
+                        user.status === 'active'
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }`}
                     >
                       {user.status}
                     </td>
                     <td className="py-2 gap-2 px-4 border-b flex justify-center">
-                      <button className="bg-green-400 text-black px-4 py-1 rounded">
+                      <button
+                        className="bg-green-400 text-black px-4 py-1 rounded"
+                        onClick={() => handleEditClick(user)} // Pass the user object dynamically
+                      >
                         Edit
                       </button>
                       <button
                         onClick={() => handleArchive(user.user_id, user.status)}
-                        className={`px-4 py-1 rounded ${user.status === 'active'
-                          ? 'bg-red-500 text-white'
-                          : 'bg-blue-500 text-white'
-                          }`}
+                        className={`px-4 py-1 rounded ${
+                          user.status === 'active'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-blue-500 text-white'
+                        }`}
                       >
                         {user.status === 'active' ? 'Archive' : 'Unarchive'}
                       </button>
@@ -257,10 +280,11 @@ const AccountsPage: FC = () => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 mx-1 ${currentPage === page
-                ? 'bg-blue-800 text-white'
-                : 'text-gray-600'
-                }`}
+              className={`px-4 py-2 mx-1 ${
+                currentPage === page
+                  ? 'bg-blue-800 text-white'
+                  : 'text-gray-600'
+              }`}
             >
               {page}
             </button>
@@ -274,6 +298,15 @@ const AccountsPage: FC = () => {
           </button>
         </div>
       </div>
+
+      {isModalOpen && selectedUser && (
+        <ResetAccount
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          username={selectedUser.username}
+        
+        />
+      )}
     </>
   );
 };
