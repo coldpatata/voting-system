@@ -15,7 +15,7 @@ const createAnnouncement = async (req, res) => {
         const newAnnouncement = await Announcements.create({
             title_header,
             time_date,
-            image_url: image_url || null, // Set to null if not provided
+            image_url: image_url || null, 
             description_text,
         });
 

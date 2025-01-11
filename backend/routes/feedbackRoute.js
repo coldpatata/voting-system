@@ -1,0 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const feedbackController = require('../controller/FeedbackController');
+
+router.get('/getAllFeedbacks', feedbackController.getAllFeedbacks);
+router.post('/createFeedback', feedbackController.createFeedback);
+router.get('/user/:user_id', feedbackController.getAllFeedbacks);
+module.exports = router;

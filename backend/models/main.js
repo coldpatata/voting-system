@@ -28,6 +28,7 @@ db.Candidates = require('./candidate')(sequelize, Sequelize);
 db.Ballot = require('./ballot')(sequelize, Sequelize);
 db.Participants = require('./participants')(sequelize, Sequelize);
 db.Votes = require('./votes')(sequelize, Sequelize);
+db.Feedbacks = require('./feedbacks')(sequelize, Sequelize);
 
 // Define associations
 db.Users.belongsTo(db.UserRoles, { foreignKey: 'role_id', as: 'role' });

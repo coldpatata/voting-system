@@ -72,14 +72,14 @@ exports.updateUserDetails = async (req, res) => {
       profile_url
     } = req.body;
 
-    // Find the user by ID
+
     const user = await Users.findByPk(user_id);
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update the user fields
+
     await user.update({
       username,
       email,
