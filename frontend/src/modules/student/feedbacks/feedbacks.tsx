@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import Modal from 'react-modal';
+import ViewFeedbackModal from '../../../components/modal/feedback modal/view-feedback';
+import CreateFeedbackModal from '../../../components/modal/feedback modal/create-feedback';
+import Header from '../../../components/header/header';
 
 // Define the feedback structure
 interface Feedback {
@@ -10,22 +12,25 @@ interface Feedback {
 const Feedbacks = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
+    null
+  );
 
   // Example feedback data
   const feedbackData: Feedback[] = [
     {
       subject: 'No Uniform Policy',
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...'
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
     },
     {
       subject: 'Event Improvement',
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...'
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
     },
     {
       subject: 'Need Immediate Action',
-      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...'
-    }
+      content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
+    },
   ];
 
   // Open View Modal
@@ -47,12 +52,8 @@ const Feedbacks = () => {
 
   return (
     <div className="flex">
-      {/* Main Content */}
       <div className="flex-1 min-h-screen bg-gray-100">
-        {/* Header */}
-        <div className="bg-blue-900 p-4 text-white">
-          <h1 className="text-xl">Good Day!</h1>
-        </div>
+        <Header />
 
         {/* Feedback Section */}
         <div className="p-6">
@@ -107,72 +108,22 @@ const Feedbacks = () => {
           </div>
         </div>
 
-        {/* View Feedback Modal */}
-        <Modal
+        <ViewFeedbackModal
           isOpen={isViewModalOpen}
-          onRequestClose={closeModals}
-          contentLabel="View Feedback"
-        >
-          <div className="p-6 bg-white rounded-md">
-            <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
-              View Feedback
-            </h2>
-            <div className="mt-4">
-              <h3 className="font-bold">Subject</h3>
-              <p className="bg-gray-200 p-2 rounded-md">
-                {selectedFeedback?.subject}
-              </p>
-            </div>
-            <div className="mt-4">
-              <h3 className="font-bold">Content</h3>
-              <p className="bg-gray-200 p-2 rounded-md">
-                {selectedFeedback?.content}
-              </p>
-            </div>
-            <button
-              className="mt-4 bg-blue-900 text-white px-4 py-2 rounded"
-              onClick={closeModals}
-            >
-              Close
-            </button>
-          </div>
-        </Modal>
+          onClose={closeModals}
+          selectedFeedback={selectedFeedback}
+        />
 
-        {/* Create Feedback Modal */}
-        <Modal
+        <CreateFeedbackModal
           isOpen={isCreateModalOpen}
-          onRequestClose={closeModals}
-          contentLabel="Create Feedback"
-        >
-          <div className="p-6 bg-white rounded-md">
-            <h2 className="bg-blue-900 text-white py-2 px-4 rounded-t-md">
-              Create Feedback
-            </h2>
-            <div className="mt-4">
-              <label className="block font-bold">Subject</label>
-              <input
-                type="text"
-                className="border border-gray-300 p-2 rounded-md w-full"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block font-bold">Content</label>
-              <textarea className="border border-gray-300 p-2 rounded-md w-full h-32"></textarea>
-            </div>
-            <button
-              className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
-              onClick={closeModals}
-            >
-              Submit
-            </button>
-            <button
-              className="mt-4 ml-2 bg-gray-500 text-white px-4 py-2 rounded"
-              onClick={closeModals}
-            >
-              Cancel
-            </button>
-          </div>
-        </Modal>
+          onClose={closeModals}
+          onSubmit={(subject: string, content: string): void => {
+            console.log('Subject:', subject);
+            console.log('Content:', content);
+
+            closeModals();
+          }}
+        />
       </div>
     </div>
   );

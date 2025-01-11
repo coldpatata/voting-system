@@ -17,7 +17,7 @@ const BallotPageAdmin: FC = () => {
   interface Ballot {
     ballot_id: number;
     ballot_name: string;
-    opening_date: string; // ISO date string from the API
+    opening_date: string;
     closing_date: string; // ISO date string from the API
   }
 

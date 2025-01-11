@@ -187,7 +187,8 @@ const AnnouncementPage: FC = () => {
       <AddAnnouncement
         isOpen={modalIsOpen}
         onClose={closeModal}
-        onSubmit={(title, body, imageUrl) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onSubmit={(_title, _body, _imageUrl) => {
           setModalIsOpen(false);
           // Logic for adding the announcement
         }}
