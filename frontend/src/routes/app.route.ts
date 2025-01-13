@@ -32,6 +32,9 @@ import BallotPageAdmin from "../modules/admin/ballot/ballot.page";
 import UserLayout from "../layout/Profile Layout/user.layout";
 import PasswordLayout from "../layout/Profile Layout/password.layout";
 import staffStudentPage from "../modules/staff/student/staff.studentPage";
+import ViewBallot from "../components/modal/ballot modal/view-ballot.tsx";
+import ViewBallotPage from "../modules/admin/ballot/view-ballot.page";  // Import the new ViewBallotPage
+
 export const router = createBrowserRouter([
     {
       path: '',
@@ -98,6 +101,10 @@ export const router = createBrowserRouter([
             Component: AnnouncementPage
         },
         {
+          path: 'view-ballot/:ballotId',  // Add the route for ViewBallotPage
+          Component: ViewBallotPage
+        },
+        {
           path: '/admin/profile',
           Component: ProfilePage,
           children:[
@@ -128,7 +135,12 @@ export const router = createBrowserRouter([
 
     {
       path: 'ballot',
-      Component: BallotPage
+      Component: BallotPage,
+      children:[  {
+        path: 'view',
+        Component: ViewBallot
+
+      }]
   },
 
   {
