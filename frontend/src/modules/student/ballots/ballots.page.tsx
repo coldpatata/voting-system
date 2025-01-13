@@ -1,37 +1,19 @@
 import { FC, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BallotReportModal from '../../../components/modal/ballot-report';
-import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
-import VoteBallot from '../../../components/modal/ballot modal/vote-ballot';
 import Header from '../../../components/header/header';
-import Cookies from 'js-cookie';
 
-const BallotPageAdmin: FC = () => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isViewOpen, setViewOpen] = useState(false);
+const BallotPage: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [ballots, setBallots] = useState<Ballot[]>([]);
-  const [selectedBallotId, setSelectedBallotId] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   interface Ballot {
     ballot_id: number;
     ballot_name: string;
-    opening_date: string; // ISO date string from the API
-    closing_date: string; // ISO date string from the API
+    opening_date: string;
+    closing_date: string;
   }
-
-  const openModall = () => setModalOpen(true);
-  const closeModall = () => setModalOpen(false);
-  const openViewModal = (ballotId: number) => {
-    setSelectedBallotId(ballotId);
-    setViewOpen(true);
-  };
-
-  const closeViewModal = () => {
-    setViewOpen(false);
-    setSelectedBallotId(null);
-  };
 
   // Fetch ballots from API
   useEffect(() => {
@@ -64,12 +46,6 @@ const BallotPageAdmin: FC = () => {
             Ballots
           </h2>
           <div className="flex">
-            <button
-              onClick={openModall}
-              className="bg-yellow-400 text-black px-4"
-            >
-              Add
-            </button>
             <input
               type="text"
               placeholder="Search"
@@ -118,13 +94,11 @@ const BallotPageAdmin: FC = () => {
                       }).format(new Date(ballot.closing_date))}
                     </td>
                     <td className="border px-4 py-2 text-center">
-                      {new Date() < new Date(ballot.closing_date)
-                        ? 'Open'
-                        : 'Closed'}
+                      {new Date() < new Date(ballot.closing_date) ? 'Open' : 'Closed'}
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button
-                        onClick={() => openViewModal(ballot.ballot_id)}
+                        onClick={() => navigate(`/student/view-ballot/${ballot.ballot_id}`)}
                         className="bg-yellow-400 px-2 py-1 rounded"
                       >
                         View
@@ -163,21 +137,8 @@ const BallotPageAdmin: FC = () => {
           </button>
         </div>
       </div>
-
-      <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      {selectedBallotId !== null && (
-        <VoteBallot
-          isOpen={isViewOpen}
-          onClose={closeViewModal}
-          ballotId={selectedBallotId} // Pass the selected ballot ID
-        />
-      )}
-      <BallotReportModal
-        isOpen={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
-      />
     </div>
   );
 };
 
-export default BallotPageAdmin;
+export default BallotPage;

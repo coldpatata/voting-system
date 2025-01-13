@@ -1,37 +1,26 @@
 import { FC, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
-import ViewBallot from '../../../components/modal/ballot modal/view-ballot';
 import Header from '../../../components/header/header';
-import Cookies from 'js-cookie';
+import BallotReportModal from '../../../components/modal/ballot-report';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [isViewOpen, setViewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [ballots, setBallots] = useState<Ballot[]>([]);
-  const [selectedBallotId, setSelectedBallotId] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   interface Ballot {
     ballot_id: number;
     ballot_name: string;
     opening_date: string;
-    closing_date: string; // ISO date string from the API
+    closing_date: string;
   }
 
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
-  const openViewModal = (ballotId: number) => {
-    setSelectedBallotId(ballotId);
-    setViewOpen(true);
-  };
-
-  const closeViewModal = () => {
-    setViewOpen(false);
-    setSelectedBallotId(null);
-  };
 
   // Fetch ballots from API
   useEffect(() => {
@@ -125,7 +114,7 @@ const BallotPageAdmin: FC = () => {
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button
-                        onClick={() => openViewModal(ballot.ballot_id)}
+                        onClick={() => navigate(`/admin/view-ballot/${ballot.ballot_id}`)}
                         className="bg-yellow-400 px-2 py-1 rounded"
                       >
                         View
@@ -146,33 +135,9 @@ const BallotPageAdmin: FC = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center space-x-2 py-4">
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            &laquo; Previous
-          </button>
-          <button className="px-2 py-1 bg-gray-300 rounded">1</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">2</button>
-          <button className="px-2 py-1 bg-blue-900 text-white rounded">
-            3
-          </button>
-          <button className="px-2 py-1 bg-gray-300 rounded">4</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">5</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            Next &raquo;
-          </button>
-        </div>
       </div>
 
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      {selectedBallotId !== null && (
-        <ViewBallot
-          isOpen={isViewOpen}
-          onClose={closeViewModal}
-          ballotId={selectedBallotId} // Pass the selected ballot ID
-        />
-      )}
       <BallotReportModal
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}

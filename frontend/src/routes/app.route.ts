@@ -10,7 +10,6 @@ import BallotPage from "../modules/student/ballots/ballots.page";
 import ForgotPassword from "../modules/authentication/forgot-password.page";
 import ResetPassword from "../modules/authentication/reset-password.page";
 import DashboardPageStudent from "../modules/student/dashboard/dashboard.page";
-
 import AccountPage from "../modules/student/accounts/accounts.page";
 import StudentLayout from "../layout/student.layout";
 import Feedbacks from "../modules/student/feedbacks/feedbacks";
@@ -29,152 +28,149 @@ import StaffPositionPage from "../modules/staff/position/staff.position";
 import StaffBallotReportPage from "../modules/staff/ballot-report/staff.ballot-report";
 import StaffBallotPage from "../modules/staff/ballot/staff.ballot";
 import BallotPageAdmin from "../modules/admin/ballot/ballot.page";
+import ViewBallotPage from "../modules/admin/ballot/view-ballot.page";
+import StudentViewBallotPage from "../modules/student/ballots/view-ballot.page";  // Import the new StudentViewBallotPage
 import UserLayout from "../layout/Profile Layout/user.layout";
 import PasswordLayout from "../layout/Profile Layout/password.layout";
 import staffStudentPage from "../modules/staff/student/staff.studentPage";
+
 export const router = createBrowserRouter([
-    {
-      path: '',
-      Component: PageLayout,
-      children: [
-        {
-          index: true,
-          Component: LoginPage
-        },
-        {
-          path: '/forgot-password',
-          Component: ForgotPassword
-
-        },
-        {
-          path: '/reset-password',
-          Component: ResetPassword
-        }
-      ]
-    },
-    {
-      path: '/admin',
-      Component: AdminLayout,
-      children: [
-        {
-          index: true,
-          Component: DashboardPage,
-         
-        },
-        {
-            path: 'candidate',
-            Component: CandidatePage
-        },
-        {
-            path: 'position',
-            Component: PositionPage
-        },
-        {
-            path: 'ballot',
-            Component: BallotPageAdmin
-        },
-        {
-          path: 'ballot-report',
-          Component: BallotReportPage
-        },
-        {
-          path: 'student-page',
-          Component: StudentPage
-        },
-        {
-          path: 'staff-page',
-          Component: StaffPage
-        },
-        {
-          path: 'accounts-page',
-          Component: AccountsPage
-        },
-        {
-          path:'feedbacks',
-          Component: FeedbacksPage
-        },
-        {
-            path: 'announcement',
-            Component: AnnouncementPage
-        },
-        {
-          path: '/admin/profile',
-          Component: ProfilePage,
-          children:[
-            {
-              index:true,
-              path: 'user',
-              Component: UserLayout
-            },
-            {  path: 'password',
-            Component:  PasswordLayout
-           }
-          
-          ]
-        }
-      ]
-    },
-
-    {
-      path: '/student',
-      Component:StudentLayout,
-      children:[
-    
+  {
+    path: '',
+    Component: PageLayout,
+    children: [
+      {
+        index: true,
+        Component: LoginPage
+      },
+      {
+        path: '/forgot-password',
+        Component: ForgotPassword
+      },
+      {
+        path: '/reset-password',
+        Component: ResetPassword
+      }
+    ]
+  },
+  {
+    path: '/admin',
+    Component: AdminLayout,
+    children: [
+      {
+        index: true,
+        Component: DashboardPage,
+      },
+      {
+        path: 'candidate',
+        Component: CandidatePage
+      },
+      {
+        path: 'position',
+        Component: PositionPage
+      },
+      {
+        path: 'ballot',
+        Component: BallotPageAdmin
+      },
+      {
+        path: 'ballot-report',
+        Component: BallotReportPage
+      },
+      {
+        path: 'student-page',
+        Component: StudentPage
+      },
+      {
+        path: 'staff-page',
+        Component: StaffPage
+      },
+      {
+        path: 'accounts-page',
+        Component: AccountsPage
+      },
+      {
+        path: 'feedbacks',
+        Component: FeedbacksPage
+      },
+      {
+        path: 'announcement',
+        Component: AnnouncementPage
+      },
+      {
+        path: 'view-ballot/:ballotId',
+        Component: ViewBallotPage
+      },
+      {
+        path: '/admin/profile',
+        Component: ProfilePage,
+        children: [
+          {
+            index: true,
+            path: 'user',
+            Component: UserLayout
+          },
+          {
+            path: 'password',
+            Component: PasswordLayout
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/student',
+    Component: StudentLayout,
+    children: [
       {
         index: true,
         Component: DashboardPageStudent
-
-    },
-
-    {
-      path: 'ballot',
-      Component: BallotPage
-  },
-
-  {
-    path: 'accounts',
-    Component: AccountPage
-  },
-
-
-  {
-    path: 'feedbacks',
-    Component: Feedbacks
-  },
-  {
-    path: '/student/profile',
-    Component: ProfilePage,
-    children:[
-      {
-        index:true,
-        path: 'user',
-        Component: UserLayout
-      },
-      {  path: 'password',
-      Component:  PasswordLayout
-     }
-    
-    ]
-  }
-
-    ]
-    },
-
-    {
-      path: '/staff',
-      Component:StaffLayout,
-      children:[
-
-        {
-          index: true,
-          Component: DashboardPageStaff
-  
       },
       {
-          path: 'candidates',
-          Component: StaffCandidatePage
+        path: 'ballot',
+        Component: BallotPage,
       },
-
+      {
+        path: 'view-ballot/:ballotId',  // Add the route for StudentViewBallotPage
+        Component: StudentViewBallotPage
+      },
+      {
+        path: 'accounts',
+        Component: AccountPage
+      },
+      {
+        path: 'feedbacks',
+        Component: Feedbacks
+      },
+      {
+        path: '/student/profile',
+        Component: ProfilePage,
+        children: [
+          {
+            index: true,
+            path: 'user',
+            Component: UserLayout
+          },
+          {
+            path: 'password',
+            Component: PasswordLayout
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/staff',
+    Component: StaffLayout,
+    children: [
+      {
+        index: true,
+        Component: DashboardPageStaff
+      },
+      {
+        path: 'candidates',
+        Component: StaffCandidatePage
+      },
       {
         path: 'position',
         Component: StaffPositionPage
@@ -187,7 +183,7 @@ export const router = createBrowserRouter([
         path: 'students',
         Component: staffStudentPage
       },
-      {   
+      {
         path: 'announcements',
         Component: StaffAnouncements
       },
@@ -198,33 +194,24 @@ export const router = createBrowserRouter([
       {
         path: '/staff/profile',
         Component: ProfilePage,
-        children:[
+        children: [
           {
-            index:true,
+            index: true,
             path: 'user',
             Component: UserLayout
           },
-          {  path: 'password',
-          Component:  PasswordLayout
-         }
-        
+          {
+            path: 'password',
+            Component: PasswordLayout
+          }
         ]
       }
+    ]
+  },
+  {
+    path: "*",
+    Component: ErrorPage
+  }
+]);
 
-      ]
-
-    },
-
-  
-
-    
-    {
-      path: "*",
-      Component:ErrorPage
-    }
-
-
-
-  ]);
-  
-  export default router;
+export default router;
