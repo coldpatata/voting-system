@@ -1,9 +1,52 @@
-import { FC } from 'react';
+import { FC, useState, useEffect } from 'react';
+import axios from 'axios';
+
+interface BallotReport {
+  ballot_id: string;
+  ballot_name: string;
+  date_created: string;
+  status: string;
+}
 
 const StaffBallotReportPage: FC = () => {
+  const [reports, setReports] = useState<BallotReport[]>([]);
+  const [filteredReports, setFilteredReports] = useState<BallotReport[]>([]);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState('');
+
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/ballot/reports');
+        setReports(response.data);
+        setFilteredReports(response.data);
+      } catch (err) {
+        setError('Error fetching ballot reports');
+        console.error(err);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  const handleSearch = (searchTerm: string) => {
+    setSearch(searchTerm);
+    const filtered = reports.filter(
+      (report) => report.ballot_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredReports(filtered);
+    setCurrentPage(1);
+  };
+
+  const paginatedReports = filteredReports.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <>
-      {' '}
       <div className="bg-blue-900 p-4 text-white">
         <h1 className="text-xl">Good Day!</h1>
       </div>
@@ -11,7 +54,12 @@ const StaffBallotReportPage: FC = () => {
         <div className="bg-blue-800 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Ballot Report</h1>
           <div className="flex items-center">
-            <input type="text" className="p-2" />
+            <input
+              type="text"
+              className="p-2"
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
             <button className="bg-yellow-400 text-black p-2 ml-2">
               Search
             </button>
@@ -28,86 +76,56 @@ const StaffBallotReportPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="py-2 px-4 border-b">2024 SSLG Election</td>
-                <td className="py-2 px-4 border-b">01/13/2024</td>
-                <td className="py-2 px-4 border-b">Closed</td>
-                <td className="py-2 px-4 border-b">
-                  <button className="bg-yellow-400 text-black px-4 py-1">
-                    View
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b">
-                  Buwan ng Wika People's Choice Award
-                </td>
-                <td className="py-2 px-4 border-b">03/24/2024</td>
-                <td className="py-2 px-4 border-b">Closed</td>
-                <td className="py-2 px-4 border-b">
-                  <button className="bg-yellow-400 text-black px-4 py-1">
-                    View
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b">Best Artwork</td>
-                <td className="py-2 px-4 border-b">04/06/2024</td>
-                <td className="py-2 px-4 border-b">Open</td>
-                <td className="py-2 px-4 border-b">
-                  <button className="bg-yellow-400 text-black px-4 py-1">
-                    View
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-                <td className="py-2 px-4 border-b"></td>
-              </tr>
+              {paginatedReports.map((report) => (
+                <tr key={report.ballot_id}>
+                  <td className="py-2 px-4 border-b">{report.ballot_name}</td>
+                  <td className="py-2 px-4 border-b">{report.date_created}</td>
+                  <td className="py-2 px-4 border-b">{report.status}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button className="bg-yellow-400 text-black px-4 py-1">
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center items-center mt-4">
-          <button className="px-4 py-2 mx-1 text-gray-600">« Previous</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">1</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">2</button>
-          <button className="px-4 py-2 mx-1 bg-blue-800 text-white">3</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">4</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">5</button>
-          <button className="px-4 py-2 mx-1 text-gray-600">Next »</button>
+          <button
+            className="px-4 py-2 mx-1 text-gray-600"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          >
+            « Previous
+          </button>
+          {Array.from(
+            { length: Math.ceil(filteredReports.length / itemsPerPage) },
+            (_, i) => (
+              <button
+                key={i + 1}
+                className={`px-4 py-2 mx-1 ${
+                  currentPage === i + 1
+                    ? 'bg-blue-800 text-white'
+                    : 'text-gray-600'
+                }`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            )
+          )}
+          <button
+            className="px-4 py-2 mx-1 text-gray-600"
+            onClick={() =>
+              setCurrentPage((prev) =>
+                Math.min(prev + 1, Math.ceil(filteredReports.length / itemsPerPage))
+              )
+            }
+          >
+            Next »
+          </button>
         </div>
+        {error && <div className="text-red-500 mt-4">{error}</div>}
       </div>
     </>
   );

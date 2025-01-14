@@ -78,8 +78,72 @@ const getBallotWithParticipants = async (req, res) => {
     }
 };
 
+// Fetch a specific Ballot by its ID
+const getBallot = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const ballot = await db.Ballot.findByPk(id);
+
+        if (!ballot) {
+            return res.status(404).json({
+                success: false,
+                message: `Ballot with ID ${id} not found.`
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Ballot retrieved successfully.',
+            data: ballot
+        });
+    } catch (error) {
+        console.error('Error retrieving ballot:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'An error occurred while retrieving the ballot.'
+        });
+    }
+};
+
+const updateBallot = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ballot_name, opening_date, closing_date } = req.body;
+
+        const ballot = await db.Ballot.findByPk(id);
+        
+        if (!ballot) {
+            return res.status(404).json({
+                success: false,
+                message: `Ballot with ID ${id} not found.`
+            });
+        }
+
+        await ballot.update({
+            ballot_name,
+            opening_date,
+            closing_date
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Ballot updated successfully.',
+            data: ballot
+        });
+    } catch (error) {
+        console.error('Error updating ballot:', error);
+        res.status(500).json({ 
+            success: false,
+            error: 'An error occurred while updating the ballot.'
+        });
+    }
+};
+
 module.exports = {
     createBallot,
     getBallotWithParticipants,
     getAllBallots,
+    getBallot,
+    updateBallot,
 };

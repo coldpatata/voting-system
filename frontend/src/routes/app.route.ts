@@ -34,6 +34,8 @@ import UserLayout from "../layout/Profile Layout/user.layout";
 import PasswordLayout from "../layout/Profile Layout/password.layout";
 import staffStudentPage from "../modules/staff/student/staff.studentPage";
 import CreateFeedbackPage from "../modules/student/feedbacks/create-feedback.page";
+import ViewBallotReportPage from "../modules/admin/ballot-report/view-ballot-report.page"; // Import the new ViewBallotReportPage
+import ViewStaffBallotPage from "../modules/staff/ballot/view-staff-ballot"; // Import the new ViewStaffBallotPage
 
 export const router = createBrowserRouter([
   {
@@ -101,6 +103,10 @@ export const router = createBrowserRouter([
       {
         path: 'view-ballot/:ballotId',
         Component: ViewBallotPage
+      },
+      {
+        path: 'ballot-report/view/:ballotId',
+        Component: ViewBallotReportPage // Add the route for ViewBallotReportPage
       },
       {
         path: '/admin/profile',
@@ -183,6 +189,10 @@ export const router = createBrowserRouter([
       {
         path: 'ballot',
         Component: StaffBallotPage
+      },
+      {
+        path: 'view-ballot/:ballotId',
+        Component: ViewStaffBallotPage
       },
       {
         path: 'students',

@@ -37,32 +37,24 @@ const createFeedback = async (req, res) => {
 
 const getAllFeedbacks = async (req, res) => {
   try {
-    // Fetch all feedbacks along with user details
-    const feedback = await Feedbacks.findAll({
-      include: [
-        {
-          model: Users,
-          as: 'user',
-          attributes: ['user_id', 'first_name', 'last_name'], // Fields to include
-        },
-      ],
+    const feedbacks = await db.Feedbacks.findAll({
+      include: [{
+        model: db.Users,
+        as: 'user',
+        attributes: ['username', 'first_name', 'last_name'] // Specify the user fields you want
+      }]
     });
-
-    if (feedback.length === 0) {
-      return res.status(404).json({
-        message: 'No feedbacks found.',
-      });
-    }
 
     return res.status(200).json({
-      message: 'Feedbacks retrieved successfully.',
-      data: feedback,
+      success: true,
+      data: feedbacks
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching feedbacks:', error);
     return res.status(500).json({
-      message: 'Error retrieving feedback data.',
-      error: error.message, // Include error for debugging (optional, remove in production)
+      success: false,
+      message: 'Error fetching feedbacks',
+      error: error.message
     });
   }
 };

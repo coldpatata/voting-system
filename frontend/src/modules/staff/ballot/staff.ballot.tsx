@@ -1,46 +1,62 @@
 import { FC, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BallotReportModal from '../../../components/modal/ballot-report';
 import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
-import ViewBallot from '../../../components/modal/ballot modal/view-ballot';
+import BallotReportModal from '../../../components/modal/ballot-report';
+import EditBallotModal from '../../../components/modal/ballot modal/edit-ballot';
+
+interface Ballot {
+  ballot_id: number;
+  ballot_name: string;
+  opening_date: string;
+  closing_date: string;
+}
 
 const StaffBallotPage: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [isViewOpen, setViewOpen] = useState(false);
-
-  interface Ballot {
-    ballot_id: number;
-    ballot_name: string;
-    opening_date: string; // ISO date string from the API
-    closing_date: string; // ISO date string from the API
-  }
+  const [searchQuery, setSearchQuery] = useState('');
+  const [ballots, setBallots] = useState<Ballot[]>([]);
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Define itemsPerPage
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedBallot, setSelectedBallot] = useState<Ballot | null>(null);
 
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
-  const openViewModal = () => setViewOpen(true);
-  const closeViewModal = () => setViewOpen(false);
-  const [ballots, setBallots] = useState<Ballot[]>([]);
 
-  // Fetch ballots from API
+  const fetchBallots = async () => {
+    try {
+      const response = await axios.get<{ data: Ballot[] }>(
+        'http://localhost:5000/api/ballot/getAllBallots'
+      );
+      setBallots(response.data.data);
+    } catch (error) {
+      console.error('Error fetching ballots:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchBallots = async () => {
-      try {
-        const response = await axios.get<{ data: Ballot[] }>(
-          'http://localhost:5000/api/ballot/getAllBallot'
-        );
-        setBallots(response.data.data);
-      } catch (error) {
-        console.error('Error fetching ballots:', error);
-      }
-    };
-
     fetchBallots();
   }, []);
 
+  const handleEdit = (ballot: Ballot) => {
+    setSelectedBallot(ballot);
+    setEditModalOpen(true);
+  };
+
+  const handleUpdate = () => {
+    // Refresh the ballots list
+    fetchBallots();
+  };
+
+  const filteredBallots = ballots.filter((ballot) =>
+    ballot.ballot_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <div className="bg-blue-900 p-4 text-white">
         <h1 className="text-xl">Good Day!</h1>
       </div>
@@ -62,6 +78,8 @@ const StaffBallotPage: FC = () => {
               type="text"
               placeholder="Search"
               className="border border-gray-300 px-2 py-1"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button className="bg-yellow-400 text-black rounded-r-md px-4">
               Search
@@ -82,8 +100,8 @@ const StaffBallotPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {ballots.length > 0 ? (
-                ballots.map((ballot) => (
+              {filteredBallots.length > 0 ? (
+                filteredBallots.map((ballot) => (
                   <tr key={ballot.ballot_id} className="border">
                     <td className="border px-4 py-2 text-center">
                       {ballot.ballot_name}
@@ -113,13 +131,16 @@ const StaffBallotPage: FC = () => {
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button
-                        onClick={openViewModal}
-                        className="bg-yellow-400 px-2 py-1 rounded "
+                        onClick={() => navigate(`/staff/view-ballot/${ballot.ballot_id}`)}
+                        className="bg-yellow-400 px-2 py-1 rounded"
                       >
                         View
                       </button>
-                      <button className="bg-green-500 px-2 py-1 text-white rounded">
-                        Done
+                      <button
+                        onClick={() => handleEdit(ballot)}
+                        className="bg-green-500 px-2 py-1 text-white rounded"
+                      >
+                        Edit
                       </button>
                     </td>
                   </tr>
@@ -137,28 +158,56 @@ const StaffBallotPage: FC = () => {
 
         {/* Pagination */}
         <div className="flex justify-center space-x-2 py-4">
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            &laquo; Previous
-          </button>
-          <button className="px-2 py-1 bg-gray-300 rounded">1</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">2</button>
-          <button className="px-2 py-1 bg-blue-900 text-white rounded">
-            3
-          </button>
-          <button className="px-2 py-1 bg-gray-300 rounded">4</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">5</button>
-          <button className="px-2 py-1 bg-gray-300 rounded">
-            Next &raquo;
-          </button>
+          {filteredBallots.length > itemsPerPage && (
+            <>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-2 py-1 bg-gray-300 rounded"
+              >
+                &laquo; Previous
+              </button>
+              {[...Array(Math.ceil(filteredBallots.length / itemsPerPage))].map((_, idx) => (
+                <button
+                  key={idx + 1}
+                  onClick={() => setCurrentPage(idx + 1)}
+                  className={`px-2 py-1 rounded ${
+                    currentPage === idx + 1 ? 'bg-blue-900 text-white' : 'bg-gray-300'
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(prev + 1, Math.ceil(filteredBallots.length / itemsPerPage))
+                  )
+                }
+                className="px-2 py-1 bg-gray-300 rounded"
+              >
+                Next &raquo;
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       <AddBallotModal isOpen={isModalOpen} onClose={closeModall} />
-      <ViewBallot isOpen={isViewOpen} onClose={closeViewModal} />
       <BallotReportModal
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
+      {selectedBallot && (
+        <EditBallotModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          ballotId={selectedBallot.ballot_id}
+          currentBallotName={selectedBallot.ballot_name}
+          currentOpeningDate={selectedBallot.opening_date}
+          currentClosingDate={selectedBallot.closing_date}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 };
