@@ -81,6 +81,12 @@ module.exports = (sequelize, Sequelize) => {
       as: 'votes',
       onDelete: 'CASCADE',
     });
+
+    // Add this association
+    Users.hasMany(models.Feedbacks, {
+      foreignKey: 'user_id',
+      as: 'feedbacks'
+    });
   };
 
   return Users;
