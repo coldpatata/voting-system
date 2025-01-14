@@ -4,6 +4,7 @@ import axios from 'axios';
 import ImageViewer from '../../../components/modal/imageviewer';
 import Header from '../../../components/header/header';
 import Swal from 'sweetalert2';
+import Cookies from 'js-cookie'; // Import Cookies to get user_id
 
 interface Participant {
   participant_id: number;
@@ -73,29 +74,82 @@ const ViewBallotPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/ballot/submitVote', {
-        ballotId,
-        votes: selectedCandidates,
-      });
+    // Check for user ID in multiple storage locations
+    const uid = localStorage.getItem('uid') || 
+                sessionStorage.getItem('uid') || 
+                Cookies.get('uid');
+    
+    console.log('Attempting to get user ID from:', {
+      localStorage: localStorage.getItem('uid'),
+      sessionStorage: sessionStorage.getItem('uid'),
+      cookies: Cookies.get('uid')
+    });
 
-      if (response.status === 200) {
+    if (!uid) {
+      console.log('No user ID found in storage');
+      Swal.fire({
+        title: 'Authentication Error',
+        text: 'Please log in again to vote',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate('/');
+      });
+      return;
+    }
+
+    // Add validation for selected candidates
+    const selectedPositions = Object.keys(selectedCandidates).length;
+    const totalPositions = Object.keys(positions).length;
+
+    if (selectedPositions < totalPositions) {
+      Swal.fire({
+        title: 'Incomplete Selection',
+        text: `Please select candidates for all positions (${selectedPositions}/${totalPositions} selected)`,
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    try {
+      const payload = {
+        user_id: Number(uid),
+        ballot_id: Number(ballotId),
+        votes: Object.entries(selectedCandidates).map(([_, candidate_id]) => ({
+          candidate_id: Number(candidate_id)
+        }))
+      };
+
+      console.log('Submitting vote payload:', payload);
+
+      const response = await axios.post(
+        'http://localhost:5000/api/vote/createVote',
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 201) {
         Swal.fire({
-          title: 'Vote Submitted!',
-          text: 'Your vote has been submitted successfully.',
+          title: 'Success!',
+          text: 'Your vote has been recorded successfully',
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: 'OK'
         }).then(() => {
           navigate('/student/ballot');
         });
       }
-    } catch (error) {
-      console.error('Error submitting vote:', error);
+    } catch (error: any) {
+      console.error('Vote submission error:', error.response?.data || error);
       Swal.fire({
         title: 'Error',
-        text: 'Failed to submit your vote. Please try again.',
+        text: error.response?.data?.message || 'Failed to submit vote',
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: 'OK'
       });
     }
   };
