@@ -47,6 +47,15 @@ const LoginPage: FC = () => {
       console.log(response.data);
       saveToCookies(accessToken, role_id, uid, profile_url, first_name);
 
+      if (response.data.uid) {
+        // Store user ID in multiple locations for redundancy
+        localStorage.setItem('uid', response.data.uid.toString());
+        sessionStorage.setItem('uid', response.data.uid.toString());
+        Cookies.set('uid', response.data.uid.toString());
+        
+        console.log('Stored user ID:', response.data.uid);
+      }
+
       Swal.fire({
         title: 'Success!',
         text: 'You have successfully logged in.',
