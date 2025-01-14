@@ -46,7 +46,35 @@ const getAllPositions = async (req, res) => {
     }
 };
 
+// Update an existing position
+const updatePosition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { position_name, max_vote_count } = req.body;
+
+        const position = await db.Positions.findByPk(id);
+
+        if (!position) {
+            return res.status(404).json({ message: 'Position not found.' });
+        }
+
+        position.position_name = position_name;
+        position.max_vote_count = max_vote_count;
+
+        await position.save();
+
+        return res.status(200).json({
+            message: 'Position updated successfully.',
+            data: position,
+        });
+    } catch (error) {
+        console.error('Error updating position:', error);
+        res.status(500).json({ error: 'An error occurred while updating the position.' });
+    }
+};
+
 module.exports = {
     createPosition,
     getAllPositions,
+    updatePosition, // Export the new method
 };

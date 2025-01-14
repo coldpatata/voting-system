@@ -33,6 +33,7 @@ import StudentViewBallotPage from "../modules/student/ballots/view-ballot.page";
 import UserLayout from "../layout/Profile Layout/user.layout";
 import PasswordLayout from "../layout/Profile Layout/password.layout";
 import staffStudentPage from "../modules/staff/student/staff.studentPage";
+import CreateFeedbackPage from "../modules/student/feedbacks/create-feedback.page";
 
 export const router = createBrowserRouter([
   {
@@ -141,6 +142,10 @@ export const router = createBrowserRouter([
       {
         path: 'feedbacks',
         Component: Feedbacks
+      },
+      {
+        path: 'create-feedback',
+        Component: CreateFeedbackPage
       },
       {
         path: '/student/profile',

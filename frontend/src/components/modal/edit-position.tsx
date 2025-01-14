@@ -4,13 +4,24 @@ import Swal from 'sweetalert2';
 
 interface ModalProps {
   isOpen: boolean;
+  title: string;
   onClose: () => void;
+  position: {
+    position_id: number;
+    position_name: string;
+    max_vote_count: number;
+  };
 }
 
-const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+const EditPositionModal: React.FC<ModalProps> = ({
+  isOpen,
+  title,
+  onClose,
+  position,
+}) => {
   const [formData, setFormData] = useState({
-    position: '',
-    maxVoteCount: '',
+    positionName: position.position_name,
+    maxVoteCount: position.max_vote_count.toString(),
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,18 +39,21 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     setError('');
     setIsLoading(true);
 
-    const { position, maxVoteCount } = formData;
+    const { positionName, maxVoteCount } = formData;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/position/createPosition', {
-        position_name: position,
-        max_vote_count: parseInt(maxVoteCount, 10),
-      });
+      const response = await axios.put(
+        `http://localhost:5000/api/position/updatePosition/${position.position_id}`,
+        {
+          position_name: positionName,
+          max_vote_count: parseInt(maxVoteCount, 10),
+        }
+      );
 
-      console.log('Position created successfully:', response.data);
+      console.log('Position updated successfully:', response.data);
       Swal.fire({
-        title: 'Position Created!',
-        text: 'Position created successfully',
+        title: 'Position Updated!',
+        text: 'Position updated successfully',
         icon: 'success',
         confirmButtonText: 'OK',
       }).then(() => {
@@ -47,8 +61,8 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         window.location.reload();
       });
     } catch (err) {
-      console.error('Error creating position:', err);
-      setError('Failed to create position. Please try again.');
+      console.error('Error updating position:', err);
+      setError('Failed to update position. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +74,7 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-blue-700">Add Position</h2>
+          <h2 className="text-xl font-bold text-blue-700">{title}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -71,14 +85,14 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="position" className="text-sm font-medium text-gray-700">
-              Postion
+            <label htmlFor="positionName" className="text-sm font-medium text-gray-700">
+              Position Name
             </label>
             <input
               type="text"
-              id="position"
-              name="position"
-              value={formData.position}
+              id="positionName"
+              name="positionName"
+              value={formData.positionName}
               onChange={handleChange}
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
             />
@@ -120,4 +134,4 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default AddPositionModal;
+export default EditPositionModal;
