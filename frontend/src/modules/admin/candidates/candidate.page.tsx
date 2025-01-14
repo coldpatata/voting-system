@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
 import AddCandidatesModal from '../../../components/modal/candidate modal/add-candidates';
+import EditCandidatesModal from '../../../components/modal/candidate modal/edit-candidate';
 
 type Candidate = {
   id: number;
@@ -17,12 +18,18 @@ type Candidate = {
 const CandidatePage: FC = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [isAddCandidatesModalOpen, setIsAddCandidatesModalOpen] = useState(false);
+  const [isEditCandidatesModalOpen, setIsEditCandidatesModalOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
 
   const handleOpenAddCandidatesModal = () => setIsAddCandidatesModalOpen(true);
   const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);
+  const handleOpenEditCandidatesModal = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setIsEditCandidatesModalOpen(true);
+  };
+  const handleCloseEditCandidatesModal = () => setIsEditCandidatesModalOpen(false);
 
   useEffect(() => {
-  
     axios
       .get('http://localhost:5000/api/candidate/getAllCandidates')
       .then((response) => {
@@ -80,7 +87,10 @@ const CandidatePage: FC = () => {
                     />
                   </td>
                   <td className="py-2 px-4 border">
-                    <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
+                    <button
+                      onClick={() => handleOpenEditCandidatesModal(candidate)}
+                      className="bg-yellow-400 text-black px-4 py-2 rounded mr-2"
+                    >
                       Edit
                     </button>
                     <button className="bg-red-600 text-white px-4 py-2 rounded">
@@ -111,6 +121,14 @@ const CandidatePage: FC = () => {
         title="Add New Candidate"
         onClose={handleCloseAddCandidatesModal}
       />
+      {selectedCandidate && (
+        <EditCandidatesModal
+          isOpen={isEditCandidatesModalOpen}
+          title="Edit Candidate"
+          onClose={handleCloseEditCandidatesModal}
+          candidate={selectedCandidate}
+        />
+      )}
     </>
   );
 };

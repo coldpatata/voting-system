@@ -74,8 +74,41 @@ const getCandidatesByPosition = async (req, res) => {
     }
 };
 
+// Update an existing candidate
+const updateCandidate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { firstname, lastname, position, middle_initial, suffix, candidate_number, photo_url } = req.body;
+
+        const candidate = await db.Candidates.findByPk(id);
+
+        if (!candidate) {
+            return res.status(404).json({ message: 'Candidate not found.' });
+        }
+
+        candidate.firstname = firstname;
+        candidate.lastname = lastname;
+        candidate.position = position;
+        candidate.middle_initial = middle_initial;
+        candidate.suffix = suffix;
+        candidate.candidate_number = candidate_number;
+        candidate.photo_url = photo_url;
+
+        await candidate.save();
+
+        return res.status(200).json({
+            message: 'Candidate updated successfully.',
+            data: candidate,
+        });
+    } catch (error) {
+        console.error('Error updating candidate:', error);
+        res.status(500).json({ error: 'An error occurred while updating the candidate.' });
+    }
+};
+
 module.exports = {
     createCandidate,
     getAllCandidates,
     getCandidatesByPosition,
+    updateCandidate, // Export the new method
 };

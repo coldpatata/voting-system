@@ -2,12 +2,15 @@ import { FC, useState, useEffect } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
 import Header from '../../../components/header/header';
 import AddPositionModal from '../../../components/modal/add-position';
+import EditPositionModal from '../../../components/modal/edit-position';
 import axios from 'axios';
 
 const PositionPage: FC = () => {
   const [positions, setPositions] = useState<any[]>([]); // State to store the positions
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);
+  const [isEditPositionModalOpen, setIsEditPositionModalOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<any | null>(null);
 
   // Fetch positions from the API on component mount
   useEffect(() => {
@@ -25,6 +28,13 @@ const PositionPage: FC = () => {
 
   const handleOpenAddPositionModal = () => setIsAddPositionModalOpen(true);
   const handleCloseAddPositionModal = () => setIsAddPositionModalOpen(false);
+
+  const handleOpenEditPositionModal = (position: any) => {
+    setSelectedPosition(position);
+    setIsEditPositionModalOpen(true);
+  };
+  const handleCloseEditPositionModal = () => setIsEditPositionModalOpen(false);
+
   const handleConfirmArchive = () => {
     alert('Item archived!');
     setIsArchiveModalOpen(false);
@@ -70,7 +80,10 @@ const PositionPage: FC = () => {
                   </td>
 
                   <td className="py-2 px-4 border">
-                    <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
+                    <button
+                      onClick={() => handleOpenEditPositionModal(position)}
+                      className="bg-yellow-400 text-black px-4 py-2 rounded mr-2"
+                    >
                       Edit
                     </button>
                     <button
@@ -95,9 +108,8 @@ const PositionPage: FC = () => {
           {[1, 2, 3, 4, 5].map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${
-                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-              }`}
+              className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
+                }`}
             >
               {page}
             </button>
@@ -109,6 +121,14 @@ const PositionPage: FC = () => {
         isOpen={isAddPositionModalOpen}
         onClose={handleCloseAddPositionModal}
       />
+      {selectedPosition && (
+        <EditPositionModal
+          isOpen={isEditPositionModalOpen}
+          title="Edit Position"
+          onClose={handleCloseEditPositionModal}
+          position={selectedPosition}
+        />
+      )}
     </>
   );
 };

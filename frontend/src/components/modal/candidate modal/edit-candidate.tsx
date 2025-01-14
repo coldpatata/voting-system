@@ -6,20 +6,31 @@ interface ModalProps {
   isOpen: boolean;
   title: string;
   onClose: () => void;
+  candidate: {
+    id: number;
+    firstname: string;
+    lastname: string;
+    position: string;
+    middle_initial: string;
+    suffix: string;
+    candidate_number: number;
+    photo_url: string;
+  };
 }
 
 const EditCandidatesModal: React.FC<ModalProps> = ({
   isOpen,
   title,
   onClose,
+  candidate,
 }) => {
   const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    position: '',
-    middleInitial: '',
-    suffix: '',
-    candidateNumber: '',
+    firstname: candidate.firstname,
+    lastname: candidate.lastname,
+    position: candidate.position,
+    middleInitial: candidate.middle_initial,
+    suffix: candidate.suffix,
+    candidateNumber: candidate.candidate_number,
     photo: null,
   });
 
@@ -79,7 +90,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
       photo,
     } = formData;
 
-    let photoUrl = null;
+    let photoUrl = candidate.photo_url;
 
     if (photo) {
       try {
@@ -113,7 +124,6 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
       }
     }
 
-  
     try {
       const candidateData = {
         firstname,
@@ -125,8 +135,8 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
         photo_url: photoUrl, // Use the uploaded photo URL
       };
 
-      const response = await axios.post(
-        'http://localhost:5000/api/candidate/createCandidate',
+      const response = await axios.put(
+        `http://localhost:5000/api/candidate/updateCandidate/${candidate.id}`,
         candidateData,
         {
           headers: {
@@ -139,7 +149,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
       Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: 'Candidate created successfully!',
+        text: 'Candidate updated successfully!',
       }).then(() => {
         onClose();
         window.location.reload();
@@ -147,12 +157,12 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
     } catch (err) {
       console.error('Error submitting form:', err);
       setError(
-        'An error occurred while creating the candidate. Please try again.'
+        'An error occurred while updating the candidate. Please try again.'
       );
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to create the candidate. Please try again.',
+        text: 'Failed to update the candidate. Please try again.',
       });
     } finally {
       setLoading(false);
@@ -187,6 +197,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
                 type="text"
                 id="firstname"
                 name="firstname"
+                value={formData.firstname}
                 className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
                 onChange={handleChange}
                 required
@@ -203,6 +214,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
                 type="text"
                 id="lastname"
                 name="lastname"
+                value={formData.lastname}
                 className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
                 onChange={handleChange}
                 required
@@ -211,6 +223,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
           </div>
           <select
             name="position"
+            value={formData.position}
             onChange={handleChange}
             className="p-2 w-full border rounded text-black"
             required
@@ -236,6 +249,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
                 type="text"
                 id="middleInitial"
                 name="middleInitial"
+                value={formData.middleInitial}
                 className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
                 onChange={handleChange}
               />
@@ -269,6 +283,7 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
               type="text"
               id="candidateNumber"
               name="candidateNumber"
+              value={formData.candidateNumber}
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
               onChange={handleChange}
               required
