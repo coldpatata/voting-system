@@ -8,35 +8,18 @@ module.exports = (sequelize, DataTypes) => {
         ballot_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'Ballot',
-                key: 'ballot_id',
-            },
         },
         candidate_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'Participants',
-                key: 'participant_id',
-            },
         },
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'Users',
-                key: 'user_id',
-            },
-        },
-        vote_timestamp: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
         },
     }, {
-        tableName: 'votes',
         timestamps: false,
+        tableName: 'Votes' // Add explicit table name
     });
 
     // Define Associations
@@ -44,17 +27,14 @@ module.exports = (sequelize, DataTypes) => {
         Votes.belongsTo(models.Ballot, {
             foreignKey: 'ballot_id',
             as: 'ballot',
-            onDelete: 'CASCADE',
         });
-        Votes.belongsTo(models.Participants, {
+        Votes.belongsTo(models.Candidates, {
             foreignKey: 'candidate_id',
             as: 'candidate',
-            onDelete: 'CASCADE',
         });
         Votes.belongsTo(models.Users, {
             foreignKey: 'user_id',
             as: 'user',
-            onDelete: 'CASCADE',
         });
     };
 

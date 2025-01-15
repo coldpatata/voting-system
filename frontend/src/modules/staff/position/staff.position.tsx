@@ -1,28 +1,56 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
+import AddPositionModal from '../../../components/modal/add-position';
+import EditPositionModal from '../../../components/modal/edit-position';
+import axios from 'axios';
 
 const StaffPositionPage: FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [positions, setPositions] = useState<any[]>([]);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);
+  const [isEditPositionModalOpen, setIsEditPositionModalOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<any | null>(null);
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/position/getAllPositions')
+      .then((response) => {
+        setPositions(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching positions:', error);
+      });
+  }, []);
+
+  // Modal handlers
+  const handleOpenArchiveModal = () => setIsArchiveModalOpen(true);
+  const handleCloseArchiveModal = () => setIsArchiveModalOpen(false);
+  const handleOpenAddPositionModal = () => setIsAddPositionModalOpen(true);
+  const handleCloseAddPositionModal = () => setIsAddPositionModalOpen(false);
+  const handleOpenEditPositionModal = (position: any) => {
+    setSelectedPosition(position);
+    setIsEditPositionModalOpen(true);
+  };
+  const handleCloseEditPositionModal = () => setIsEditPositionModalOpen(false);
 
   const handleConfirmArchive = () => {
     alert('Item archived!');
-    setIsModalOpen(false);
+    setIsArchiveModalOpen(false);
   };
+
   return (
     <>
-      {' '}
-      {''}
       <div className="bg-blue-900 p-4 text-white">
         <h1 className="text-xl">Good Day!</h1>
       </div>
       <div className="min-h-screen bg-gray-200 p-8">
+        {/* Header section - similar to admin */}
         <div className="bg-blue-900 text-white p-4 flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-xl font-bold mb-2 md:mb-0">Position</h1>
           <div className="flex items-center space-x-2">
-            <button className="bg-yellow-400 text-black px-4 py-2 rounded">
+            <button
+              onClick={handleOpenAddPositionModal}
+              className="bg-yellow-400 text-black px-4 py-2 rounded"
+            >
               Add
             </button>
             <div className="flex">
@@ -34,6 +62,8 @@ const StaffPositionPage: FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Table section - similar to admin */}
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
             <thead>
@@ -44,58 +74,51 @@ const StaffPositionPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {[
-                { id: 'President', name: 1 },
-                { id: 'Vice-President', name: 1 },
-                { id: 'Secretary', name: 1 },
-                { id: 'Treasurer', name: 1 },
-                { id: 'Auditor', name: 1 },
-                { id: 'P.I.O', name: 1 },
-                { id: "People's Choice Award", name: 1 },
-                { id: 'Best in Costume', name: 1 },
-                { id: 'Representative', name: 1 },
-              ].map((candidate) => (
-                <tr key={candidate.id} className="text-center">
-                  <td className="py-2 px-4 border">{candidate.id}</td>
-                  <td className="py-2 px-4 border">{candidate.name}</td>
-
+              {positions.map((position) => (
+                <tr key={position.position_id} className="text-center">
+                  <td className="py-2 px-4 border">{position.position_name}</td>
+                  <td className="py-2 px-4 border">{position.max_vote_count}</td>
                   <td className="py-2 px-4 border">
-                    <button className="bg-yellow-400 text-black px-4 py-2 rounded mr-2">
+                    <button
+                      onClick={() => handleOpenEditPositionModal(position)}
+                      className="bg-yellow-400 text-black px-4 py-2 rounded mr-2"
+                    >
                       Edit
                     </button>
                     <button
                       className="bg-red-600 text-white px-4 py-2 rounded"
-                      onClick={handleOpenModal}
+                      onClick={handleOpenArchiveModal}
                     >
                       Archive
                     </button>
-                    <ArchiveModal
-                      isOpen={isModalOpen}
-                      onClose={handleCloseModal}
-                      onConfirm={handleConfirmArchive}
-                    />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center items-center space-x-2 py-4">
-          <button className="text-gray-600">&laquo; Previous</button>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              className={`px-3 py-1 rounded ${
-                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button className="text-gray-600">Next &raquo;</button>
-        </div>
+
+        {/* Pagination - similar to admin */}
+
+        {/* Modals - same as admin */}
+        <ArchiveModal
+          isOpen={isArchiveModalOpen}
+          onClose={handleCloseArchiveModal}
+          onConfirm={handleConfirmArchive}
+        />
+        <AddPositionModal
+          isOpen={isAddPositionModalOpen}
+          onClose={handleCloseAddPositionModal}
+        />
+        {selectedPosition && (
+          <EditPositionModal
+            isOpen={isEditPositionModalOpen}
+            title="Edit Position"
+            onClose={handleCloseEditPositionModal}
+            position={selectedPosition}
+          />
+        )}
       </div>
-      ;{' '}
     </>
   );
 };

@@ -4,12 +4,15 @@ import axios from 'axios';
 import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
 import Header from '../../../components/header/header';
 import BallotReportModal from '../../../components/modal/ballot-report';
+import EditBallotModal from '../../../components/modal/ballot modal/edit-ballot';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [ballots, setBallots] = useState<Ballot[]>([]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedBallot, setSelectedBallot] = useState<Ballot | null>(null);
   const navigate = useNavigate();
 
   interface Ballot {
@@ -21,6 +24,27 @@ const BallotPageAdmin: FC = () => {
 
   const openModall = () => setModalOpen(true);
   const closeModall = () => setModalOpen(false);
+
+  const handleEdit = (ballot: Ballot) => {
+    setSelectedBallot(ballot);
+    setEditModalOpen(true);
+  };
+
+  const handleUpdate = () => {
+    // Refresh the ballots list
+    fetchBallots();
+  };
+
+  const fetchBallots = async () => {
+    try {
+      const response = await axios.get<{ data: Ballot[] }>(
+        'http://localhost:5000/api/ballot/getAllBallots'
+      );
+      setBallots(response.data.data);
+    } catch (error) {
+      console.error('Error fetching ballots:', error);
+    }
+  };
 
   // Fetch ballots from API
   useEffect(() => {
@@ -119,7 +143,10 @@ const BallotPageAdmin: FC = () => {
                       >
                         View
                       </button>
-                      <button className="bg-red-600 px-2 py-1 text-white rounded">
+                      <button
+                        onClick={() => handleEdit(ballot)}
+                        className="bg-red-600 px-2 py-1 text-white rounded"
+                      >
                         Edit
                       </button>
                     </td>
@@ -142,6 +169,17 @@ const BallotPageAdmin: FC = () => {
         isOpen={modalIsOpen}
         onClose={() => setModalIsOpen(false)}
       />
+      {selectedBallot && (
+        <EditBallotModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          ballotId={selectedBallot.ballot_id}
+          currentBallotName={selectedBallot.ballot_name}
+          currentOpeningDate={selectedBallot.opening_date}
+          currentClosingDate={selectedBallot.closing_date}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 };
