@@ -204,11 +204,11 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               value={eligibility}
               onChange={(e) => setEligibility(e.target.value)}
             >
-              <option value="all">All year level</option>
-              <option value="first">First year</option>
-              <option value="second">Second year</option>
-              <option value="third">Third year</option>
-              <option value="fourth">Fourth year</option>
+              <option value="all">All year levels</option>
+              <option value="Grade 7">Grade 7</option>
+              <option value="Grade 8">Grade 8</option>
+              <option value="Grade 9">Grade 9</option>
+              <option value="Grade 10">Grade 10</option>
             </select>
           </div>
         </form>
