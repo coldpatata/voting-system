@@ -20,11 +20,41 @@ const ViewBallotPage: React.FC = () => {
   const [positions, setPositions] = useState<Record<string, Participant[]>>({});
   const [selectedCandidates, setSelectedCandidates] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
 
   useEffect(() => {
     if (ballotId) {
       fetchBallotData(Number(ballotId));
     }
+
+    const checkVoteStatus = async () => {
+      try {
+        const uid = localStorage.getItem('uid') || 
+                   sessionStorage.getItem('uid') || 
+                   Cookies.get('uid');
+        
+        if (!uid || !ballotId) return;
+
+        const response = await axios.get(
+          `http://localhost:5000/api/vote/checkVoteStatus`, {
+            params: {
+              user_id: uid,
+              ballot_id: ballotId
+            }
+          }
+        );
+
+        setHasVoted(response.data.hasVoted);
+        if (response.data.hasVoted) {
+          setIsSubmitDisabled(true);
+        }
+      } catch (error) {
+        console.error('Error checking vote status:', error);
+      }
+    };
+
+    checkVoteStatus();
 
     // Cleanup on unmount
     return () => {
@@ -37,13 +67,55 @@ const ViewBallotPage: React.FC = () => {
   const fetchBallotData = async (id: number) => {
     try {
       setIsLoading(true);
+      const uid = localStorage.getItem('uid') || 
+                  sessionStorage.getItem('uid') || 
+                  Cookies.get('uid');
+
       const response = await axios.get(
-        `http://localhost:5000/api/ballot/getBallotWithParticipants?ballot_id=${id}`
+        `http://localhost:5000/api/ballot/getBallotWithParticipants`, {
+          params: {
+            ballot_id: id,
+            user_id: uid
+          }
+        }
       );
 
-      if (response.status === 200) {
-        const { ballot_name, participants } = response.data.data;
+      if (response.data.success) {
+        const { ballot_name, participants, opening_date, year_level_eligibility } = response.data.data;
+        
         setBallotName(ballot_name);
+
+        // Check opening date
+        const currentDate = new Date();
+        const openingDate = new Date(opening_date);
+        if (currentDate < openingDate) {
+          Swal.fire({
+            title: 'Ballot Not Open',
+            text: 'This ballot is not open yet. Please check back later.',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            navigate('/student/ballot');
+          });
+          return;
+        }
+
+        // Check year level eligibility
+        const userYearLevelResponse = await axios.get(`http://localhost:5000/api/user/yearLevel/${uid}`);
+        const userYearLevel = userYearLevelResponse.data.year_level;
+
+        const eligibleYearLevels = year_level_eligibility.split(',').map(level => level.trim());
+        if (!eligibleYearLevels.includes(userYearLevel) && year_level_eligibility !== 'all') {
+          Swal.fire({
+            title: 'Access Denied',
+            text: `This ballot is only for: ${year_level_eligibility}. Your year level is ${userYearLevel}`,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            navigate('/student/ballot');
+          });
+          return;
+        }
 
         // Group participants by position
         const groupedPositions = participants.reduce(
@@ -59,8 +131,18 @@ const ViewBallotPage: React.FC = () => {
 
         setPositions(groupedPositions);
       }
-    } catch (error) {
-      console.error('Error fetching ballot data:', error);
+    } catch (error: any) {
+      console.error('Error fetching ballot:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to load ballot data';
+      
+      Swal.fire({
+        title: 'Error',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        navigate('/student/ballot');
+      });
     } finally {
       setIsLoading(false);
     }
@@ -134,13 +216,18 @@ const ViewBallotPage: React.FC = () => {
       );
 
       if (response.status === 201) {
+        setIsSubmitDisabled(true);
+        setHasVoted(true);
+        
         Swal.fire({
           title: 'Success!',
           text: 'Your vote has been recorded successfully',
           icon: 'success',
           confirmButtonText: 'OK'
         }).then(() => {
-          navigate('/student/ballot');
+          navigate('/student/ballot/confirmation', {
+            state: { ballotName }
+          });
         });
       }
     } catch (error: any) {
@@ -234,6 +321,11 @@ const ViewBallotPage: React.FC = () => {
               </div>
             </>
           )}
+          {hasVoted && (
+            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+              You have already submitted your vote for this ballot.
+            </div>
+          )}
           <div className="flex justify-end space-x-4 mt-4">
             <button
               onClick={() => navigate(-1)}
@@ -244,8 +336,9 @@ const ViewBallotPage: React.FC = () => {
             <button
               onClick={handleSubmit}
               className="bg-yellow-500 text-white px-4 py-2 rounded"
+              disabled={isSubmitDisabled || hasVoted}
             >
-              Submit Vote
+              {hasVoted ? 'Vote Submitted' : 'Submit Vote'}
             </button>
           </div>
         </div>
@@ -255,3 +348,4 @@ const ViewBallotPage: React.FC = () => {
 };
 
 export default ViewBallotPage;
+
