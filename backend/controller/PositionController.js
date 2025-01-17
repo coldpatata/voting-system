@@ -30,7 +30,18 @@ const createPosition = async (req, res) => {
 // Retrieve all positon
 const getAllPositions = async (req, res) => {
     try {
-        const positions = await db.Positions.findAll(); // Adjust the query if using Sequelize or raw SQL
+        const { includeArchived = false } = req.query;
+        let where = {};
+        
+        // Check if is_active column exists before adding it to where clause
+        try {
+            await db.Positions.describe();
+            where = includeArchived ? {} : { is_active: true };
+        } catch (error) {
+            console.warn('is_active column might not exist yet');
+        }
+        
+        const positions = await db.Positions.findAll({ where });
 
         if (positions.length === 0) {
             return res.status(404).json({ message: 'No positions found.' });
@@ -73,8 +84,33 @@ const updatePosition = async (req, res) => {
     }
 };
 
+const archivePosition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const position = await db.Positions.findByPk(id);
+        
+        if (!position) {
+            return res.status(404).json({ message: 'Position not found' });
+        }
+
+        await position.update({
+            is_active: false,
+            archived_at: new Date()
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Position archived successfully'
+        });
+    } catch (error) {
+        console.error('Error archiving position:', error);
+        return res.status(500).json({ error: 'Failed to archive position' });
+    }
+};
+
 module.exports = {
     createPosition,
     getAllPositions,
     updatePosition, // Export the new method
+    archivePosition
 };

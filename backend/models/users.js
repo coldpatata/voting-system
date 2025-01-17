@@ -35,7 +35,10 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
     year_level: {
-      type: Sequelize.STRING,
+      type: Sequelize.ENUM('Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'),
+      validate: {
+        isIn: [['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10']]
+      }
     },
     role_id: {
       type: Sequelize.INTEGER,

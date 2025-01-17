@@ -29,6 +29,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT, // Stores file path or URL
             allowNull: true,
         },
+        is_active: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+            allowNull: false,
+        },
+        archived_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
         timestamps: false, // Disables createdAt and updatedAt
     });

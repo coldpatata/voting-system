@@ -143,6 +143,15 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
   const formattedDateTimeOD = openingDate.slice(0, 16);
   const formattedDateTimeCD = closingDate.slice(0, 16);
 
+  // Add year level options constant
+  const YEAR_LEVEL_OPTIONS = [
+    { value: 'all', label: 'All year levels' },
+    { value: 'Grade 7', label: 'Grade 7' },
+    { value: 'Grade 8', label: 'Grade 8' },
+    { value: 'Grade 9', label: 'Grade 9' },
+    { value: 'Grade 10', label: 'Grade 10' },
+  ];
+
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6 max-h-[90vh] overflow-y-auto">
@@ -204,11 +213,11 @@ const AddBallotModal: React.FC<AddBallotModalProps> = ({ isOpen, onClose }) => {
               value={eligibility}
               onChange={(e) => setEligibility(e.target.value)}
             >
-              <option value="all">All year levels</option>
-              <option value="Grade 7">Grade 7</option>
-              <option value="Grade 8">Grade 8</option>
-              <option value="Grade 9">Grade 9</option>
-              <option value="Grade 10">Grade 10</option>
+              {YEAR_LEVEL_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </form>

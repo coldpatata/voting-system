@@ -64,79 +64,104 @@ const getAllBallots = async (req, res) => {
 
 // Fetch a specific Ballot along with its participants
 const getBallotWithParticipants = async (req, res) => {
-    try {
-        const { ballot_id, user_id } = req.query; // Get ballot_id and user_id from the request parameters
+  try {
+    const { ballot_id, user_id } = req.query;
+    
+    const ballot = await db.Ballot.findOne({
+      where: { ballot_id },
+      include: [{
+        model: db.Participants,
+        as: 'participants',
+      }]
+    });
 
-        console.log(ballot_id)
-        // Find the Ballot by its ID and include associated participants
-        const ballot = await db.Ballot.findOne({
-            where: { ballot_id },
-            include: [
-                {
-                    model: db.Participants,
-                    as: 'participants', // Alias defined in the relationship
-                },
-            ],
-        });
-
-        if (!ballot) {
-            return res.status(404).json({
-                message: `Ballot with ID ${ballot_id} not found.`,
-            });
-        }
-
-        // Check opening date
-        const currentDate = new Date();
-        const openingDate = new Date(ballot.opening_date);
-        if (currentDate < openingDate) {
-            return res.status(403).json({
-                message: 'Ballot is not open yet',
-                openingDate: openingDate
-            });
-        }
-
-        // Check if user has already submitted this ballot
-        if (user_id) {
-            const existingVote = await db.Votes.findOne({
-                where: {
-                    ballot_id,
-                    user_id
-                }
-            });
-
-            if (existingVote) {
-                return res.status(403).json({
-                    message: 'You have already submitted your vote for this ballot'
-                });
-            }
-
-            // Check year level eligibility
-            const user = await db.Users.findByPk(user_id);
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-
-            const eligibleYearLevels = ballot.year_level_eligibility.split(',').map(level => level.trim());
-            if (!eligibleYearLevels.includes(user.year_level) && ballot.year_level_eligibility !== 'all') {
-                return res.status(403).json({
-                    message: `You are not eligible to vote in this ballot. Eligible year levels: ${ballot.year_level_eligibility}`
-                });
-            }
-        }
-
-        return res.status(200).json({
-            success: true,
-            message: 'Ballot retrieved successfully.',
-            data: ballot,
-        });
-    } catch (error) {
-        console.error('Error retrieving ballot with participants:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Failed to retrieve ballot',
-            error: error.message
-        });
+    if (!ballot) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ballot not found'
+      });
     }
+
+    // Check user eligibility first before any other checks
+    if (user_id) {
+      const user = await db.Users.findByPk(user_id);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      // Check year level eligibility
+      const eligibleYearLevels = ballot.year_level_eligibility === 'all' 
+        ? ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10']
+        : ballot.year_level_eligibility.split(',').map(level => level.trim());
+
+      if (!eligibleYearLevels.includes(user.year_level) && ballot.year_level_eligibility !== 'all') {
+        return res.status(403).json({
+          success: false,
+          message: `You are not eligible to vote in this ballot. This ballot is only for: ${ballot.year_level_eligibility}. Your year level is ${user.year_level}`
+        });
+      }
+
+      // Check if already voted
+      const existingVote = await db.Votes.findOne({
+        where: { ballot_id, user_id }
+      });
+
+      if (existingVote) {
+        return res.status(200).json({
+          success: false,
+          message: 'You have already submitted your vote',
+          data: {
+            ballot_name: ballot.ballot_name,
+            submission_date: existingVote.createdAt,
+            status: 'submitted'
+          }
+        });
+      }
+    }
+
+    // Check dates
+    const now = new Date();
+    const openingDate = new Date(ballot.opening_date);
+    const closingDate = new Date(ballot.closing_date);
+
+    if (now < openingDate) {
+      return res.status(403).json({
+        success: false,
+        message: `This ballot will open on ${openingDate.toLocaleString()}`,
+        openingDate
+      });
+    }
+
+    if (now > closingDate) {
+      await ballot.update({ status: 'CLOSED' });
+      return res.status(403).json({
+        success: false,
+        message: 'This ballot is already closed',
+        closingDate
+      });
+    }
+
+    // If all checks pass, return ballot data
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...ballot.toJSON(),
+        hasVoted: false
+      }
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve ballot',
+      error: error.message
+    });
+  }
 };
 
 // Fetch a specific Ballot by its ID
@@ -151,6 +176,17 @@ const getBallot = async (req, res) => {
                 success: false,
                 message: `Ballot with ID ${id} not found.`
             });
+        }
+
+        // Generate QR code if it doesn't exist
+        if (!ballot.qr_code) {
+            const qrData = {
+                ballot_id: ballot.ballot_id,
+                name: ballot.ballot_name,
+                url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/student/ballot/${ballot.ballot_id}`
+            };
+            ballot.qr_code = await QRCode.toDataURL(JSON.stringify(qrData));
+            await ballot.save();
         }
 
         return res.status(200).json({

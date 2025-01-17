@@ -5,6 +5,8 @@ import AddBallotModal from '../../../components/modal/ballot modal/add-ballot';
 import Header from '../../../components/header/header';
 import BallotReportModal from '../../../components/modal/ballot-report';
 import EditBallotModal from '../../../components/modal/ballot modal/edit-ballot';
+import QRViewer from '../../../components/modal/qr-viewer';
+import Swal from 'sweetalert2';
 
 const BallotPageAdmin: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -13,6 +15,8 @@ const BallotPageAdmin: FC = () => {
   const [ballots, setBallots] = useState<Ballot[]>([]);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedBallot, setSelectedBallot] = useState<Ballot | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [selectedQRBallot, setSelectedQRBallot] = useState<Ballot | null>(null);
   const navigate = useNavigate();
 
   interface Ballot {
@@ -33,6 +37,26 @@ const BallotPageAdmin: FC = () => {
   const handleUpdate = () => {
     // Refresh the ballots list
     fetchBallots();
+  };
+
+  const handleViewQR = async (ballot: Ballot) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/ballot/getBallot/${ballot.ballot_id}`);
+      if (response.data.success) {
+        setSelectedQRBallot({
+          ...ballot,
+          qr_code: response.data.data.qr_code
+        });
+        setQrModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching QR code:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to load QR code',
+        icon: 'error'
+      });
+    }
   };
 
   const fetchBallots = async () => {
@@ -149,6 +173,12 @@ const BallotPageAdmin: FC = () => {
                       >
                         Edit
                       </button>
+                      <button
+                        onClick={() => handleViewQR(ballot)}
+                        className="bg-blue-500 px-2 py-1 text-white rounded"
+                      >
+                        QR
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -178,6 +208,14 @@ const BallotPageAdmin: FC = () => {
           currentOpeningDate={selectedBallot.opening_date}
           currentClosingDate={selectedBallot.closing_date}
           onUpdate={handleUpdate}
+        />
+      )}
+      {selectedQRBallot && (
+        <QRViewer
+          isOpen={qrModalOpen}
+          onClose={() => setQrModalOpen(false)}
+          qrCode={selectedQRBallot.qr_code}
+          ballotName={selectedQRBallot.ballot_name}
         />
       )}
     </div>

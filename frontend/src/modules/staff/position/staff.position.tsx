@@ -10,16 +10,22 @@ const StaffPositionPage: FC = () => {
   const [isAddPositionModalOpen, setIsAddPositionModalOpen] = useState(false);
   const [isEditPositionModalOpen, setIsEditPositionModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<any | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+
+  const fetchPositions = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/positions/getAllPositions?includeArchived=${showArchived}`
+      );
+      setPositions(response.data.data);
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+    }
+  };
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/position/getAllPositions')
-      .then((response) => {
-        setPositions(response.data.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching positions:', error);
-      });
-  }, []);
+    fetchPositions();
+  }, [showArchived]);
 
   // Modal handlers
   const handleOpenArchiveModal = () => setIsArchiveModalOpen(true);
@@ -32,9 +38,20 @@ const StaffPositionPage: FC = () => {
   };
   const handleCloseEditPositionModal = () => setIsEditPositionModalOpen(false);
 
-  const handleConfirmArchive = () => {
-    alert('Item archived!');
+  const handleConfirmArchive = async () => {
+    if (selectedPosition) {
+      await handleArchive(selectedPosition.position_id);
+    }
     setIsArchiveModalOpen(false);
+  };
+
+  const handleArchive = async (id: number) => {
+    try {
+      await axios.put(`http://localhost:5000/api/positions/${id}/archive`);
+      fetchPositions();
+    } catch (error) {
+      console.error('Error archiving position:', error);
+    }
   };
 
   return (
@@ -87,7 +104,10 @@ const StaffPositionPage: FC = () => {
                     </button>
                     <button
                       className="bg-red-600 text-white px-4 py-2 rounded"
-                      onClick={handleOpenArchiveModal}
+                      onClick={() => {
+                        setSelectedPosition(position);
+                        handleOpenArchiveModal();
+                      }}
                     >
                       Archive
                     </button>

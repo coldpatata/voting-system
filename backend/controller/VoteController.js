@@ -128,7 +128,7 @@ const getVoteTally = async (req, res) => {
     const { ballot_id } = req.query;
     console.log('Received ballot_id:', ballot_id);
 
-    // Query to fetch candidates and their vote counts
+    // Updated query to exclude archived candidates and positions
     const candidatesQuery = `
       SELECT 
         c.id,
@@ -137,30 +137,42 @@ const getVoteTally = async (req, res) => {
         c.position,
         c.middle_initial,
         c.suffix,
+        c.is_active,
+        p.is_active as position_active,
         COUNT(v.vote_id) as vote_count
       FROM Candidates c
+      LEFT JOIN Positions p ON c.position = p.position_name
       LEFT JOIN Votes v ON v.candidate_id = c.id AND v.ballot_id = :ballot_id
+      WHERE c.is_active = true AND p.is_active = true
       GROUP BY 
         c.id,
         c.firstname,
         c.lastname,
         c.position,
         c.middle_initial,
-        c.suffix
+        c.suffix,
+        c.is_active,
+        p.is_active
       ORDER BY c.position, vote_count DESC;
     `;
 
-    // Query to fetch voters details
+    // Updated voters query to handle reopened ballots
     const votersQuery = `
       SELECT 
         v.candidate_id,
         v.vote_id,
+        v.created_at,
         u.first_name,
         u.last_name,
         u.year_level
       FROM Votes v
       JOIN Users u ON v.user_id = u.user_id
+      JOIN Ballot b ON v.ballot_id = b.ballot_id
       WHERE v.ballot_id = :ballot_id
+      AND (
+        b.status != 'REOPENED' 
+        OR v.created_at > b.reopened_date
+      )
     `;
 
     const [candidates, voters] = await Promise.all([
@@ -240,78 +252,50 @@ const getTurnout = async (req, res) => {
       return res.status(400).json({ message: 'Ballot ID is required.' });
     }
 
-    const yearLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'];
-    const turnoutData = [];
-
-    // Query to fetch votes by year level
-    const votesQuery = `
+    // Enhanced query to get accurate turnout data
+    const turnoutQuery = `
+      WITH EligibleStudents AS (
+        SELECT year_level, COUNT(*) as total_students
+        FROM Users u
+        JOIN Ballot b ON b.ballot_id = :ballot_id
+        WHERE u.role_id = 3
+        AND (
+          b.year_level_eligibility = 'all'
+          OR FIND_IN_SET(u.year_level, b.year_level_eligibility)
+        )
+        GROUP BY year_level
+      ),
+      VoteCounts AS (
+        SELECT 
+          u.year_level,
+          COUNT(DISTINCT v.user_id) as votes_cast
+        FROM Users u
+        LEFT JOIN Votes v ON v.user_id = u.user_id 
+        AND v.ballot_id = :ballot_id
+        WHERE u.role_id = 3
+        GROUP BY u.year_level
+      )
       SELECT 
-        u.year_level,
-        COUNT(DISTINCT v.user_id) as vote_count
-      FROM Users u
-      LEFT JOIN Votes v ON v.user_id = u.user_id AND v.ballot_id = :ballot_id
-      WHERE u.role_id = 3
-      GROUP BY u.year_level;
+        e.year_level,
+        e.total_students,
+        COALESCE(v.votes_cast, 0) as votes_cast,
+        ROUND((COALESCE(v.votes_cast, 0) * 100.0 / e.total_students), 1) as turnout_percentage
+      FROM EligibleStudents e
+      LEFT JOIN VoteCounts v ON e.year_level = v.year_level
+      ORDER BY e.year_level;
     `;
 
-    // Query to fetch student population by year level
-    const populationQuery = `
-      SELECT 
-        year_level,
-        COUNT(*) as total_students
-      FROM Users
-      WHERE role_id = 3
-      GROUP BY year_level;
-    `;
-
-    const [voteResults, populationResults] = await Promise.all([
-      db.sequelize.query(votesQuery, { 
-        replacements: { ballot_id: Number(ballot_id) },
-        type: db.sequelize.QueryTypes.SELECT,
-        logging: console.log // Log the executed query
-      }),
-      db.sequelize.query(populationQuery, { 
-        type: db.sequelize.QueryTypes.SELECT,
-        logging: console.log // Log the executed query
-      })
-    ]);
-
-    console.log('Vote Results:', voteResults);
-    console.log('Population Results:', populationResults);
-
-    const populationMap = populationResults.reduce((acc, curr) => {
-      acc[curr.year_level] = curr.total_students;
-      return acc;
-    }, {});
-
-    const voteMap = voteResults.reduce((acc, curr) => {
-      acc[curr.year_level] = curr.vote_count;
-      return acc;
-    }, {});
-
-    for (const yearLevel of yearLevels) {
-      const studentPopulation = populationMap[yearLevel] || 0;
-      const totalVotes = voteMap[yearLevel] || 0;
-      
-      const percentage = studentPopulation > 0 
-        ? ((totalVotes / studentPopulation) * 100).toFixed(1)
-        : '0.0';
-
-      turnoutData.push({
-        year_level: yearLevel,
-        student_population: studentPopulation,
-        total_votes: totalVotes,
-        vote_turnout_result: `${percentage}%`
-      });
-    }
-
-    console.log('Processed Turnout Data:', turnoutData);
+    const turnoutResults = await db.sequelize.query(turnoutQuery, {
+      replacements: { ballot_id: Number(ballot_id) },
+      type: db.sequelize.QueryTypes.SELECT
+    });
 
     return res.status(200).json({
       success: true,
       message: 'Turnout data retrieved successfully.',
-      data: turnoutData
+      data: turnoutResults
     });
+
   } catch (error) {
     console.error('Error fetching turnout data:', error);
     return res.status(500).json({ 

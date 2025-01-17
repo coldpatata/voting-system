@@ -9,23 +9,54 @@ interface Ballot {
   opening_date: string;
   closing_date: string;
   status: string;
+  reopened_date: string | null;
+}
+
+interface TurnoutData {
+  year_level: string;
+  total_students: number;
+  votes_cast: number;
+  turnout_percentage: number;
 }
 
 const BallotReportPage: FC = () => {
   const [ballots, setBallots] = useState<Ballot[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [turnoutData, setTurnoutData] = useState<TurnoutData[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/ballot/getAllBallots')
-      .then((response) => {
-        setBallots(response.data.data);
-      })
-      .catch((error) => {
+    const fetchBallots = async () => {
+      try {
+        const response = await axios.get<{ data: Ballot[] }>(
+          'http://localhost:5000/api/ballot/getAllBallots'
+        );
+        
+        // Filter out ballots with archived candidates/positions
+        const activeBallots = response.data.data.filter(ballot => 
+          ballot.status !== 'ARCHIVED'
+        );
+        
+        setBallots(activeBallots);
+      } catch (error) {
         console.error('Error fetching ballots:', error);
-      });
+      }
+    };
+
+    fetchBallots();
   }, []);
+
+  // New function to fetch turnout data
+  const fetchTurnoutData = async (ballotId: number) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/votes/getTurnout?ballot_id=${ballotId}`
+      );
+      setTurnoutData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching turnout data:', error);
+    }
+  };
 
   const filteredBallots = ballots.filter((ballot) =>
     ballot.ballot_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -57,6 +88,7 @@ const BallotReportPage: FC = () => {
                 <th className="py-2 px-4 border">Ballot Name</th>
                 <th className="py-2 px-4 border">Date Created</th>
                 <th className="py-2 px-4 border">Status</th>
+                <th className="py-2 px-4 border">Turnout</th>
                 <th className="py-2 px-4 border">Actions</th>
               </tr>
             </thead>
@@ -73,7 +105,23 @@ const BallotReportPage: FC = () => {
                       minute: '2-digit',
                     }).format(new Date(ballot.opening_date))}
                   </td>
-                  <td className="py-2 px-4 border">{ballot.status}</td>
+                  <td className="py-2 px-4 border">
+                    {ballot.status}
+                    {ballot.reopened_date && ( // Add null check
+                      <span className="text-xs text-gray-500 block">
+                        Reopened: {new Date(ballot.reopened_date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2 px-4 border">
+                    {turnoutData
+                      .filter(t => t.year_level)
+                      .map(t => (
+                        <div key={t.year_level} className="text-sm">
+                          {t.year_level}: {t.turnout_percentage}%
+                        </div>
+                      ))}
+                  </td>
                   <td className="py-2 px-4 border">
                     <button
                       onClick={() => navigate(`/admin/ballot-report/view/${ballot.ballot_id}`)}

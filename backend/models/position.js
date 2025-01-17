@@ -1,23 +1,28 @@
-module.exports = (sequelize, Sequelize) => {
+module.exports = (sequelize, DataTypes) => {
     const Position = sequelize.define('Position', {
         position_id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false,
         },
         position_name: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
         },
         max_vote_count: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             allowNull: false,
-            defaultValue: 0,
-        }
+        },
+        is_active: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
+        archived_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
-        tableName: 'positions',
-        timestamps: false
+        timestamps: false,
     });
 
     return Position;

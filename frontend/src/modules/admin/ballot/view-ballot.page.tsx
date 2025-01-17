@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ImageViewer from '../../../components/modal/imageviewer';
 import Header from '../../../components/header/header';
+import QRViewer from '../../../components/modal/qr-viewer';
 
 interface Participant {
   participant_id: number;
@@ -17,6 +18,8 @@ const ViewBallotPage: React.FC = () => {
   const [ballotName, setBallotName] = useState('');
   const [positions, setPositions] = useState<Record<string, Participant[]>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [ballotQRCode, setBallotQRCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (ballotId) {
@@ -59,6 +62,23 @@ const ViewBallotPage: React.FC = () => {
       console.error('Error fetching ballot data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleViewQR = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/ballot/getBallot/${ballotId}`);
+      if (response.data.success) {
+        setBallotQRCode(response.data.data.qr_code);
+        setQrModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching QR code:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to load QR code',
+        icon: 'error'
+      });
     }
   };
 
@@ -148,12 +168,21 @@ const ViewBallotPage: React.FC = () => {
             >
               Back
             </button>
-            <button className="bg-yellow-500 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleViewQR}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
               View QR
             </button>
           </div>
         </div>
       </div>
+      <QRViewer
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        qrCode={ballotQRCode || ''}
+        ballotName={ballotName}
+      />
     </>
   );
 };
