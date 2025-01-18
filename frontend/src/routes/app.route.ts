@@ -36,6 +36,7 @@ import staffStudentPage from "../modules/staff/student/staff.studentPage";
 import CreateFeedbackPage from "../modules/student/feedbacks/create-feedback.page";
 import ViewBallotReportPage from "../modules/admin/ballot-report/view-ballot-report.page"; // Import the new ViewBallotReportPage
 import ViewStaffBallotPage from "../modules/staff/ballot/view-staff-ballot"; // Import the new ViewStaffBallotPage
+import BallotConfirmation from "../modules/student/ballots/confirmation.page"; // Import the new BallotConfirmation
 
 export const router = createBrowserRouter([
   {
@@ -136,6 +137,10 @@ export const router = createBrowserRouter([
       {
         path: 'ballot',
         Component: BallotPage,
+      },
+      {
+        path: 'ballot/confirmation',
+        Component: BallotConfirmation
       },
       {
         path: 'view-ballot/:ballotId',  // Add the route for StudentViewBallotPage

@@ -19,6 +19,7 @@ const StaffCandidatePage: FC = () => {
   const [isAddCandidatesModalOpen, setIsAddCandidatesModalOpen] = useState(false);
   const [isEditCandidatesModalOpen, setIsEditCandidatesModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   const handleOpenAddCandidatesModal = () => setIsAddCandidatesModalOpen(true);
   const handleCloseAddCandidatesModal = () => setIsAddCandidatesModalOpen(false);
@@ -28,16 +29,29 @@ const StaffCandidatePage: FC = () => {
   };
   const handleCloseEditCandidatesModal = () => setIsEditCandidatesModalOpen(false);
 
+  const fetchCandidates = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/candidate/getAllCandidates?includeArchived=${showArchived}`
+      );
+      setCandidates(response.data.data);
+    } catch (error) {
+      console.error('Error fetching candidates:', error);
+    }
+  };
+
+  const handleArchive = async (id: number) => {
+    try {
+      await axios.put(`http://localhost:5000/api/candidates/${id}/archive`);
+      fetchCandidates();
+    } catch (error) {
+      console.error('Error archiving candidate:', error);
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/candidate/getAllCandidates')
-      .then((response) => {
-        setCandidates(response.data.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching candidates:', error);
-      });
-  }, []);
+    fetchCandidates();
+  }, [showArchived]);
 
   return (
     <>
@@ -62,6 +76,17 @@ const StaffCandidatePage: FC = () => {
               <button className="bg-yellow-400 w-1/4 p-2">Search</button>
             </div>
           </div>
+        </div>
+        <div className="mb-4">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => setShowArchived(e.target.checked)}
+              className="form-checkbox"
+            />
+            <span className="ml-2">Show Archived</span>
+          </label>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
@@ -94,7 +119,10 @@ const StaffCandidatePage: FC = () => {
                     >
                       Edit
                     </button>
-                    <button className="bg-red-600 text-white px-4 py-2 rounded">
+                    <button
+                      onClick={() => handleArchive(candidate.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                    >
                       Archive
                     </button>
                   </td>

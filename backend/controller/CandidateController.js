@@ -5,7 +5,9 @@ const createCandidate = async (req, res) => {
     try {
         const { firstname, lastname, position, middle_initial, suffix, candidate_number, photo_url } = req.body;
 
-        console.log(req.body);
+        if (!firstname || !lastname || !position || !candidate_number) {
+            return res.status(400).json({ error: 'Firstname, lastname, position, and candidate number are required.' });
+        }
 
         const newCandidate = await db.Candidates.create({
             firstname,
@@ -19,7 +21,7 @@ const createCandidate = async (req, res) => {
 
         return res.status(201).json({
             message: 'Candidate created successfully.',
-            ballot_id: newCandidate.id,
+            candidate_id: newCandidate.id,
             data: newCandidate,
         });
     } catch (error) {
@@ -31,7 +33,10 @@ const createCandidate = async (req, res) => {
 // Retrieve all candidates
 const getAllCandidates = async (req, res) => {
     try {
-        const candidates = await db.Candidates.findAll();
+        const { includeArchived = false } = req.query;
+        const where = includeArchived ? {} : { is_active: true };
+
+        const candidates = await db.Candidates.findAll({ where });
 
         if (candidates.length === 0) {
             return res.status(404).json({ message: 'No candidates found.' });
@@ -50,14 +55,14 @@ const getAllCandidates = async (req, res) => {
 // Retrieve candidates by position
 const getCandidatesByPosition = async (req, res) => {
     try {
-        const { position } = req.query; // Get the 'position' from query parameters
-        console.log(req.query)
+        const { position } = req.query;
+
         if (!position) {
-            return res.status(400).json({ message: 'Position query parameter is required.' });
+            return res.status(400).json({ error: 'Position query parameter is required.' });
         }
 
         const candidates = await db.Candidates.findAll({
-            where: { position }, // Sequelize WHERE clause
+            where: { position },
         });
 
         if (candidates.length === 0) {
@@ -106,9 +111,35 @@ const updateCandidate = async (req, res) => {
     }
 };
 
+// Archive a candidate
+const archiveCandidate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const candidate = await db.Candidates.findByPk(id);
+
+        if (!candidate) {
+            return res.status(404).json({ message: 'Candidate not found' });
+        }
+
+        await candidate.update({
+            is_active: false,
+            archived_at: new Date(),
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: `Candidate with ID ${id} archived successfully.`,
+        });
+    } catch (error) {
+        console.error(`Error archiving candidate with ID ${id}:`, error);
+        return res.status(500).json({ error: 'Failed to archive candidate' });
+    }
+};
+
 module.exports = {
     createCandidate,
     getAllCandidates,
     getCandidatesByPosition,
-    updateCandidate, // Export the new method
+    updateCandidate,
+    archiveCandidate,
 };

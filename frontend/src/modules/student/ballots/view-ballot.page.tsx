@@ -5,6 +5,7 @@ import ImageViewer from '../../../components/modal/imageviewer';
 import Header from '../../../components/header/header';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie'; // Import Cookies to get user_id
+import QRViewer from '../../../components/modal/qr-viewer';
 
 interface Participant {
   participant_id: number;
@@ -22,76 +23,44 @@ const ViewBallotPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
+  const [ballotStatus, setBallotStatus] = useState<string>('');
+  const [closingDate, setClosingDate] = useState<Date | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [ballotQRCode, setBallotQRCode] = useState<string | null>(null);
 
   useEffect(() => {
-    if (ballotId) {
-      fetchBallotData(Number(ballotId));
-    }
+    let isMounted = true;
 
-    const checkVoteStatus = async () => {
+    const checkAccess = async () => {
       try {
         const uid = localStorage.getItem('uid') || 
                    sessionStorage.getItem('uid') || 
                    Cookies.get('uid');
-        
-        if (!uid || !ballotId) return;
+
+        if (!uid) {
+          Swal.fire({
+            title: 'Authentication Error',
+            text: 'Please log in to view this ballot',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            navigate('/');
+          });
+          return;
+        }
 
         const response = await axios.get(
-          `http://localhost:5000/api/vote/checkVoteStatus`, {
-            params: {
-              user_id: uid,
-              ballot_id: ballotId
-            }
+          `http://localhost:5000/api/ballot/getBallotWithParticipants`,
+          {
+            params: { ballot_id: ballotId, user_id: uid }
           }
         );
 
-        setHasVoted(response.data.hasVoted);
-        if (response.data.hasVoted) {
-          setIsSubmitDisabled(true);
-        }
-      } catch (error) {
-        console.error('Error checking vote status:', error);
-      }
-    };
-
-    checkVoteStatus();
-
-    // Cleanup on unmount
-    return () => {
-      setBallotName('');
-      setPositions({});
-      setSelectedCandidates({});
-    };
-  }, [ballotId]);
-
-  const fetchBallotData = async (id: number) => {
-    try {
-      setIsLoading(true);
-      const uid = localStorage.getItem('uid') || 
-                  sessionStorage.getItem('uid') || 
-                  Cookies.get('uid');
-
-      const response = await axios.get(
-        `http://localhost:5000/api/ballot/getBallotWithParticipants`, {
-          params: {
-            ballot_id: id,
-            user_id: uid
-          }
-        }
-      );
-
-      if (response.data.success) {
-        const { ballot_name, participants, opening_date, year_level_eligibility } = response.data.data;
-        
-        setBallotName(ballot_name);
-
-        // Check opening date
-        const currentDate = new Date();
-        const openingDate = new Date(opening_date);
-        if (currentDate < openingDate) {
+        // Handle eligibility error specifically
+        if (!response.data.success) {
           Swal.fire({
-            title: 'Ballot Not Open',
-            text: 'This ballot is not open yet. Please check back later.',
+            title: 'Access Denied',
+            text: response.data.message,
             icon: 'warning',
             confirmButtonText: 'OK'
           }).then(() => {
@@ -100,40 +69,134 @@ const ViewBallotPage: React.FC = () => {
           return;
         }
 
-        // Check year level eligibility
-        const userYearLevelResponse = await axios.get(`http://localhost:5000/api/user/yearLevel/${uid}`);
-        const userYearLevel = userYearLevelResponse.data.year_level;
+        if (!isMounted) return;
 
-        const eligibleYearLevels = year_level_eligibility.split(',').map(level => level.trim());
-        if (!eligibleYearLevels.includes(userYearLevel) && year_level_eligibility !== 'all') {
+        if (response.data.data.status === 'submitted') {
           Swal.fire({
-            title: 'Access Denied',
-            text: `This ballot is only for: ${year_level_eligibility}. Your year level is ${userYearLevel}`,
-            icon: 'error',
-            confirmButtonText: 'OK'
+            title: 'Already Submitted',
+            text: 'You have already voted in this ballot',
+            icon: 'info'
           }).then(() => {
             navigate('/student/ballot');
           });
           return;
         }
 
-        // Group participants by position
-        const groupedPositions = participants.reduce(
-          (acc: Record<string, Participant[]>, participant: Participant) => {
-            if (!acc[participant.position]) {
-              acc[participant.position] = [];
-            }
-            acc[participant.position].push(participant);
-            return acc;
-          },
-          {}
-        );
+        if (new Date() < new Date(response.data.data.opening_date)) {
+          Swal.fire({
+            title: 'Not Yet Open',
+            text: `This ballot will open on ${new Date(response.data.data.opening_date).toLocaleString()}`,
+            icon: 'warning'
+          }).then(() => {
+            navigate('/student/ballot');
+          });
+          return;
+        }
 
-        setPositions(groupedPositions);
+        // Continue with ballot data loading
+        if (response.data.success) {
+          const { 
+            ballot_name, 
+            participants, 
+            closing_date, 
+            status,
+            hasVoted 
+          } = response.data.data;
+
+          setBallotName(ballot_name);
+          setBallotStatus(status);
+          setClosingDate(new Date(closing_date));
+          setHasVoted(hasVoted);
+          setIsSubmitDisabled(hasVoted || status === 'CLOSED');
+
+          if (participants?.length > 0) {
+            const groupedPositions = participants.reduce(
+              (acc: Record<string, Participant[]>, participant: Participant) => {
+                if (!acc[participant.position]) {
+                  acc[participant.position] = [];
+                }
+                acc[participant.position].push(participant);
+                return acc;
+              },
+              {}
+            );
+            setPositions(groupedPositions);
+          }
+        }
+
+      } catch (error: any) {
+        if (!isMounted) return;
+        const errorMessage = error.response?.data?.message || error.message;
+        
+        Swal.fire({
+          title: 'Error',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          navigate('/student/ballot');
+        });
+      }
+    };
+
+    if (ballotId) {
+      checkAccess();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [ballotId, navigate]);
+
+  const fetchBallotData = async (id: number) => {
+    try {
+      setIsLoading(true);
+      const uid = localStorage.getItem('uid') || 
+                  sessionStorage.getItem('uid') || 
+                  Cookies.get('uid');
+
+      if (!uid) {
+        throw new Error('No user ID found');
+      }
+
+      const response = await axios.get(
+        `http://localhost:5000/api/ballot/getBallotWithParticipants`,
+        {
+          params: { ballot_id: id, user_id: uid }
+        }
+      );
+
+      if (response.data.success) {
+        const { 
+          ballot_name, 
+          participants, 
+          closing_date, 
+          status,
+          hasVoted 
+        } = response.data.data;
+
+        setBallotName(ballot_name);
+        setBallotStatus(status);
+        setClosingDate(new Date(closing_date));
+        setHasVoted(hasVoted);
+        setIsSubmitDisabled(hasVoted || status === 'CLOSED');
+
+        if (participants?.length > 0) {
+          const groupedPositions = participants.reduce(
+            (acc: Record<string, Participant[]>, participant: Participant) => {
+              if (!acc[participant.position]) {
+                acc[participant.position] = [];
+              }
+              acc[participant.position].push(participant);
+              return acc;
+            },
+            {}
+          );
+          setPositions(groupedPositions);
+        }
       }
     } catch (error: any) {
-      console.error('Error fetching ballot:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to load ballot data';
+      const errorMessage = error.response?.data?.message || error.message;
       
       Swal.fire({
         title: 'Error',
@@ -225,8 +288,12 @@ const ViewBallotPage: React.FC = () => {
           icon: 'success',
           confirmButtonText: 'OK'
         }).then(() => {
+          // Make sure to use the correct path
           navigate('/student/ballot/confirmation', {
-            state: { ballotName }
+            state: { 
+              ballotName,
+              submitDate: new Date().toLocaleString()
+            }
           });
         });
       }
@@ -237,6 +304,23 @@ const ViewBallotPage: React.FC = () => {
         text: error.response?.data?.message || 'Failed to submit vote',
         icon: 'error',
         confirmButtonText: 'OK'
+      });
+    }
+  };
+
+  const handleViewQR = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/ballot/getBallot/${ballotId}`);
+      if (response.data.success) {
+        setBallotQRCode(response.data.data.qr_code);
+        setQrModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching QR code:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to load QR code',
+        icon: 'error'
       });
     }
   };
@@ -326,7 +410,18 @@ const ViewBallotPage: React.FC = () => {
               You have already submitted your vote for this ballot.
             </div>
           )}
+          {ballotStatus === 'CLOSED' && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+              This ballot is closed and no longer accepting votes.
+            </div>
+          )}
           <div className="flex justify-end space-x-4 mt-4">
+            <button
+              onClick={handleViewQR}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              View QR
+            </button>
             <button
               onClick={() => navigate(-1)}
               className="bg-red-600 text-white px-4 py-2 rounded"
@@ -336,11 +431,18 @@ const ViewBallotPage: React.FC = () => {
             <button
               onClick={handleSubmit}
               className="bg-yellow-500 text-white px-4 py-2 rounded"
-              disabled={isSubmitDisabled || hasVoted}
+              disabled={isSubmitDisabled || hasVoted || ballotStatus === 'CLOSED'}
             >
-              {hasVoted ? 'Vote Submitted' : 'Submit Vote'}
+              {ballotStatus === 'CLOSED' ? 'Ballot Closed' : 
+               hasVoted ? 'Vote Submitted' : 'Submit Vote'}
             </button>
           </div>
+          <QRViewer
+            isOpen={qrModalOpen}
+            onClose={() => setQrModalOpen(false)}
+            qrCode={ballotQRCode || ''}
+            ballotName={ballotName}
+          />
         </div>
       </div>
     </>

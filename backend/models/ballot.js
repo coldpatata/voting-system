@@ -22,11 +22,26 @@ module.exports = (sequelize, DataTypes) => {
     year_level_eligibility: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        isValidYearLevel(value) {
+          if (value !== 'all') {
+            const levels = value.split(',').map(level => level.trim());
+            const validLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'];
+            const isValid = levels.every(level => validLevels.includes(level));
+            if (!isValid) {
+              throw new Error('Invalid year level');
+            }
+          }
+        }
+      }
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'OPEN',
+      validate: {
+        isIn: [['OPEN', 'CLOSED', 'PENDING', 'REOPENED']]
+      }
     },
     qr_code: {
       type: DataTypes.TEXT,
@@ -36,7 +51,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('pending', 'submitted'),
       defaultValue: 'pending',
       allowNull: false
-    }
+    },
+    // Comment out or remove the reopened_date field temporarily
+    /* reopened_date: {
+      type: DataTypes.DATE,
+      allowNull: true
+    } */
   }, {
     tableName: 'ballot',
     timestamps: false,
@@ -48,7 +68,30 @@ module.exports = (sequelize, DataTypes) => {
           name: ballot.ballot_name,
           url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/student/ballot/${ballot.ballot_id}`
         };
-        ballot.qr_code = await QRCode.toDataURL(JSON.stringify(qrData));
+        try {
+          ballot.qr_code = await QRCode.toDataURL(JSON.stringify(qrData));
+        } catch (error) {
+          console.error('Error generating QR code:', error);
+          ballot.qr_code = null;
+        }
+
+        // Set initial dates and status
+        const now = new Date();
+        const ballotOpeningDate = new Date(ballot.opening_date);
+        const ballotClosingDate = new Date(ballot.closing_date);
+
+        // Add 3 days to opening date
+        ballotOpeningDate.setDate(ballotOpeningDate.getDate() + 3);
+        ballot.opening_date = ballotOpeningDate;
+
+        // Set status based on dates
+        if (now < ballotOpeningDate) {
+          ballot.status = 'PENDING';
+        } else if (now > ballotClosingDate) {
+          ballot.status = 'CLOSED';
+        } else {
+          ballot.status = 'OPEN';
+        }
       }
     }
   });
