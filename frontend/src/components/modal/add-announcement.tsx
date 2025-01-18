@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -6,17 +6,34 @@ interface AddAnnouncementProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (title: string, body: string, fileUrl: string | null) => void;
+  initialData?: {
+    title: string;
+    body: string;
+    imageUrl: string;
+  };
+  isEditing?: boolean;
 }
 
 const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  initialData,
+  isEditing = false
 }) => {
-  const [title, setTitle] = useState<string>('');
-  const [body, setBody] = useState<string>('');
+  const [title, setTitle] = useState<string>(initialData?.title || '');
+  const [body, setBody] = useState<string>(initialData?.body || '');
   const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>(''); // State to store the file name
+  const [fileName, setFileName] = useState<string>('');
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>(initialData?.imageUrl || '');
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setBody(initialData.body);
+      setCurrentImageUrl(initialData.imageUrl);
+    }
+  }, [initialData]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -28,8 +45,8 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
 
   const handleSubmit = async () => {
     try {
-      let fileUrl = null;
-      let fullUrl = null;
+      let fileUrl = currentImageUrl;
+      let fullUrl = currentImageUrl; // Add this line to declare fullUrl
 
       if (file) {
         try {
@@ -49,9 +66,8 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
           if (response.status === 200) {
             fileUrl = response.data.fileUrl;
             fullUrl = `https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${fileUrl}`;
-            console.log('Image uploaded successfully:', fileUrl);
           } else {
-            console.warn('File upload failed with status:', response.status);
+            throw new Error('File upload failed');
           }
         } catch (uploadError) {
           console.error('Error during file upload:', uploadError);
@@ -60,41 +76,46 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
             title: 'Error',
             text: 'Image upload failed. Proceeding without an image.',
           });
+          fullUrl = null; // Set to null if upload fails
         }
       }
 
-      const announcementData = {
-        title_header: title,
-        time_date: new Date(),
-        image_url: fullUrl,
-        description_text: body,
-      };
-
-      const createResponse = await axios.post(
-        'http://localhost:5000/api/announcement/createAnnouncement',
-        announcementData
-      );
-
-      if (createResponse.status === 201) {
-        console.log('Announcement created successfully:', createResponse.data);
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Announcement created successfully!',
-        }).then(() => {
-          onSubmit(title, body, fileUrl);
-          onClose();
-          window.location.reload();
-        });
+      if (isEditing) {
+        onSubmit(title, body, fullUrl);
       } else {
-        throw new Error('Failed to create announcement');
+        const announcementData = {
+          title_header: title,
+          time_date: new Date(),
+          image_url: fullUrl,
+          description_text: body,
+          status: 'active' // Add default status
+        };
+
+        const createResponse = await axios.post(
+          'http://localhost:5000/api/announcement/createAnnouncement',
+          announcementData
+        );
+
+        if (createResponse.status === 201) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Announcement created successfully!',
+          }).then(() => {
+            onSubmit(title, body, fullUrl);
+            onClose();
+            window.location.reload();
+          });
+        } else {
+          throw new Error('Failed to create announcement');
+        }
       }
     } catch (error) {
       console.error('Error submitting announcement:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'An error occurred while submitting the announcement. Please try again.',
+        text: error.response?.data?.message || 'An error occurred while submitting the announcement. Please try again.',
       });
     }
   };
@@ -105,7 +126,9 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
     <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
       <div className="w-full max-w-2xl bg-white p-8 rounded shadow-md">
         <div className="w-full bg-blue-700 text-white text-center py-4 rounded-t">
-          <h1 className="text-xl font-bold">Create Announcement</h1>
+          <h1 className="text-xl font-bold">
+            {isEditing ? 'Edit Announcement' : 'Create Announcement'}
+          </h1>
         </div>
         <div className="mt-4">
           <div className="mb-4">
@@ -189,7 +212,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
               className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-2 px-4 rounded"
               onClick={handleSubmit}
             >
-              Submit
+              {isEditing ? 'Save Changes' : 'Submit'}
             </button>
           </div>
         </div>

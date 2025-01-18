@@ -21,9 +21,27 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    status: {
+    image_url: {
       type: DataTypes.STRING,
+      allowNull: true
+    },
+    status: {
+      type: DataTypes.ENUM('pending', 'being_evaluated', 'resolved', 'rejected'),
       defaultValue: 'pending',
+      allowNull: false
+    },
+    priority: {
+      type: DataTypes.ENUM('immediate', 'non_immediate'),
+      defaultValue: 'non_immediate',
+      allowNull: false
+    },
+    rejection_reason: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    evaluation_notes: {
+      type: DataTypes.TEXT,
+      allowNull: true
     },
     created_at: {
       type: DataTypes.DATE,

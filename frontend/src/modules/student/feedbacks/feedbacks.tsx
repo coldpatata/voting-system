@@ -10,6 +10,7 @@ interface Feedback {
   content: string;
   created_at: string;
   status: string;
+  image_url?: string;
 }
 
 const Feedbacks: FC = () => {
@@ -38,12 +39,27 @@ const Feedbacks: FC = () => {
         <div class="text-left">
           <p class="mb-2"><strong>Status:</strong> ${feedback.status}</p>
           <p class="mb-2"><strong>Date:</strong> ${new Date(feedback.created_at).toLocaleDateString()}</p>
+          ${feedback.image_url ? `
+            <div class="mt-4">
+              <strong>Attached Image:</strong>
+              <div class="mt-2">
+                <img 
+                  src="https://qdqcdyopziokllxehnuq.supabase.co/storage/v1/object/public/uploads/${feedback.image_url}" 
+                  alt="Feedback attachment"
+                  class="max-w-full h-auto rounded shadow-lg cursor-pointer" 
+                  onclick="window.open(this.src, '_blank')"
+                  style="max-height: 300px; object-fit: contain;"
+                />
+              </div>
+            </div>
+          ` : ''}
           <div class="mt-4">
             <strong>Content:</strong>
             <p class="mt-2 p-3 bg-gray-100 rounded">${feedback.content}</p>
           </div>
         </div>
       `,
+      width: '800px',
       confirmButtonText: 'Close'
     });
   };

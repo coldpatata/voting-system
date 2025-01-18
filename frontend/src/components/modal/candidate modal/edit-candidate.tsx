@@ -25,14 +25,28 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
   candidate,
 }) => {
   const [formData, setFormData] = useState({
-    firstname: candidate.firstname,
-    lastname: candidate.lastname,
-    position: candidate.position,
-    middleInitial: candidate.middle_initial,
-    suffix: candidate.suffix,
-    candidateNumber: candidate.candidate_number,
+    firstname: '',
+    lastname: '',
+    position: '',
+    middleInitial: '',
+    suffix: '',
+    candidateNumber: 0,
     photo: null,
   });
+
+  useEffect(() => {
+    if (candidate) {
+      setFormData({
+        firstname: candidate.firstname || '',
+        lastname: candidate.lastname || '',
+        position: candidate.position || '', // Directly use the position from candidate
+        middleInitial: candidate.middle_initial || '',
+        suffix: candidate.suffix || '',
+        candidateNumber: candidate.candidate_number || 0,
+        photo: null,
+      });
+    }
+  }, [candidate]);
 
   const [loading, setLoading] = useState(false); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
@@ -41,23 +55,15 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
   >([]);
 
   useEffect(() => {
-    // Fetch positions from the API
     const fetchPositions = async () => {
       try {
         const response = await axios.get(
           'http://localhost:5000/api/position/getAllPositions'
         );
-        const positionsData = response.data.data;
-        setPositions(positionsData);
-
-        if (positionsData.length > 0) {
-          setFormData((prev) => ({
-            ...prev,
-            position: positionsData[0].position_name,
-          }));
-        }
+        setPositions(response.data.data);
       } catch (err) {
         console.error('Error fetching positions:', err);
+        setError('Failed to fetch positions');
       }
     };
 
@@ -231,9 +237,13 @@ const EditCandidatesModal: React.FC<ModalProps> = ({
             <option value="" disabled>
               Select Position
             </option>
-            {positions.map((position) => (
-              <option key={position.position_id} value={position.position_name}>
-                {position.position_name}
+            {positions.map((pos) => (
+              <option 
+                key={pos.position_id} 
+                value={pos.position_name}
+                selected={pos.position_name === candidate.position}
+              >
+                {pos.position_name}
               </option>
             ))}
           </select>

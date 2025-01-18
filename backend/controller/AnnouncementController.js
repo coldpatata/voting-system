@@ -32,55 +32,99 @@ const createAnnouncement = async (req, res) => {
 // Get active announcements
 const getAnnouncements = async (req, res) => {
     try {
-        const { page = 1, limit = 1 } = req.query; // Default: 1st page, 1 item per page
-        const offset = (page - 1) * limit;
+        const { page = 1, limit = 1 } = req.query;
+        const pageInt = Math.max(1, parseInt(page, 10)); // Ensure page is at least 1
+        const limitInt = parseInt(limit, 10);
+        const offset = (pageInt - 1) * limitInt;
 
-        const { count, rows: announcements } = await Announcements.findAndCountAll({
-            where: { status: 'active' }, // Filter by status = "active"
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10),
-            order: [['time_date', 'DESC']], // Sort by date (newest first)
-        });
+        // Use a single query with subquery for better performance
+        const [[{ total }], announcements] = await Promise.all([
+            Announcements.sequelize.query(
+                'SELECT COUNT(*) as total FROM announcements WHERE status = :status',
+                {
+                    replacements: { status: 'active' },
+                    type: Announcements.sequelize.QueryTypes.SELECT
+                }
+            ),
+            Announcements.findAll({
+                where: { status: 'active' },
+                limit: limitInt,
+                offset: offset,
+                order: [['time_date', 'DESC']],
+                raw: true // For better performance
+            })
+        ]);
+
+        const totalPages = Math.ceil(total / limitInt);
 
         return res.status(200).json({
+            success: true,
             message: 'Announcements retrieved successfully.',
             data: announcements,
             pagination: {
-                totalItems: count,
-                totalPages: Math.ceil(count / limit),
-                currentPage: parseInt(page, 10),
-            },
+                totalItems: total,
+                totalPages,
+                currentPage: pageInt,
+                itemsPerPage: limitInt,
+                hasNextPage: pageInt < totalPages,
+                hasPreviousPage: pageInt > 1
+            }
         });
     } catch (error) {
         console.error('Error retrieving announcements:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        return res.status(500).json({
+            success: false,
+            message: 'Error retrieving announcements',
+            error: error.message
+        });
     }
 };
 
 // Get all announcements (active and archived)
 const getAllAnnouncements = async (req, res) => {
     try {
-        const { page = 1, limit = 1 } = req.query; // Default: 1st page, 1 item per page
-        const offset = (page - 1) * limit;
+        const { page = 1, limit = 10, status } = req.query;
+        const pageInt = parseInt(page, 10);
+        const limitInt = parseInt(limit, 10);
+        const offset = (pageInt - 1) * limitInt;
 
-        const { count, rows: announcements } = await Announcements.findAndCountAll({
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10),
-            order: [['time_date', 'DESC']], // Sort by date (newest first)
+        const where = {};
+        if (status) {
+            where.status = status;
+        }
+
+        // Get total count first
+        const totalCount = await Announcements.count({ where });
+
+        // Then get paginated data
+        const announcements = await Announcements.findAll({
+            where,
+            limit: limitInt,
+            offset: offset,
+            order: [['time_date', 'DESC']],
         });
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalCount / limitInt);
 
         return res.status(200).json({
             message: 'Announcements retrieved successfully.',
             data: announcements,
             pagination: {
-                totalItems: count,
-                totalPages: Math.ceil(count / limit),
-                currentPage: parseInt(page, 10),
-            },
+                totalItems: totalCount,
+                totalPages,
+                currentPage: pageInt,
+                itemsPerPage: limitInt,
+                hasNextPage: pageInt < totalPages,
+                hasPreviousPage: pageInt > 1
+            }
         });
     } catch (error) {
         console.error('Error retrieving announcements:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+        return res.status(500).json({ 
+            message: 'Internal server error.',
+            error: error.message 
+        });
     }
 };
 
@@ -116,9 +160,37 @@ const updateStatus = async (req, res) => {
     }
 };
 
+const updateAnnouncement = async (req, res) => {
+    try {
+        const { announcement_id } = req.params;
+        const { title_header, description_text, image_url } = req.body;
+
+        const announcement = await Announcements.findByPk(announcement_id);
+        if (!announcement) {
+            return res.status(404).json({ message: 'Announcement not found.' });
+        }
+
+        await announcement.update({
+            title_header,
+            description_text,
+            image_url,
+            time_date: new Date() // Update timestamp
+        });
+
+        return res.status(200).json({
+            message: 'Announcement updated successfully.',
+            data: announcement
+        });
+    } catch (error) {
+        console.error('Error updating announcement:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+
 module.exports = {
     createAnnouncement,
     getAnnouncements,
     getAllAnnouncements,
     updateStatus,
+    updateAnnouncement
 };

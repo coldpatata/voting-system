@@ -36,6 +36,30 @@ const BallotPage: FC = () => {
     ballot.ballot_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getBallotStatus = (openingDate: string, closingDate: string) => {
+    const now = new Date();
+    const opening = new Date(openingDate);
+    const closing = new Date(closingDate);
+
+    if (now < opening) {
+      return 'CLOSED';
+    } else if (now > closing) {
+      return 'CLOSED';
+    } else {
+      return 'OPEN';
+    }
+  };
+
+  const formatDateTime = (date: string) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(date));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -76,25 +100,13 @@ const BallotPage: FC = () => {
                       {ballot.ballot_name}
                     </td>
                     <td className="border px-4 py-2 text-center">
-                      {new Intl.DateTimeFormat('en-US', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }).format(new Date(ballot.opening_date))}
+                      {formatDateTime(ballot.opening_date)}
                     </td>
                     <td className="border px-4 py-2 text-center">
-                      {new Intl.DateTimeFormat('en-US', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }).format(new Date(ballot.closing_date))}
+                      {formatDateTime(ballot.closing_date)}
                     </td>
                     <td className="border px-4 py-2 text-center">
-                      {new Date() < new Date(ballot.closing_date) ? 'Open' : 'Closed'}
+                      {getBallotStatus(ballot.opening_date, ballot.closing_date)}
                     </td>
                     <td className="border px-4 py-2 flex justify-center space-x-2">
                       <button

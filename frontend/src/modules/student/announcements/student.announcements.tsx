@@ -1,8 +1,8 @@
 import { FC } from 'react';
-import Announcement from '../../../components/announcements/announcement-modal';
+import AnnouncementModal from '../../../components/announcements/announcement-modal';
 import Header from '../../../components/header/header';
 
-const StaffAnnouncements: FC = () => {
+const StudentAnnouncements: FC = () => {
   return (
     <>
       <Header />
@@ -11,11 +11,11 @@ const StaffAnnouncements: FC = () => {
           <div className="bg-blue-700 text-white p-4">
             <h1 className="text-xl font-bold">Announcements</h1>
           </div>
-          <Announcement />
+          <AnnouncementModal isAdmin={false} />
         </div>
       </div>
     </>
   );
 };
 
-export default StaffAnnouncements;
+export default StudentAnnouncements;

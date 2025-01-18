@@ -3,7 +3,7 @@ const { Feedbacks, Users } = db;
 
 const createFeedback = async (req, res) => {
   try {
-    const { user_id, subject, content } = req.body;
+    const { user_id, subject, content, priority, image_url } = req.body;
     console.log('Received feedback data:', { user_id, subject, content });
 
     if (!user_id || !subject || !content) {
@@ -18,6 +18,8 @@ const createFeedback = async (req, res) => {
       user_id: Number(user_id),
       subject,
       content,
+      priority: priority || 'non_immediate',
+      image_url,
       status: 'pending'
     });
 
@@ -91,9 +93,9 @@ const getUserFeedbacks = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { feedbackId } = req.params;
-    const { status } = req.body;
+    const { status, rejection_reason, evaluation_notes } = req.body;
 
-    const validStatuses = ['pending', 'in-progress', 'resolved', 'rejected'];
+    const validStatuses = ['pending', 'being_evaluated', 'resolved', 'rejected'];
     
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -110,7 +112,23 @@ const updateStatus = async (req, res) => {
       });
     }
 
-    await feedback.update({ status });
+    const updateData = { status };
+
+    if (status === 'rejected' && !rejection_reason) {
+      return res.status(400).json({
+        message: 'Rejection reason is required when rejecting feedback'
+      });
+    }
+
+    if (status === 'rejected') {
+      updateData.rejection_reason = rejection_reason;
+    }
+
+    if (status === 'being_evaluated') {
+      updateData.evaluation_notes = evaluation_notes || '';
+    }
+
+    await feedback.update(updateData);
 
     return res.status(200).json({
       message: 'Feedback status updated successfully',

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import CustomMonthLayout from '../../../components/calendar/calendar';
-import Announcement from '../../../components/announcements/announcement';
+import Announcement from '../../../components/announcements/announcement-modal';
 import VoteTally from '../../../components/votetally'; // Import VoteTally
 
 const DashboardPageStudent: FC = () => {

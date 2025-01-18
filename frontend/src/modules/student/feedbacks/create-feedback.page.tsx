@@ -8,7 +8,9 @@ const CreateFeedbackPage: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     subject: '',
-    content: ''
+    content: '',
+    priority: 'non_immediate',
+    image: null as File | null
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,6 +20,15 @@ const CreateFeedbackPage: React.FC = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({
+        ...prev,
+        image: e.target.files![0]
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,9 +48,20 @@ const CreateFeedbackPage: React.FC = () => {
     }
 
     try {
+      let image_url = null;
+      if (formData.image) {
+        const imageFormData = new FormData();
+        imageFormData.append('file', formData.image);
+        const uploadResponse = await axios.post('http://localhost:5000/api/upload/uploadSingle', imageFormData);
+        image_url = uploadResponse.data.fileUrl;
+      }
+
       const payload = {
-        ...formData,
-        user_id: Number(user_id)
+        subject: formData.subject,
+        content: formData.content,
+        priority: formData.priority,
+        user_id: Number(user_id),
+        image_url
       };
 
       console.log('Submitting feedback:', payload);
@@ -104,6 +126,33 @@ const CreateFeedbackPage: React.FC = () => {
                 required
                 rows={6}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Priority Level
+              </label>
+              <select
+                name="priority"
+                value={formData.priority}
+                onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value }))}
+                className="w-full p-2 border border-gray-300 rounded"
+              >
+                <option value="non_immediate">Non-Immediate</option>
+                <option value="immediate">Immediate Action Required</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attach Image (Optional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
 

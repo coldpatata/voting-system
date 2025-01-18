@@ -82,6 +82,35 @@ const getBallotWithParticipants = async (req, res) => {
       });
     }
 
+    // Check current time against ballot dates
+    const now = new Date();
+    const openingDate = new Date(ballot.opening_date);
+    const closingDate = new Date(ballot.closing_date);
+
+    // Determine current status
+    const currentStatus = now < openingDate ? 'CLOSED' : 
+                         now > closingDate ? 'CLOSED' : 'OPEN';
+
+    // Update ballot status if it has changed
+    if (currentStatus !== ballot.status) {
+      await ballot.update({ status: currentStatus });
+    }
+
+    // If ballot is not open, return appropriate message
+    if (currentStatus !== 'OPEN') {
+      const message = now < openingDate 
+        ? `Ballot will open on ${openingDate.toLocaleString()}`
+        : 'Ballot is closed';
+      
+      return res.status(403).json({
+        success: false,
+        message,
+        openingDate,
+        closingDate,
+        currentStatus
+      });
+    }
+
     // Check user eligibility first before any other checks
     if (user_id) {
       const user = await db.Users.findByPk(user_id);
@@ -121,28 +150,6 @@ const getBallotWithParticipants = async (req, res) => {
           }
         });
       }
-    }
-
-    // Check dates
-    const now = new Date();
-    const openingDate = new Date(ballot.opening_date);
-    const closingDate = new Date(ballot.closing_date);
-
-    if (now < openingDate) {
-      return res.status(403).json({
-        success: false,
-        message: `This ballot will open on ${openingDate.toLocaleString()}`,
-        openingDate
-      });
-    }
-
-    if (now > closingDate) {
-      await ballot.update({ status: 'CLOSED' });
-      return res.status(403).json({
-        success: false,
-        message: 'This ballot is already closed',
-        closingDate
-      });
     }
 
     // If all checks pass, return ballot data
@@ -254,10 +261,51 @@ const updateBallot = async (req, res) => {
     }
 };
 
+// Add a new method to check ballot status
+const checkBallotStatus = async (req, res) => {
+  try {
+    const { ballot_id } = req.params;
+    const ballot = await db.Ballot.findByPk(ballot_id);
+
+    if (!ballot) {
+      return res.status(404).json({
+        success: false,
+        message: 'Ballot not found'
+      });
+    }
+
+    const now = new Date();
+    const openingDate = new Date(ballot.opening_date);
+    const closingDate = new Date(ballot.closing_date);
+
+    const currentStatus = now < openingDate ? 'CLOSED' : 
+                         now > closingDate ? 'CLOSED' : 'OPEN';
+
+    return res.status(200).json({
+      success: true,
+      status: currentStatus,
+      openingDate,
+      closingDate,
+      message: now < openingDate 
+        ? `Ballot will open on ${openingDate.toLocaleString()}`
+        : now > closingDate 
+          ? 'Ballot is closed'
+          : 'Ballot is open'
+    });
+  } catch (error) {
+    console.error('Error checking ballot status:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to check ballot status'
+    });
+  }
+};
+
 module.exports = {
     createBallot,
     getBallotWithParticipants,
     getAllBallots,
     getBallot,
     updateBallot,
+    checkBallotStatus
 };

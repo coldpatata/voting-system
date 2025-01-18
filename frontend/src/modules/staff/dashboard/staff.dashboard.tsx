@@ -1,5 +1,5 @@
 import CustomMonthLayout from '../../../components/calendar/calendar';
-import Announcement from '../../../components/announcements/announcement';
+import Announcement from '../../../components/announcements/announcement-modal';
 import CardBox from '../../../components/card-box/card-box';
 import { useEffect, useState } from 'react';
 import Header from '../../../components/header/header';

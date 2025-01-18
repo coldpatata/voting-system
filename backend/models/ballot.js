@@ -38,9 +38,9 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'OPEN',
+      defaultValue: 'CLOSED', // Change default to CLOSED
       validate: {
-        isIn: [['OPEN', 'CLOSED', 'PENDING', 'REOPENED']]
+        isIn: [['OPEN', 'CLOSED', 'PENDING']]
       }
     },
     qr_code: {
@@ -75,23 +75,24 @@ module.exports = (sequelize, DataTypes) => {
           ballot.qr_code = null;
         }
 
-        // Set initial dates and status
+        // Set initial status based on opening date
         const now = new Date();
-        const ballotOpeningDate = new Date(ballot.opening_date);
-        const ballotClosingDate = new Date(ballot.closing_date);
+        const openingDate = new Date(ballot.opening_date);
+        const closingDate = new Date(ballot.closing_date);
 
-        // Add 3 days to opening date
-        ballotOpeningDate.setDate(ballotOpeningDate.getDate() + 3);
-        ballot.opening_date = ballotOpeningDate;
+        // Set initial status
+        ballot.status = now < openingDate ? 'CLOSED' : 
+                       now > closingDate ? 'CLOSED' : 'OPEN';
+      },
 
-        // Set status based on dates
-        if (now < ballotOpeningDate) {
-          ballot.status = 'PENDING';
-        } else if (now > ballotClosingDate) {
-          ballot.status = 'CLOSED';
-        } else {
-          ballot.status = 'OPEN';
-        }
+      beforeUpdate: async (ballot) => {
+        // Update status when ballot details are modified
+        const now = new Date();
+        const openingDate = new Date(ballot.opening_date);
+        const closingDate = new Date(ballot.closing_date);
+
+        ballot.status = now < openingDate ? 'CLOSED' : 
+                       now > closingDate ? 'CLOSED' : 'OPEN';
       }
     }
   });

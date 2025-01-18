@@ -1,196 +1,52 @@
-import { FC, useState, useEffect } from 'react';
-import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
-import AddAnnouncement from '../../../components/modal/add-announcement';
+import { FC, useState } from 'react';
 import axios from 'axios';
 import Header from '../../../components/header/header';
-import Announcement from '../../../components/announcements/announcement';
-
-interface Announcement {
-  announcement_id: number;
-  title_header: string;
-  time_date: string;
-  image_url: string;
-  description_text: string;
-  status: string; // "active" or "archived"
-}
+import AnnouncementModal from '../../../components/announcements/announcement-modal';
+import AddAnnouncement from '../../../components/modal/add-announcement';
 
 const AnnouncementPage: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
 
-  // Function to fetch announcements from the API
-  const fetchAnnouncements = async (page: number) => {
-    setLoading(true);
+  const handleStatusChange = async (id: number, status: string) => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/announcement/getAllAnnouncements`,
-        {
-          params: {
-            page,
-            limit: 1,
-          },
-        }
-      );
-      const { data, pagination } = response.data;
-      setAnnouncements(data);
-      setTotalPages(pagination.totalPages);
+      await axios.patch(`http://localhost:5000/api/announcement/updateStatus`, {
+        announcement_id: id,
+        status
+      });
+      // Refresh the announcements after status change
+      window.location.reload();
     } catch (error) {
-      console.error('Error fetching announcements:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error updating status:', error);
     }
   };
-
-  // Function to update the announcement status
-  const updateAnnouncementStatus = async (
-    announcementId: number,
-    newStatus: string
-  ) => {
-    try {
-      const response = await axios.patch(
-        `http://localhost:5000/api/announcement/updateStatus`,
-        {
-          announcement_id: announcementId,
-          status: newStatus,
-        }
-      );
-      if (response.status === 200) {
-        // Update the status locally after successful API call
-        setAnnouncements((prevAnnouncements) =>
-          prevAnnouncements.map((announcement) =>
-            announcement.announcement_id === announcementId
-              ? { ...announcement, status: newStatus }
-              : announcement
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error updating announcement status:', error);
-    }
-  };
-
-  // Handle modal open/close
-  const openModal = () => setModalIsOpen(true);
-  const closeModal = () => setModalIsOpen(false);
-
-  // Handle pagination
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  // Fetch announcements whenever the currentPage changes
-  useEffect(() => {
-    fetchAnnouncements(currentPage);
-  }, [currentPage]);
 
   return (
     <>
       <Header />
-      <div className="bg-gray">
-        <div className="max-w-4xl mx-auto p-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg">
           <div className="bg-blue-700 text-white p-4 flex justify-between items-center">
-            <h1 className="text-xl">Announcement</h1>
+            <h1 className="text-xl font-bold">Announcements</h1>
             <button
               className="bg-yellow-400 text-black px-4 py-2 rounded"
-              onClick={openModal}
+              onClick={() => setModalIsOpen(true)}
             >
-              New
+              New Announcement
             </button>
           </div>
-          <div className="bg-gray-100 p-6 mt-4 shadow-lg">
-            {loading ? (
-              <p>Loading...</p>
-            ) : announcements.length > 0 ? (
-              announcements.map((announcement) => (
-                <div key={announcement.announcement_id}>
-                  <div className="flex justify-between items-center flex-wrap">
-                    <h2 className="text-2xl font-bold">
-                      {announcement.title_header}
-                    </h2>
-                    <button
-                      className={`${
-                        announcement.status === 'active'
-                          ? 'bg-red-600'
-                          : 'bg-green-600'
-                      } text-white px-4 py-2 rounded mt-2 sm:mt-0`}
-                      onClick={() =>
-                        updateAnnouncementStatus(
-                          announcement.announcement_id,
-                          announcement.status === 'active'
-                            ? 'archived'
-                            : 'active'
-                        )
-                      }
-                    >
-                      {announcement.status === 'active'
-                        ? 'Archive'
-                        : 'Unarchive'}
-                    </button>
-                  </div>
-                  <p
-                    className="text-gray-700 mb-4 max-h-54 overflow-hidden overflow-y-auto text-justify"
-                    style={{ whiteSpace: 'pre-wrap' }}
-                  >
-                    {announcement.description_text}
-                  </p>
-
-                  {announcement.image_url && (
-                    <div className="mt-6">
-                      <img
-                        src={announcement.image_url}
-                        alt={announcement.title_header}
-                        className="w-full h-[30rem]"
-                      />
-                    </div>
-                  )}
-                  <p className="mt-4 text-sm text-gray-600">
-                    <strong> Announcement Created: </strong>{' '}
-                    {new Date(announcement.time_date).toLocaleString()}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p>No announcements available.</p>
-            )}
-            {/* Pagination Controls */}
-            <div className="flex justify-center mt-4">
-              <button
-                className="bg-gray-400 text-white px-4 py-2 rounded mx-2"
-                onClick={goToPreviousPage}
-                disabled={currentPage === 1}
-              >
-                <FaChevronLeft />
-              </button>
-              <span className="px-4 py-2">{currentPage}</span>
-              <button
-                className="bg-gray-400 text-white px-4 py-2 rounded mx-2"
-                onClick={goToNextPage}
-                disabled={currentPage === totalPages}
-              >
-                <FaChevronRight />
-              </button>
-            </div>
-          </div>
+          <AnnouncementModal 
+            isAdmin={true} 
+            onStatusChange={handleStatusChange}
+          />
         </div>
       </div>
+
       <AddAnnouncement
         isOpen={modalIsOpen}
-        onClose={closeModal}
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        onSubmit={(_title, _body, _imageUrl) => {
+        onClose={() => setModalIsOpen(false)}
+        onSubmit={() => {
           setModalIsOpen(false);
-          // Logic for adding the announcement
+          window.location.reload();
         }}
       />
     </>
