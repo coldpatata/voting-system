@@ -3,17 +3,17 @@ const db = require('../models/main');
 // Insert a new positon
 const createPosition = async (req, res) => {
     try {
-        const { position_name, max_vote_count} = req.body;
+        const { position_name} = req.body;
 
         console.log(req.body)
 
-        if (!position_name || !max_vote_count) {
+        if (!position_name ) {
             return res.status(400).json({ error: 'All fields are required.' });
         }
 
         const newPosition = await db.Positions.create({
-            position_name,
-            max_vote_count
+            position_name
+       
         });
 
         return res.status(201).json({
@@ -61,7 +61,7 @@ const getAllPositions = async (req, res) => {
 const updatePosition = async (req, res) => {
     try {
         const { id } = req.params;
-        const { position_name, max_vote_count } = req.body;
+        const { position_name} = req.body;
 
         const position = await db.Positions.findByPk(id);
 
@@ -70,8 +70,7 @@ const updatePosition = async (req, res) => {
         }
 
         position.position_name = position_name;
-        position.max_vote_count = max_vote_count;
-
+   
         await position.save();
 
         return res.status(200).json({

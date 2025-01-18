@@ -9,7 +9,6 @@ interface ModalProps {
   position: {
     position_id: number;
     position_name: string;
-    max_vote_count: number;
   };
 }
 
@@ -21,7 +20,6 @@ const EditPositionModal: React.FC<ModalProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     positionName: position.position_name,
-    maxVoteCount: position.max_vote_count.toString(),
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -39,14 +37,13 @@ const EditPositionModal: React.FC<ModalProps> = ({
     setError('');
     setIsLoading(true);
 
-    const { positionName, maxVoteCount } = formData;
+    const { positionName } = formData;
 
     try {
       const response = await axios.put(
         `http://localhost:5000/api/position/updatePosition/${position.position_id}`,
         {
           position_name: positionName,
-          max_vote_count: parseInt(maxVoteCount, 10),
         }
       );
 
@@ -85,7 +82,10 @@ const EditPositionModal: React.FC<ModalProps> = ({
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="positionName" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="positionName"
+              className="text-sm font-medium text-gray-700"
+            >
               Position Name
             </label>
             <input
@@ -97,19 +97,7 @@ const EditPositionModal: React.FC<ModalProps> = ({
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
             />
           </div>
-          <div>
-            <label htmlFor="maxVoteCount" className="text-sm font-medium text-gray-700">
-              Max Vote Count
-            </label>
-            <input
-              type="number"
-              id="maxVoteCount"
-              name="maxVoteCount"
-              value={formData.maxVoteCount}
-              onChange={handleChange}
-              className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
-            />
-          </div>
+
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex justify-end space-x-2">
             <button
@@ -121,8 +109,11 @@ const EditPositionModal: React.FC<ModalProps> = ({
             </button>
             <button
               type="submit"
-              className={`px-4 py-2 text-white rounded-lg ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'
-                }`}
+              className={`px-4 py-2 text-white rounded-lg ${
+                isLoading
+                  ? 'bg-gray-500 cursor-not-allowed'
+                  : 'bg-yellow-500 hover:bg-yellow-600'
+              }`}
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save'}

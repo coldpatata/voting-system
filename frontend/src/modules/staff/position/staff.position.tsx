@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
-import AddPositionModal from '../../../components/modal/add-position';
-import EditPositionModal from '../../../components/modal/edit-position';
+import AddPositionModal from '../../../components/modal/position modal/add-position';
+import EditPositionModal from '../../../components/modal/position modal/edit-position';
 import axios from 'axios';
 
 const StaffPositionPage: FC = () => {

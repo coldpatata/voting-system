@@ -9,10 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        max_vote_count: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
+    
         is_active: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,

@@ -9,8 +9,8 @@ interface ModalProps {
 
 const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
-    position: '',
-    maxVoteCount: '',
+    position: ''
+
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,12 +28,12 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     setError('');
     setIsLoading(true);
 
-    const { position, maxVoteCount } = formData;
+    const { position } = formData;
 
     try {
       const response = await axios.post('http://localhost:5000/api/position/createPosition', {
         position_name: position,
-        max_vote_count: parseInt(maxVoteCount, 10),
+   
       });
 
       console.log('Position created successfully:', response.data);
@@ -58,7 +58,7 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[800px] p-6">
+      <div className="bg-white rounded-lg shadow-lg w-[90%] md:w-[400px] p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-blue-700">Add Position</h2>
           <button
@@ -71,7 +71,10 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="position" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="position"
+              className="text-sm font-medium text-gray-700"
+            >
               Postion
             </label>
             <input
@@ -83,20 +86,7 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
             />
           </div>
-          <div>
-            <label htmlFor="maxVoteCount" className="text-sm font-medium text-gray-700">
-              Max Vote Count
-            </label>
-            <input
-              type="number"
-              id="maxVoteCount"
-              name="maxVoteCount"
-              value={formData.maxVoteCount}
-              onChange={handleChange}
-              className="border rounded-lg p-2 mt-1 focus:outline-blue-700 w-full"
-            />
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <div className="flex justify-end space-x-2">
             <button
               type="button"
@@ -107,8 +97,11 @@ const AddPositionModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               type="submit"
-              className={`px-4 py-2 text-white rounded-lg ${isLoading ? 'bg-gray-500 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600'
-                }`}
+              className={`px-4 py-2 text-white rounded-lg ${
+                isLoading
+                  ? 'bg-gray-500 cursor-not-allowed'
+                  : 'bg-yellow-500 hover:bg-yellow-600'
+              }`}
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save'}

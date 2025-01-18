@@ -1,9 +1,10 @@
 import { FC, useState, useEffect } from 'react';
 import ArchiveModal from '../../../components/modal/archive';
 import Header from '../../../components/header/header';
-import AddPositionModal from '../../../components/modal/add-position';
-import EditPositionModal from '../../../components/modal/edit-position';
+import AddPositionModal from '../../../components/modal/position modal/add-position';
+
 import axios from 'axios';
+import EditPositionModal from '../../../components/modal/position modal/edit-position';
 
 const PositionPage: FC = () => {
   const [positions, setPositions] = useState<any[]>([]); // State to store the positions
@@ -14,7 +15,8 @@ const PositionPage: FC = () => {
 
   // Fetch positions from the API on component mount
   useEffect(() => {
-    axios.get('http://localhost:5000/api/position/getAllPositions')
+    axios
+      .get('http://localhost:5000/api/position/getAllPositions')
       .then((response) => {
         setPositions(response.data.data); // Set the fetched positions
       })
@@ -67,7 +69,7 @@ const PositionPage: FC = () => {
             <thead>
               <tr className="w-full bg-gray-300">
                 <th className="py-2 px-4 border">Designation</th>
-                <th className="py-2 px-4 border">Max Vote Count</th>
+
                 <th className="py-2 px-4 border">Actions</th>
               </tr>
             </thead>
@@ -75,9 +77,6 @@ const PositionPage: FC = () => {
               {positions.map((position) => (
                 <tr key={position.position_id} className="text-center">
                   <td className="py-2 px-4 border">{position.position_name}</td>
-                  <td className="py-2 px-4 border">
-                    {position.max_vote_count}
-                  </td>
 
                   <td className="py-2 px-4 border">
                     <button
@@ -108,8 +107,9 @@ const PositionPage: FC = () => {
           {[1, 2, 3, 4, 5].map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
-                }`}
+              className={`px-3 py-1 rounded ${
+                page === 2 ? 'bg-blue-900 text-white' : 'text-gray-600'
+              }`}
             >
               {page}
             </button>
